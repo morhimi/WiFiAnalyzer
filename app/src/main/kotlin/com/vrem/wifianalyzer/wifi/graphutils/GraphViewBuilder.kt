@@ -21,78 +21,76 @@ import android.content.Context
 import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
-import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.GridLabelRenderer
-import com.jjoe64.graphview.LabelFormatter
-import com.jjoe64.graphview.Viewport
 import com.vrem.util.EMPTY
 import com.vrem.wifianalyzer.settings.ThemeStyle
+import info.appdev.charting.charts.LineChart
+import info.appdev.charting.components.XAxis
+import info.appdev.charting.components.AxisBase
+import info.appdev.charting.formatter.IAxisValueFormatter
 
-internal fun GraphView.layout(layoutParams: ViewGroup.LayoutParams): GraphView {
+internal fun LineChart.layout(layoutParams: ViewGroup.LayoutParams): LineChart {
     this.layoutParams = layoutParams
     this.visibility = View.GONE
     return this
 }
 
-internal fun Viewport.initialize(
+internal fun LineChart.initialize(
     maximumY: Int,
     scalable: Boolean,
-): Viewport {
-    this.isScrollable = true
-    this.isScalable = scalable
-    this.setScalableY(false)
-    this.isXAxisBoundsManual = true
-    this.isYAxisBoundsManual = true
-    this.setMinY(MIN_Y.toDouble())
-    this.setMaxY(maximumY.toDouble())
+): LineChart {
+    this.isScaleXEnabled = scalable
+    this.isScaleYEnabled = false
+    this.axisLeft.axisMinimum = MIN_Y.toFloat()
+    this.axisLeft.axisMaximum = maximumY.toFloat()
+    this.axisRight.isEnabled = false
     return this
 }
 
-internal fun GridLabelRenderer.colors(themeStyle: ThemeStyle): GridLabelRenderer {
-    this.gridColor = Color.GRAY
-    this.verticalLabelsColor = themeStyle.colorGraphText
-    this.verticalAxisTitleColor = themeStyle.colorGraphText
-    this.horizontalLabelsColor = themeStyle.colorGraphText
-    this.horizontalAxisTitleColor = themeStyle.colorGraphText
+internal fun LineChart.colors(themeStyle: ThemeStyle): LineChart {
+    this.setBorderColor(Color.GRAY)
+    this.axisLeft.textColor = themeStyle.colorGraphText
+    this.axisLeft.axisLineColor = themeStyle.colorGraphText
+    this.xAxis.textColor = themeStyle.colorGraphText
+    this.xAxis.axisLineColor = themeStyle.colorGraphText
     return this
 }
 
-internal fun GridLabelRenderer.horizontalTitle(title: String): GridLabelRenderer {
+internal fun LineChart.xAxisTitle(title: String): LineChart {
     if (title.isNotEmpty()) {
-        this.horizontalAxisTitle = title
-        this.horizontalAxisTitleTextSize *= AXIS_TEXT_SIZE_ADJUSTMENT
+        this.xAxis.valueFormatter = object : IAxisValueFormatter {
+            override fun getFormattedValue(value: Float, axis: AxisBase?): String {
+                return "$value $title"
+            }
+        }
     }
     return this
 }
 
-internal fun GridLabelRenderer.verticalTitle(title: String): GridLabelRenderer {
+internal fun LineChart.yAxisTitle(title: String): LineChart {
     if (title.isNotEmpty()) {
-        this.verticalAxisTitle = title
-        this.verticalAxisTitleTextSize *= AXIS_TEXT_SIZE_ADJUSTMENT
+        this.axisLeft.valueFormatter = object : IAxisValueFormatter {
+            override fun getFormattedValue(value: Float, axis: AxisBase?): String {
+                return "$value $title"
+            }
+        }
     }
     return this
 }
 
-internal fun GridLabelRenderer.labelFormat(labelFormatter: LabelFormatter?): GridLabelRenderer {
+internal fun LineChart.labelFormat(labelFormatter: IAxisValueFormatter?): LineChart {
     labelFormatter?.let {
-        this.labelFormatter = labelFormatter
+        this.xAxis.valueFormatter = labelFormatter
     }
     return this
 }
 
-internal fun GridLabelRenderer.labels(
-    numHorizontalLabels: Int,
-    numVerticalLabels: Int,
+internal fun LineChart.labels(
     horizontalLabelsVisible: Boolean,
-): GridLabelRenderer {
-    this.setHumanRounding(false)
-    this.isHighlightZeroLines = false
-    this.numVerticalLabels = numVerticalLabels
-    this.numHorizontalLabels = numHorizontalLabels
-    this.isVerticalLabelsVisible = true
-    this.isHorizontalLabelsVisible = horizontalLabelsVisible
-    this.textSize *= TEXT_SIZE_ADJUSTMENT
-    this.reloadStyles()
+): LineChart {
+    this.xAxis.setDrawLabels(horizontalLabelsVisible)
+    this.xAxis.position = XAxis.XAxisPosition.BOTTOM
+    this.description.isEnabled = false
+    this.legend.isEnabled = false
     return this
 }
 
@@ -102,11 +100,11 @@ class GraphViewBuilder(
     private val themeStyle: ThemeStyle,
     private val horizontalLabelsVisible: Boolean = true,
 ) {
-    private var labelFormatter: LabelFormatter? = null
+    private var labelFormatter: IAxisValueFormatter? = null
     private var verticalTitle: String = String.EMPTY
     private var horizontalTitle: String = String.EMPTY
 
-    fun setLabelFormatter(labelFormatter: LabelFormatter): GraphViewBuilder {
+    fun setLabelFormatter(labelFormatter: IAxisValueFormatter): GraphViewBuilder {
         this.labelFormatter = labelFormatter
         return this
     }
@@ -124,23 +122,22 @@ class GraphViewBuilder(
     fun build(
         context: Context,
         scalable: Boolean,
-    ): GraphView =
-        GraphView(context)
+    ): LineChart =
+        LineChart(context)
             .layout(layoutParams)
             .gridLabelInitialize()
             .viewportInitialize(scalable)
 
-    private fun GraphView.viewportInitialize(scalable: Boolean): GraphView {
-        this.viewport.initialize(maximumY, scalable)
+    private fun LineChart.viewportInitialize(scalable: Boolean): LineChart {
+        this.initialize(maximumY, scalable)
         return this
     }
 
-    private fun GraphView.gridLabelInitialize(): GraphView {
-        this.gridLabelRenderer
-            .labels(numHorizontalLabels, numVerticalLabels, horizontalLabelsVisible)
+    private fun LineChart.gridLabelInitialize(): LineChart {
+        this.labels(horizontalLabelsVisible)
             .labelFormat(labelFormatter)
-            .horizontalTitle(horizontalTitle)
-            .verticalTitle(verticalTitle)
+            .xAxisTitle(horizontalTitle)
+            .yAxisTitle(verticalTitle)
             .colors(themeStyle)
         return this
     }

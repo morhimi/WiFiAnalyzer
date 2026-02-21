@@ -18,9 +18,9 @@
 
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.series.DataPoint
+import info.appdev.charting.data.Entry
 
 data class GraphDataPoint(
-    val x: Int,
-    val y: Int,
-) : DataPoint(x.toDouble(), y.toDouble())
+    val xValue: Int,
+    val yValue: Int,
+) : Entry(xValue.toFloat(), yValue.toFloat())

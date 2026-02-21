@@ -42,7 +42,7 @@ dependencies {
     implementation 'androidx.media:media:1.7.1'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.jjoe64:graphview:4.2.2'
+    implementation 'com.github.AppDevNext:AndroidChart:4.1.3'
     // Unit Test Dependencies
     testImplementation 'androidx.test.ext:junit:1.3.0'
     testImplementation 'com.googlecode.junit-toolbox:junit-toolbox:2.4'

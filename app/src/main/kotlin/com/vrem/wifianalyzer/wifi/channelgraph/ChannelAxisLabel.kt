@@ -17,22 +17,19 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.jjoe64.graphview.LabelFormatter
-import com.jjoe64.graphview.Viewport
 import com.vrem.util.EMPTY
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.MAX_Y
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
+import info.appdev.charting.components.AxisBase
+import info.appdev.charting.formatter.IAxisValueFormatter
 
 internal class ChannelAxisLabel(
     private val wiFiBand: WiFiBand,
-) : LabelFormatter {
-    override fun formatLabel(
-        value: Double,
-        isValueX: Boolean,
-    ): String {
+) : IAxisValueFormatter {
+    override fun getFormattedValue(value: Float, axis: AxisBase?): String {
         val valueAsInt = (value + if (value < 0) -0.5 else 0.5).toInt()
-        return if (isValueX) {
+        return if (axis is info.appdev.charting.components.XAxis) {
             wiFiBand.wiFiChannels.graphChannelByFrequency(valueAsInt)
         } else {
             yValue(valueAsInt)
@@ -45,8 +42,4 @@ internal class ChannelAxisLabel(
         } else {
             String.EMPTY
         }
-
-    override fun setViewport(viewport: Viewport) {
-        // ignore
-    }
 }

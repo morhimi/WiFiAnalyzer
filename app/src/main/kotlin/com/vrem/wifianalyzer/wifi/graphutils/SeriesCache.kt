@@ -17,28 +17,28 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.series.BaseSeries
-import com.jjoe64.graphview.series.Series
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import info.appdev.charting.data.LineDataSet
+import info.appdev.charting.interfaces.datasets.IDataSet
 
 @OpenClass
 class SeriesCache {
-    private val cache: MutableMap<WiFiDetail, BaseSeries<GraphDataPoint>> = mutableMapOf()
+    private val cache: MutableMap<WiFiDetail, LineDataSet> = mutableMapOf()
 
     fun difference(series: Set<WiFiDetail>): List<WiFiDetail> = cache.keys.minus(series).toList()
 
-    fun remove(series: List<WiFiDetail>): List<BaseSeries<GraphDataPoint>> =
+    fun remove(series: List<WiFiDetail>): List<LineDataSet> =
         series.filter { cache.containsKey(it) }.mapNotNull { cache.remove(it) }
 
-    fun find(series: Series<*>): WiFiDetail = cache.keys.first { series == cache[it] }
+    fun find(series: IDataSet<*>): WiFiDetail = cache.keys.first { series == cache[it] }
 
     operator fun contains(wiFiDetail: WiFiDetail): Boolean = cache.containsKey(wiFiDetail)
 
-    operator fun get(wiFiDetail: WiFiDetail): BaseSeries<GraphDataPoint> = cache[wiFiDetail]!!
+    operator fun get(wiFiDetail: WiFiDetail): LineDataSet = cache[wiFiDetail]!!
 
     fun put(
         wiFiDetail: WiFiDetail,
-        series: BaseSeries<GraphDataPoint>,
+        series: LineDataSet,
     ) = cache.put(wiFiDetail, series)
 }

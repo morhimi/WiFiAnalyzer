@@ -17,11 +17,11 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.GraphView
+import info.appdev.charting.charts.LineChart
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 
 interface GraphViewNotifier {
-    fun graphView(): GraphView
+    fun graphView(): LineChart
 
     fun update(wiFiData: WiFiData)
 }

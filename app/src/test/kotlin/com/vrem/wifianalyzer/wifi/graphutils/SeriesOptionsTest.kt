@@ -17,30 +17,23 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.series.BaseSeries
-import com.jjoe64.graphview.series.LineGraphSeries
-import com.jjoe64.graphview.series.TitleLineGraphSeries
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import info.appdev.charting.data.LineDataSet
 import org.junit.After
 import org.junit.Test
-import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 class SeriesOptionsTest {
     private val graphColors: GraphColors = mock()
-    private val lineGraphSeries: LineGraphSeries<GraphDataPoint> = mock()
-    private val titleLineGraphSeries: TitleLineGraphSeries<GraphDataPoint> = mock()
+    private val lineDataSet: LineDataSet = mock()
     private val graphColor = GraphColor(22, 11)
     private val fixture = SeriesOptions(graphColors)
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(lineGraphSeries)
-        verifyNoMoreInteractions(titleLineGraphSeries)
+        verifyNoMoreInteractions(lineDataSet)
         verifyNoMoreInteractions(graphColors)
     }
 
@@ -48,128 +41,47 @@ class SeriesOptionsTest {
     fun removeSeries() {
         // setup
         val color = 10
-        whenever(lineGraphSeries.color).thenReturn(color)
+        whenever(lineDataSet.color).thenReturn(color)
         // execute
-        fixture.removeSeriesColor(lineGraphSeries)
+        fixture.removeSeriesColor(lineDataSet)
         // validate
-        verify(lineGraphSeries).color
+        verify(lineDataSet).color
         verify(graphColors).addColor(color.toLong())
     }
 
     @Test
-    fun highlightConnectedLineGraphSeriesSetsConnectedThickness() {
+    fun highlightConnectedSetsConnectedThickness() {
         // execute
-        fixture.highlightConnected(lineGraphSeries, true)
+        fixture.highlightConnected(lineDataSet, true)
         // validate
-        verify(lineGraphSeries).thickness = THICKNESS_CONNECTED
-        verify(titleLineGraphSeries, never()).thickness
-        verify(titleLineGraphSeries, never()).setTextBold(any())
+        verify(lineDataSet).lineWidth = THICKNESS_CONNECTED.toFloat()
     }
 
     @Test
-    fun highlightConnectedLineGraphSeriesSetsNotConnectedThickness() {
+    fun highlightConnectedSetsNotConnectedThickness() {
         // execute
-        fixture.highlightConnected(lineGraphSeries, false)
+        fixture.highlightConnected(lineDataSet, false)
         // validate
-        verify(lineGraphSeries).thickness = THICKNESS_REGULAR
-        verify(titleLineGraphSeries, never()).thickness
-        verify(titleLineGraphSeries, never()).setTextBold(any())
+        verify(lineDataSet).lineWidth = THICKNESS_REGULAR.toFloat()
     }
 
     @Test
-    fun highlightConnectedTitleLineGraphSeriesSetsConnectedThickness() {
-        // execute
-        fixture.highlightConnected(titleLineGraphSeries, true)
-        // validate
-        verify(titleLineGraphSeries).thickness = THICKNESS_CONNECTED
-        verify(titleLineGraphSeries).setTextBold(true)
-        verify(lineGraphSeries, never()).thickness
-    }
-
-    @Test
-    fun highlightConnectedTitleLineGraphSeriesSetsNotConnectedThickness() {
-        // execute
-        fixture.highlightConnected(titleLineGraphSeries, false)
-        // validate
-        verify(titleLineGraphSeries).thickness = THICKNESS_REGULAR
-        verify(titleLineGraphSeries).setTextBold(false)
-        verify(lineGraphSeries, never()).thickness
-    }
-
-    @Test
-    fun highlightConnectedThrowsException() {
-        // setup
-        val baseSeries: BaseSeries<GraphDataPoint> = mock()
-        // execute & validate
-        assertThatThrownBy { fixture.highlightConnected(baseSeries, true) }
-            .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("Unsupported series type")
-    }
-
-    @Test
-    fun setSeriesColorForLineGraphSeries() {
+    fun setSeriesColor() {
         // setup
         whenever(graphColors.graphColor()).thenReturn(graphColor)
         // execute
-        fixture.setSeriesColor(lineGraphSeries)
+        fixture.setSeriesColor(lineDataSet)
         // validate
         verify(graphColors).graphColor()
-        verify(lineGraphSeries).color = graphColor.primary.toInt()
-        verify(lineGraphSeries).backgroundColor = graphColor.background.toInt()
-        verify(titleLineGraphSeries, never()).color
-        verify(titleLineGraphSeries, never()).backgroundColor
+        verify(lineDataSet).color = graphColor.primary.toInt()
+        verify(lineDataSet).fillColor = graphColor.background.toInt()
     }
 
     @Test
-    fun setSeriesColorForTitleLineGraphSeries() {
-        // setup
-        whenever(graphColors.graphColor()).thenReturn(graphColor)
+    fun drawBackground() {
         // execute
-        fixture.setSeriesColor(titleLineGraphSeries)
+        fixture.drawBackground(lineDataSet, true)
         // validate
-        verify(graphColors).graphColor()
-        verify(titleLineGraphSeries).color = graphColor.primary.toInt()
-        verify(titleLineGraphSeries).backgroundColor = graphColor.background.toInt()
-        verify(lineGraphSeries, never()).color
-        verify(lineGraphSeries, never()).backgroundColor
-    }
-
-    @Test
-    fun setSeriesColorThrowsException() {
-        // setup
-        val baseSeries: BaseSeries<GraphDataPoint> = mock()
-        whenever(graphColors.graphColor()).thenReturn(graphColor)
-        // execute & validate
-        assertThatThrownBy { fixture.setSeriesColor(baseSeries) }
-            .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("Unsupported series type")
-        // validate
-        verify(graphColors).graphColor()
-    }
-
-    @Test
-    fun drawBackgroundForLineGraphSeries() {
-        // execute
-        fixture.drawBackground(lineGraphSeries, true)
-        // validate
-        verify(lineGraphSeries).isDrawBackground = true
-    }
-
-    @Test
-    fun drawBackgroundForTitleLineGraphSeries() {
-        // execute
-        fixture.drawBackground(titleLineGraphSeries, true)
-        // validate
-        verify(titleLineGraphSeries).isDrawBackground = true
-    }
-
-    @Test
-    fun drawBackgroundThrowsException() {
-        // setup
-        val baseSeries: BaseSeries<GraphDataPoint> = mock()
-        // execute & validate
-        assertThatThrownBy { fixture.drawBackground(baseSeries, true) }
-            .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("Unsupported series type")
+        verify(lineDataSet).isDrawFilled = true
     }
 }

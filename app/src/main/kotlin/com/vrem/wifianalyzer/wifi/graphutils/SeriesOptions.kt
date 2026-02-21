@@ -17,42 +17,25 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.series.BaseSeries
-import com.jjoe64.graphview.series.LineGraphSeries
-import com.jjoe64.graphview.series.TitleLineGraphSeries
 import com.vrem.annotation.OpenClass
+import info.appdev.charting.data.LineDataSet
 
-private fun BaseSeries<GraphDataPoint>.removeSeriesColor(graphColors: GraphColors) =
+private fun LineDataSet.removeSeriesColor(graphColors: GraphColors) {
     graphColors.addColor(this.color.toLong())
-
-private fun BaseSeries<GraphDataPoint>.highlightConnected(connected: Boolean) {
-    val thickness = if (connected) THICKNESS_CONNECTED else THICKNESS_REGULAR
-    when (this) {
-        is LineGraphSeries<GraphDataPoint> -> this.setThickness(thickness)
-        is TitleLineGraphSeries<GraphDataPoint> -> {
-            this.thickness = thickness
-            this.setTextBold(connected)
-        }
-        else -> throw IllegalArgumentException("Unsupported series type: ${this::class.java}")
-    }
 }
 
-private fun BaseSeries<GraphDataPoint>.seriesColor(graphColors: GraphColors) {
+private fun LineDataSet.highlightConnected(connected: Boolean) {
+    this.lineWidth = (if (connected) THICKNESS_CONNECTED else THICKNESS_REGULAR).toFloat()
+}
+
+private fun LineDataSet.seriesColor(graphColors: GraphColors) {
     val graphColor = graphColors.graphColor()
     this.color = graphColor.primary.toInt()
-    when (this) {
-        is LineGraphSeries<GraphDataPoint> -> this.backgroundColor = graphColor.background.toInt()
-        is TitleLineGraphSeries<GraphDataPoint> -> this.backgroundColor = graphColor.background.toInt()
-        else -> throw IllegalArgumentException("Unsupported series type: ${this::class.java}")
-    }
+    this.fillColor = graphColor.background.toInt()
 }
 
-private fun BaseSeries<GraphDataPoint>.drawBackground(drawBackground: Boolean) {
-    when (this) {
-        is LineGraphSeries<GraphDataPoint> -> this.isDrawBackground = drawBackground
-        is TitleLineGraphSeries<GraphDataPoint> -> this.isDrawBackground = drawBackground
-        else -> throw IllegalArgumentException("Unsupported series type: ${this::class.java}")
-    }
+private fun LineDataSet.drawBackground(drawBackground: Boolean) {
+    this.isDrawFilled = drawBackground
 }
 
 @OpenClass
@@ -60,16 +43,24 @@ class SeriesOptions(
     private val graphColors: GraphColors = GraphColors(),
 ) {
     fun highlightConnected(
-        series: BaseSeries<GraphDataPoint>,
+        series: LineDataSet,
         connected: Boolean,
-    ) = series.highlightConnected(connected)
+    ) {
+        series.highlightConnected(connected)
+    }
 
-    fun setSeriesColor(series: BaseSeries<GraphDataPoint>) = series.seriesColor(graphColors)
+    fun setSeriesColor(series: LineDataSet) {
+        series.seriesColor(graphColors)
+    }
 
     fun drawBackground(
-        series: BaseSeries<GraphDataPoint>,
+        series: LineDataSet,
         drawBackground: Boolean,
-    ) = series.drawBackground(drawBackground)
+    ) {
+        series.drawBackground(drawBackground)
+    }
 
-    fun removeSeriesColor(series: BaseSeries<GraphDataPoint>) = series.removeSeriesColor(graphColors)
+    fun removeSeriesColor(series: LineDataSet) {
+        series.removeSeriesColor(graphColors)
+    }
 }

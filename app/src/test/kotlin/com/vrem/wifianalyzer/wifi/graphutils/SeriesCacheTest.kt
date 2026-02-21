@@ -17,12 +17,12 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.series.BaseSeries
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import com.vrem.wifianalyzer.wifi.model.WiFiSecurity
 import com.vrem.wifianalyzer.wifi.model.WiFiSignal
 import com.vrem.wifianalyzer.wifi.model.WiFiWidth
+import info.appdev.charting.data.LineDataSet
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -30,9 +30,9 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verifyNoMoreInteractions
 
 class SeriesCacheTest {
-    private val series1: BaseSeries<GraphDataPoint> = mock()
-    private val series2: BaseSeries<GraphDataPoint> = mock()
-    private val series3: BaseSeries<GraphDataPoint> = mock()
+    private val series1: LineDataSet = mock()
+    private val series2: LineDataSet = mock()
+    private val series3: LineDataSet = mock()
     private val series = listOf(series1, series2, series3)
     private val fixture = SeriesCache()
 

@@ -17,20 +17,26 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.LegendRenderer
+import info.appdev.charting.components.Legend
 
-internal typealias LegendDisplay = (legendRenderer: LegendRenderer) -> Unit
+internal typealias LegendDisplay = (legend: Legend) -> Unit
 
-internal val legendDisplayNone: LegendDisplay = { it.isVisible = false }
+internal val legendDisplayNone: LegendDisplay = { it.isEnabled = false }
 
 internal val legendDisplayLeft: LegendDisplay = {
-    it.isVisible = true
-    it.setFixedPosition(0, 0)
+    it.isEnabled = true
+    it.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+    it.horizontalAlignment = Legend.LegendHorizontalAlignment.LEFT
+    it.orientation = Legend.LegendOrientation.VERTICAL
+    it.setDrawInside(false)
 }
 
 internal val legendDisplayRight: LegendDisplay = {
-    it.isVisible = true
-    it.align = LegendRenderer.LegendAlign.TOP
+    it.isEnabled = true
+    it.verticalAlignment = Legend.LegendVerticalAlignment.TOP
+    it.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+    it.orientation = Legend.LegendOrientation.VERTICAL
+    it.setDrawInside(false)
 }
 
 enum class GraphLegend(
@@ -41,7 +47,7 @@ enum class GraphLegend(
     HIDE(legendDisplayNone),
     ;
 
-    fun display(legendRenderer: LegendRenderer) {
-        legendDisplay(legendRenderer)
+    fun display(legend: Legend) {
+        legendDisplay(legend)
     }
 }

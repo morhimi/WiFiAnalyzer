@@ -17,12 +17,12 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.jjoe64.graphview.series.TitleLineGraphSeries
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.wifi.graphutils.GraphDataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphViewWrapper
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import info.appdev.charting.data.LineDataSet
 
 @OpenClass
 internal class DataManager {
@@ -54,7 +54,7 @@ internal class DataManager {
         wiFiDetails.forEach {
             val dataPoints = graphDataPoints(it, levelMax)
             if (graphViewWrapper.newSeries(it)) {
-                graphViewWrapper.addSeries(it, TitleLineGraphSeries(dataPoints), true)
+                graphViewWrapper.addSeries(it, LineDataSet(dataPoints.toMutableList(), ""), true)
             } else {
                 graphViewWrapper.updateSeries(it, dataPoints, true)
             }

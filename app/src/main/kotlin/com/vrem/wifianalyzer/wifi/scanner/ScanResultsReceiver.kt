@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.WifiManager
+import androidx.core.content.ContextCompat
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.MainActivity
 

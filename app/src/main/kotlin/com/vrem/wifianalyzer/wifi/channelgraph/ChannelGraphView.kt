@@ -18,8 +18,6 @@
 package com.vrem.wifianalyzer.wifi.channelgraph
 
 import android.view.View
-import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.series.TitleLineGraphSeries
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
@@ -36,13 +34,16 @@ import com.vrem.wifianalyzer.wifi.graphutils.transparent
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.predicate.Predicate
 import com.vrem.wifianalyzer.wifi.predicate.makeOtherPredicate
+import info.appdev.charting.charts.LineChart
+import info.appdev.charting.data.Entry
+import info.appdev.charting.data.LineDataSet
 
 internal fun makeGraphView(
     mainContext: MainContext,
     graphMaximumY: Int,
     themeStyle: ThemeStyle,
     wiFiBand: WiFiBand,
-): GraphView {
+): LineChart {
     val resources = mainContext.resources
 
     return GraphViewBuilder(wiFiBand.wiFiChannels.graphChannelCount(), graphMaximumY, themeStyle, true)
@@ -55,15 +56,15 @@ internal fun makeGraphView(
 internal fun makeDefaultSeries(
     frequencyStart: Int,
     frequencyEnd: Int,
-): TitleLineGraphSeries<GraphDataPoint> {
+): LineDataSet {
     val dataPoints =
-        arrayOf(
+        mutableListOf<Entry>(
             GraphDataPoint(frequencyStart, MIN_Y),
             GraphDataPoint(frequencyEnd, MIN_Y),
         )
-    val series = TitleLineGraphSeries(dataPoints)
+    val series = LineDataSet(dataPoints, "")
     series.color = transparent.primary.toInt()
-    series.thickness = THICKNESS_INVISIBLE
+    series.lineWidth = THICKNESS_INVISIBLE.toFloat()
     return series
 }
 
@@ -103,5 +104,5 @@ internal class ChannelGraphView(
 
     fun predicate(settings: Settings): Predicate = makeOtherPredicate(settings)
 
-    override fun graphView(): GraphView = graphViewWrapper.graphView
+    override fun graphView(): LineChart = graphViewWrapper.graphView
 }

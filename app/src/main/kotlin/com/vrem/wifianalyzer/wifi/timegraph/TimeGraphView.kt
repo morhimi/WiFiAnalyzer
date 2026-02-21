@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.wifi.timegraph
 
 import android.view.View
-import com.jjoe64.graphview.GraphView
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
@@ -31,6 +30,7 @@ import com.vrem.wifianalyzer.wifi.graphutils.GraphViewWrapper
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.predicate.Predicate
 import com.vrem.wifianalyzer.wifi.predicate.makeOtherPredicate
+import info.appdev.charting.charts.LineChart
 
 private const val NUM_X_TIME = 21
 
@@ -38,7 +38,7 @@ internal fun makeGraphView(
     mainContext: MainContext,
     graphMaximumY: Int,
     themeStyle: ThemeStyle,
-): GraphView =
+): LineChart =
     GraphViewBuilder(NUM_X_TIME, graphMaximumY, themeStyle, false)
         .setLabelFormatter(TimeAxisLabel())
         .setVerticalTitle(mainContext.resources.getString(R.string.graph_axis_y))
@@ -80,5 +80,5 @@ internal class TimeGraphView(
 
     private fun selected(): Boolean = wiFiBand == MainContext.INSTANCE.settings.wiFiBand()
 
-    override fun graphView(): GraphView = graphViewWrapper.graphView
+    override fun graphView(): LineChart = graphViewWrapper.graphView
 }
