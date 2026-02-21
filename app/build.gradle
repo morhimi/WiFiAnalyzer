@@ -18,7 +18,6 @@
 
 plugins {
     id "com.android.application"
-    id "kotlin-android"
     id "kotlin-allopen"
     id "jacoco"
     id "org.jlleitschuh.gradle.ktlint" version "14.0.1"
@@ -70,13 +69,13 @@ android {
     compileSdk = 36
     buildToolsVersion '36.1.0'
 
-    sourceSets.each {
-        it.java.srcDirs += "src/$it.name/kotlin"
+    sourceSets.configureEach {
+        kotlin.srcDirs += "src/$name/kotlin"
     }
 
     defaultConfig {
         applicationId = "com.vrem.wifianalyzer"
-        minSdkVersion 24
+        minSdk 28
         targetSdkVersion 36
         versionCode
         versionName
@@ -121,9 +120,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     lint {
@@ -230,7 +226,7 @@ def static writeProperties(propertiesFile, properties) {
     writer.close()
 }
 
-configurations.all {
+configurations.configureEach {
     exclude group: 'org.hamcrest', module: 'hamcrest-core'
     exclude group: 'org.hamcrest', module: 'hamcrest-library'
 }
