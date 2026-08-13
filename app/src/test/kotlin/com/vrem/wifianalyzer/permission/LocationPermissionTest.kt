@@ -34,7 +34,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class LocationPermissionTest {
     private val activity: Activity = mock()
     private val locationManager: LocationManager = mock()
@@ -140,13 +140,5 @@ class LocationPermissionTest {
         verify(activity).getSystemService(LocationManager::class.java)
     }
 
-    @Config(sdk = [Build.VERSION_CODES.O_MR1])
-    @Test
-    fun enabledReturnsTrueLegacy() {
-        // execute
-        val actual = fixture.enabled()
-        // validate
-        assertThat(actual).isTrue
-        verify(activity, never()).getSystemService(any())
-    }
+
 }

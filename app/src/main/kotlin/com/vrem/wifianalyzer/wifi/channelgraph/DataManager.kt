@@ -22,6 +22,7 @@ import com.vrem.wifianalyzer.wifi.graphutils.GraphDataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphViewWrapper
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import info.appdev.charting.data.EntryFloat
 import info.appdev.charting.data.LineDataSet
 
 @OpenClass
@@ -40,7 +41,7 @@ internal class DataManager {
         return arrayOf(
             GraphDataPoint(frequencyStart, MIN_Y),
             GraphDataPoint(frequencyStart + guardBand, level),
-            GraphDataPoint(wiFiSignal.centerFrequency, level),
+            GraphDataPoint(wiFiSignal.centerFrequency, level, true),
             GraphDataPoint(frequencyEnd - guardBand, level),
             GraphDataPoint(frequencyEnd, MIN_Y),
         )
@@ -54,7 +55,7 @@ internal class DataManager {
         wiFiDetails.forEach {
             val dataPoints = graphDataPoints(it, levelMax)
             if (graphViewWrapper.newSeries(it)) {
-                graphViewWrapper.addSeries(it, LineDataSet(dataPoints.toMutableList(), ""), true)
+                graphViewWrapper.addSeries(it, LineDataSet<EntryFloat>(dataPoints.map { it.toEntry() }.toMutableList(), ""), true)
             } else {
                 graphViewWrapper.updateSeries(it, dataPoints, true)
             }

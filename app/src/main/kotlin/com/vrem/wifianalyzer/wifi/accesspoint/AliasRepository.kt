@@ -15,15 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+package com.vrem.wifianalyzer.wifi.accesspoint
 
-package com.vrem.wifianalyzer.wifi.graphutils
+import android.content.Context
+import androidx.core.content.edit
+import com.vrem.util.EMPTY
+import com.vrem.wifianalyzer.wifi.model.BSSID
 
-import info.appdev.charting.data.EntryFloat
+class AliasRepository(private val context: Context) {
+    private val sharedPreferences = context.getSharedPreferences(ALIAS_PREFS, Context.MODE_PRIVATE)
 
-data class GraphDataPoint(
-    val xValue: Int,
-    val yValue: Int,
-    val isPeak: Boolean = false,
-) {
-    fun toEntry(): EntryFloat = EntryFloat(xValue.toFloat(), yValue.toFloat(), if (isPeak) "PEAK" else null)
+    fun alias(bssid: BSSID): String = sharedPreferences.getString(bssid, String.EMPTY) ?: String.EMPTY
+
+    fun save(bssid: BSSID, alias: String) {
+        if (alias.isBlank()) {
+            sharedPreferences.edit { remove(bssid) }
+        } else {
+            sharedPreferences.edit { putString(bssid, alias) }
+        }
+    }
+
+    companion object {
+        private const val ALIAS_PREFS = "vrem.wifianalyzer.alias"
+    }
 }

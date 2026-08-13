@@ -28,7 +28,7 @@ internal class TimeAxisLabel : IAxisValueFormatter {
         val valueAsInt = (value + if (value < 0) -0.5 else 0.5).toInt()
         return when {
             axis is info.appdev.charting.components.XAxis -> {
-                if (valueAsInt > 0 && valueAsInt % 2 == 0) {
+                if (valueAsInt >= 0 && valueAsInt % 2 == 0) {
                     valueAsInt.toString()
                 } else {
                     String.EMPTY

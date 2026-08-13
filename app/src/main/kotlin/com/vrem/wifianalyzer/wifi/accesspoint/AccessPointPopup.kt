@@ -19,21 +19,50 @@ package com.vrem.wifianalyzer.wifi.accesspoint
 
 import android.app.AlertDialog
 import android.view.View
+import android.widget.EditText
 import com.vrem.annotation.OpenClass
+import com.vrem.wifianalyzer.MainContext
+import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 @OpenClass
 class AccessPointPopup {
-    fun show(view: View): AlertDialog {
+    fun show(
+        view: View,
+        wiFiDetail: WiFiDetail,
+    ): AlertDialog {
         val alertDialog: AlertDialog =
             AlertDialog
                 .Builder(view.context)
                 .setView(view)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     dialog.cancel()
+                }.setNeutralButton(R.string.action_rename) { _, _ ->
+                    rename(view, wiFiDetail)
                 }.create()
         alertDialog.show()
         return alertDialog
+    }
+
+    private fun rename(
+        view: View,
+        wiFiDetail: WiFiDetail,
+    ) {
+        val input = EditText(view.context)
+        input.setHint(R.string.alias_hint)
+        val currentAlias = MainContext.INSTANCE.aliasRepository.alias(wiFiDetail.wiFiIdentifier.bssid)
+        input.setText(currentAlias)
+
+        AlertDialog
+            .Builder(view.context)
+                .setTitle(wiFiDetail.wiFiIdentifier.ssid)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    val newAlias = input.text.toString()
+                    MainContext.INSTANCE.aliasRepository.save(wiFiDetail.wiFiIdentifier.bssid, newAlias)
+                    MainContext.INSTANCE.mainActivity.update()
+                }.setNegativeButton(android.R.string.cancel, null)
+                .show()
     }
 
     fun attach(
@@ -41,7 +70,7 @@ class AccessPointPopup {
         wiFiDetail: WiFiDetail,
     ) {
         view.setOnClickListener {
-            runCatching { show(AccessPointDetail().makeViewDetailed(wiFiDetail)) }
+            runCatching { show(AccessPointDetail().makeViewDetailed(wiFiDetail), wiFiDetail) }
         }
     }
 }

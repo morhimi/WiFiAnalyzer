@@ -45,7 +45,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class DataManagerTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val bssid = "BSSID"
@@ -161,7 +161,7 @@ class DataManagerTest {
         val scanCount = fixture.scanCount
         val xValue = fixture.xValue
         val wiFiDetail = makeWiFiDetail("SSID")
-        val dataPoint = GraphDataPoint(xValue, level)
+        val dataPoint = GraphDataPoint(xValue, level, true)
         whenever(graphViewWrapper.newSeries(wiFiDetail)).thenReturn(false)
         // execute
         fixture.addData(graphViewWrapper, wiFiDetail, MAX_Y)
@@ -183,7 +183,7 @@ class DataManagerTest {
         val scanCount = fixture.scanCount
         val xValue = fixture.xValue
         val wiFiDetail = makeWiFiDetail("SSID")
-        val dataPoint = GraphDataPoint(xValue, expectedLevel)
+        val dataPoint = GraphDataPoint(xValue, expectedLevel, true)
         whenever(graphViewWrapper.newSeries(wiFiDetail)).thenReturn(false)
         // execute
         fixture.addData(graphViewWrapper, wiFiDetail, expectedLevel)

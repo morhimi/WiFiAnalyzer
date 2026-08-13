@@ -35,7 +35,7 @@ import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.predicate.Predicate
 import com.vrem.wifianalyzer.wifi.predicate.makeOtherPredicate
 import info.appdev.charting.charts.LineChart
-import info.appdev.charting.data.Entry
+import info.appdev.charting.data.EntryFloat
 import info.appdev.charting.data.LineDataSet
 
 internal fun makeGraphView(
@@ -49,21 +49,24 @@ internal fun makeGraphView(
     return GraphViewBuilder(wiFiBand.wiFiChannels.graphChannelCount(), graphMaximumY, themeStyle, true)
         .setLabelFormatter(ChannelAxisLabel(wiFiBand))
         .setVerticalTitle(resources.getString(R.string.graph_axis_y))
-        .setHorizontalTitle(resources.getString(R.string.graph_channel_axis_x))
-        .build(mainContext.context, !wiFiBand.ghz2)
+//                .setHorizontalTitle(resources.getString(R.string.graph_channel_axis_x))
+        .build(
+            mainContext.context,
+            !wiFiBand.ghz2
+        )
 }
 
 internal fun makeDefaultSeries(
     frequencyStart: Int,
     frequencyEnd: Int,
-): LineDataSet {
+): LineDataSet<EntryFloat> {
     val dataPoints =
-        mutableListOf<Entry>(
-            GraphDataPoint(frequencyStart, MIN_Y),
-            GraphDataPoint(frequencyEnd, MIN_Y),
+        mutableListOf<EntryFloat>(
+            GraphDataPoint(frequencyStart, MIN_Y).toEntry(),
+            GraphDataPoint(frequencyEnd, MIN_Y).toEntry(),
         )
-    val series = LineDataSet(dataPoints, "")
-    series.color = transparent.primary.toInt()
+    val series = LineDataSet<EntryFloat>(dataPoints, "")
+    series.setColors(transparent.primary.toInt())
     series.lineWidth = THICKNESS_INVISIBLE.toFloat()
     return series
 }

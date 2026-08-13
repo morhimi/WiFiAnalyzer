@@ -24,8 +24,8 @@ import android.view.ViewGroup
 import com.vrem.util.EMPTY
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import info.appdev.charting.charts.LineChart
-import info.appdev.charting.components.XAxis
 import info.appdev.charting.components.AxisBase
+import info.appdev.charting.components.XAxis
 import info.appdev.charting.formatter.IAxisValueFormatter
 
 internal fun LineChart.layout(layoutParams: ViewGroup.LayoutParams): LineChart {
@@ -50,8 +50,10 @@ internal fun LineChart.colors(themeStyle: ThemeStyle): LineChart {
     this.setBorderColor(Color.GRAY)
     this.axisLeft.textColor = themeStyle.colorGraphText
     this.axisLeft.axisLineColor = themeStyle.colorGraphText
+    this.axisLeft.textSize = 14f
     this.xAxis.textColor = themeStyle.colorGraphText
     this.xAxis.axisLineColor = themeStyle.colorGraphText
+    this.xAxis.textSize = 14f
     return this
 }
 
@@ -86,9 +88,11 @@ internal fun LineChart.labelFormat(labelFormatter: IAxisValueFormatter?): LineCh
 
 internal fun LineChart.labels(
     horizontalLabelsVisible: Boolean,
+    numHorizontalLabels: Int,
 ): LineChart {
     this.xAxis.setDrawLabels(horizontalLabelsVisible)
     this.xAxis.position = XAxis.XAxisPosition.BOTTOM
+    this.xAxis.setLabelCount(numHorizontalLabels, true)
     this.description.isEnabled = false
     this.legend.isEnabled = false
     return this
@@ -134,9 +138,9 @@ class GraphViewBuilder(
     }
 
     private fun LineChart.gridLabelInitialize(): LineChart {
-        this.labels(horizontalLabelsVisible)
+        this.labels(horizontalLabelsVisible, numHorizontalLabels)
             .labelFormat(labelFormatter)
-            .xAxisTitle(horizontalTitle)
+//            .xAxisTitle(horizontalTitle)
             .yAxisTitle(verticalTitle)
             .colors(themeStyle)
         return this

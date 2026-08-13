@@ -31,18 +31,18 @@ apply {
 dependencies {
     // Compile Build Dependencies
     implementation fileTree(include: ["*.jar"], dir: "libs")
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.annotation:annotation:1.9.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.collection:collection-ktx:1.5.0'
-    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation 'androidx.core:core-ktx:1.19.0'
     implementation 'androidx.core:core-splashscreen:1.2.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0'
     implementation 'androidx.media:media:1.7.1'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'com.github.AppDevNext:AndroidChart:4.1.3'
+    implementation 'com.github.AppDevNext:AndroidChart:5.2.4'
     // Unit Test Dependencies
     testImplementation 'androidx.test.ext:junit:1.3.0'
     testImplementation 'com.googlecode.junit-toolbox:junit-toolbox:2.4'
@@ -66,8 +66,7 @@ dependencies {
 
 android {
     namespace = 'com.vrem.wifianalyzer'
-    compileSdk = 36
-    buildToolsVersion '36.1.0'
+    compileSdk = 37
 
     sourceSets.configureEach {
         kotlin.srcDirs += "src/$name/kotlin"
@@ -76,7 +75,7 @@ android {
     defaultConfig {
         applicationId = "com.vrem.wifianalyzer"
         minSdk 28
-        targetSdkVersion 36
+        targetSdkVersion 37
         versionCode
         versionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

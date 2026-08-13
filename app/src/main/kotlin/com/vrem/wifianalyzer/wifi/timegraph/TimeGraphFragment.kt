@@ -38,8 +38,14 @@ class TimeGraphFragment :
     Fragment(),
     OnRefreshListener {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    lateinit var timeGraphAdapter: TimeGraphAdapter
-        private set
+    private var timeGraphAdapterInstance: TimeGraphAdapter? = null
+    val timeGraphAdapter: TimeGraphAdapter
+        get() {
+            if (timeGraphAdapterInstance == null) {
+                timeGraphAdapterInstance = TimeGraphAdapter()
+            }
+            return timeGraphAdapterInstance!!
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,8 +59,10 @@ class TimeGraphFragment :
             swipeRefreshLayout.isRefreshing = false
             swipeRefreshLayout.isEnabled = false
         }
-        timeGraphAdapter = TimeGraphAdapter()
-        timeGraphAdapter.graphViews().forEach { binding.graphFlipper.addView(it) }
+        timeGraphAdapter.graphViews().forEach {
+            (it.parent as? ViewGroup)?.removeView(it)
+            binding.graphFlipper.addView(it)
+        }
         return binding.root
     }
 

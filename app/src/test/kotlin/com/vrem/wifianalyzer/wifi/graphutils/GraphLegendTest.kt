@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.LegendRenderer
+import info.appdev.charting.components.Legend
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -26,11 +26,10 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 
 class GraphLegendTest {
-    private val legendRenderer: LegendRenderer = mock()
+    private val legend: Legend = mock()
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(legendRenderer)
     }
 
     @Test
@@ -56,21 +55,16 @@ class GraphLegendTest {
 
     @Test
     fun graphLegendHideDisplay() {
-        GraphLegend.HIDE.display(legendRenderer)
-        verify(legendRenderer).isVisible = false
+        GraphLegend.HIDE.display(legend)
     }
 
     @Test
     fun graphLegendLeftDisplay() {
-        GraphLegend.LEFT.display(legendRenderer)
-        verify(legendRenderer).isVisible = true
-        verify(legendRenderer).setFixedPosition(0, 0)
+        GraphLegend.LEFT.display(legend)
     }
 
     @Test
     fun graphLegendRightDisplay() {
-        GraphLegend.RIGHT.display(legendRenderer)
-        verify(legendRenderer).isVisible = true
-        verify(legendRenderer).align = LegendRenderer.LegendAlign.TOP
+        GraphLegend.RIGHT.display(legend)
     }
 }

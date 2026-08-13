@@ -33,7 +33,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class VendorFragmentTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val vendorService = INSTANCE.vendorService

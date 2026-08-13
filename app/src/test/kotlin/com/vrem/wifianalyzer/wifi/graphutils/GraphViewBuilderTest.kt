@@ -17,43 +17,27 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.graphics.Color
 import android.view.View
-import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.GridLabelRenderer
-import com.jjoe64.graphview.LabelFormatter
-import com.jjoe64.graphview.Viewport
+import android.view.ViewGroup
 import com.vrem.wifianalyzer.settings.ThemeStyle
+import info.appdev.charting.charts.LineChart
+import info.appdev.charting.components.XAxis
+import info.appdev.charting.formatter.IAxisValueFormatter
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
 import org.junit.Test
-import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 class GraphViewBuilderTest {
     private val numHorizontalLabels = 5
-    private val gridLabelRenderer: GridLabelRenderer = mock()
-    private val graphView: GraphView = mock()
-    private val viewport: Viewport = mock()
-    private val labelFormatter: LabelFormatter = mock()
-
-    @After
-    fun tearDown() {
-        verifyNoMoreInteractions(gridLabelRenderer)
-        verifyNoMoreInteractions(graphView)
-        verifyNoMoreInteractions(viewport)
-        verifyNoMoreInteractions(labelFormatter)
-    }
+    private val graphView: LineChart = mock()
+    private val labelFormatter: IAxisValueFormatter = mock()
 
     @Test
-    fun graphViewBuilderWithHorizontalLabelsVisible() {
+    fun layout() {
         // setup
-        val fixture = GraphViewBuilder(numHorizontalLabels, MAX_Y_DEFAULT, ThemeStyle.DARK)
-        val layoutParams = fixture.layoutParams
+        val layoutParams = ViewGroup.LayoutParams(10, 10)
         // execute
         graphView.layout(layoutParams)
         // validate
@@ -62,121 +46,29 @@ class GraphViewBuilderTest {
     }
 
     @Test
-    fun graphViewBuilderWithHorizontalLabelsNotVisible() {
+    fun labels() {
         // setup
-        val fixture = GraphViewBuilder(numHorizontalLabels, MAX_Y_DEFAULT, ThemeStyle.DARK, false)
-        val layoutParams = fixture.layoutParams
+        val xAxis: XAxis = mock()
+        whenever(graphView.xAxis).thenReturn(xAxis)
+        whenever(graphView.description).thenReturn(mock())
+        whenever(graphView.legend).thenReturn(mock())
         // execute
-        graphView.layout(layoutParams)
+        graphView.labels(true, 10)
         // validate
-        verify(graphView).layoutParams = layoutParams
-        verify(graphView).visibility = View.GONE
+        verify(xAxis).setDrawLabels(true)
+        verify(xAxis).position = XAxis.XAxisPosition.BOTTOM
+        verify(xAxis).setLabelCount(10, true)
     }
 
     @Test
-    fun viewPortInitialize() {
+    fun labelFormat() {
         // setup
-        val maximumY = 20
-        val scalable = true
+        val xAxis: XAxis = mock()
+        whenever(graphView.xAxis).thenReturn(xAxis)
         // execute
-        viewport.initialize(maximumY, scalable)
+        graphView.labelFormat(labelFormatter)
         // validate
-        verify(viewport).isScrollable = true
-        verify(viewport).isScalable = scalable
-        verify(viewport).setScalableY(false)
-        verify(viewport).isXAxisBoundsManual = true
-        verify(viewport).isYAxisBoundsManual = true
-        verify(viewport).setMinY(MIN_Y.toDouble())
-        verify(viewport).setMaxY(maximumY.toDouble())
-    }
-
-    @Test
-    fun gridLabelRendererLabelFormat() {
-        // execute
-        val actual = gridLabelRenderer.labelFormat(labelFormatter)
-        // validate
-        assertThat(actual).isSameAs(gridLabelRenderer)
-        verify(gridLabelRenderer).labelFormatter = labelFormatter
-    }
-
-    @Test
-    fun gridLabelRendererLabelFormatNull() {
-        // execute
-        val actual = gridLabelRenderer.labelFormat(null)
-        // validate
-        assertThat(actual).isSameAs(gridLabelRenderer)
-    }
-
-    @Test
-    fun gridLabelRendererLabels() {
-        // setup
-        val textSize = 11.1f
-        val expectedSize = textSize * TEXT_SIZE_ADJUSTMENT
-        val numHorizontalLabels = 10
-        val numVerticalLabels = 20
-        whenever(gridLabelRenderer.textSize).thenReturn(textSize)
-        // execute
-        gridLabelRenderer.labels(numHorizontalLabels, numVerticalLabels, true)
-        // validate
-        verify(gridLabelRenderer).setHumanRounding(false)
-        verify(gridLabelRenderer).isHighlightZeroLines = false
-        verify(gridLabelRenderer).numVerticalLabels = numVerticalLabels
-        verify(gridLabelRenderer).numHorizontalLabels = numHorizontalLabels
-        verify(gridLabelRenderer).isVerticalLabelsVisible = true
-        verify(gridLabelRenderer).isHorizontalLabelsVisible = true
-        verify(gridLabelRenderer).textSize = expectedSize
-        verify(gridLabelRenderer).textSize
-        verify(gridLabelRenderer).reloadStyles()
-    }
-
-    @Test
-    fun gridLabelRendererVerticalAxisTitle() {
-        // setup
-        val verticalTitle = "verticalTitle"
-        val textSize = 11.1f
-        val expectedSize = textSize * AXIS_TEXT_SIZE_ADJUSTMENT
-        whenever(gridLabelRenderer.verticalAxisTitleTextSize).thenReturn(textSize)
-        // execute
-        val actual = gridLabelRenderer.verticalTitle(verticalTitle)
-        // validate
-        assertThat(actual).isSameAs(gridLabelRenderer)
-        verify(gridLabelRenderer).verticalAxisTitleTextSize = expectedSize
-        verify(gridLabelRenderer).verticalAxisTitleTextSize
-        verify(gridLabelRenderer).verticalAxisTitle = verticalTitle
-    }
-
-    @Test
-    fun gridLabelRendererVerticalTitleEmpty() {
-        // execute
-        val actual = gridLabelRenderer.verticalTitle("")
-        // validate
-        verify(gridLabelRenderer, never()).verticalAxisTitle = any()
-        verify(gridLabelRenderer, never()).verticalAxisTitleTextSize = any()
-        assertThat(actual).isSameAs(gridLabelRenderer)
-    }
-
-    @Test
-    fun gridLabelRendererHorizontalAxisTitle() {
-        // setup
-        val horizontalTitle = "horizontalTitle"
-        val textSize = 11f
-        val expectedSize = textSize * AXIS_TEXT_SIZE_ADJUSTMENT
-        whenever(gridLabelRenderer.horizontalAxisTitleTextSize).thenReturn(textSize)
-        // execute
-        gridLabelRenderer.horizontalTitle(horizontalTitle)
-        // validate
-        verify(gridLabelRenderer).horizontalAxisTitleTextSize = expectedSize
-        verify(gridLabelRenderer).horizontalAxisTitleTextSize
-        verify(gridLabelRenderer).horizontalAxisTitle = horizontalTitle
-    }
-
-    @Test
-    fun gridLabelRendererHorizontalAxisTitleEmpty() {
-        // execute
-        gridLabelRenderer.horizontalTitle("")
-        // validate
-        verify(gridLabelRenderer, never()).horizontalAxisTitle = any()
-        verify(gridLabelRenderer, never()).horizontalAxisTitleTextSize = any()
+        verify(xAxis).valueFormatter = labelFormatter
     }
 
     @Test
@@ -204,19 +96,5 @@ class GraphViewBuilderTest {
     ) {
         val fixture = GraphViewBuilder(numHorizontalLabels, maximumY, ThemeStyle.DARK, true)
         assertThat(fixture.maximumPortY).isEqualTo(expected)
-    }
-
-    @Test
-    fun gridLabelRenderColors() {
-        // setup
-        val themeStyle = ThemeStyle.LIGHT
-        // execute
-        gridLabelRenderer.colors(themeStyle)
-        // validate
-        verify(gridLabelRenderer).gridColor = Color.GRAY
-        verify(gridLabelRenderer).verticalLabelsColor = themeStyle.colorGraphText
-        verify(gridLabelRenderer).verticalAxisTitleColor = themeStyle.colorGraphText
-        verify(gridLabelRenderer).horizontalLabelsColor = themeStyle.colorGraphText
-        verify(gridLabelRenderer).horizontalAxisTitleColor = themeStyle.colorGraphText
     }
 }

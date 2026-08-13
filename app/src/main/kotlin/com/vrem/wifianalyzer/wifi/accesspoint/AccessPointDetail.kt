@@ -28,6 +28,7 @@ import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.model.WiFiAdditional
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import com.vrem.wifianalyzer.wifi.model.WiFiSecurity
 import com.vrem.wifianalyzer.wifi.model.WiFiSignal
 
@@ -62,6 +63,7 @@ class AccessPointDetail {
         setView80211mc(view, wiFiDetail.wiFiSignal)
         setViewWiFiStandard(view, wiFiDetail.wiFiSignal)
         setViewFastRoaming(view, wiFiDetail.wiFiSignal)
+        setViewBSSID(view, wiFiDetail.wiFiIdentifier)
         enableTextSelection(view)
         return view
     }
@@ -70,6 +72,7 @@ class AccessPointDetail {
         view.findViewById<TextView>(R.id.ssid)?.let {
             it.setTextIsSelectable(true)
             view.findViewById<TextView>(R.id.vendorLong).setTextIsSelectable(true)
+            view.findViewById<TextView>(R.id.bssid)?.setTextIsSelectable(true)
         }
 
     private fun setViewCompact(
@@ -192,6 +195,13 @@ class AccessPointDetail {
         wiFiSignal: WiFiSignal,
     ) = view.findViewById<TextView>(R.id.fastRoaming)?.let {
         it.text = wiFiSignal.extra.fastRoamingDisplay(view.context)
+    }
+
+    private fun setViewBSSID(
+        view: View,
+        wiFiIdentifier: WiFiIdentifier,
+    ) = view.findViewById<TextView>(R.id.bssid)?.let {
+        it.text = wiFiIdentifier.bssid
     }
 
     private fun setViewWiFiStandard(

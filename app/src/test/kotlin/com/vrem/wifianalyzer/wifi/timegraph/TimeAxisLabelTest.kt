@@ -28,19 +28,20 @@ class TimeAxisLabelTest {
 
     @Test
     fun yAxis() {
-        assertThat(fixture.formatLabel(MIN_Y.toDouble(), false)).isEqualTo(String.EMPTY)
-        assertThat(fixture.formatLabel(MIN_Y + 1.toDouble(), false)).isEqualTo("-99")
-        assertThat(fixture.formatLabel(MAX_Y.toDouble(), false)).isEqualTo("0")
-        assertThat(fixture.formatLabel(MAX_Y + 1.toDouble(), false)).isEqualTo(String.EMPTY)
+        assertThat(fixture.getFormattedValue(MIN_Y.toFloat(), null)).isEqualTo(String.EMPTY)
+        assertThat(fixture.getFormattedValue((MIN_Y + 1).toFloat(), null)).isEqualTo("-99")
+        assertThat(fixture.getFormattedValue(MAX_Y.toFloat(), null)).isEqualTo("0")
+        assertThat(fixture.getFormattedValue((MAX_Y + 1).toFloat(), null)).isEqualTo(String.EMPTY)
     }
 
     @Test
     fun xAxis() {
-        assertThat(fixture.formatLabel(-2.0, true)).isEqualTo(String.EMPTY)
-        assertThat(fixture.formatLabel(-1.0, true)).isEqualTo(String.EMPTY)
-        assertThat(fixture.formatLabel(0.0, true)).isEqualTo(String.EMPTY)
-        assertThat(fixture.formatLabel(1.0, true)).isEqualTo(String.EMPTY)
-        assertThat(fixture.formatLabel(2.0, true)).isEqualTo("2")
-        assertThat(fixture.formatLabel(10.0, true)).isEqualTo("10")
+        val xAxis = info.appdev.charting.components.XAxis()
+        assertThat(fixture.getFormattedValue(-2.0f, xAxis)).isEqualTo(String.EMPTY)
+        assertThat(fixture.getFormattedValue(-1.0f, xAxis)).isEqualTo(String.EMPTY)
+        assertThat(fixture.getFormattedValue(0.0f, xAxis)).isEqualTo(String.EMPTY)
+        assertThat(fixture.getFormattedValue(1.0f, xAxis)).isEqualTo(String.EMPTY)
+        assertThat(fixture.getFormattedValue(2.0f, xAxis)).isEqualTo("2")
+        assertThat(fixture.getFormattedValue(10.0f, xAxis)).isEqualTo("10")
     }
 }

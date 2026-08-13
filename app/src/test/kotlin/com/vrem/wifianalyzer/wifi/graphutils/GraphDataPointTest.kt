@@ -9,12 +9,12 @@ class GraphDataPointTest {
     @Test
     fun getX() {
         // Validate
-        assertThat(fixture.x).isEqualTo(111)
+        assertThat(fixture.xValue).isEqualTo(111)
     }
 
     @Test
     fun getY() {
         // Validate
-        assertThat(fixture.y).isEqualTo(222)
+        assertThat(fixture.yValue).isEqualTo(222)
     }
 }

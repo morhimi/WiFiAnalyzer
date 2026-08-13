@@ -43,14 +43,15 @@ import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class FilterTest {
     private val mainActivity: MainActivity = RobolectricUtil.INSTANCE.activity
-    private val fixture: Filter = build()
+    private lateinit var fixture: Filter
 
     @Before
     fun setUp() {
         RobolectricUtil.INSTANCE.clearLooper()
+        fixture = build()
     }
 
     @After
@@ -97,7 +98,7 @@ class FilterTest {
         button.performClick()
         // validate
         RobolectricUtil.INSTANCE.clearLooper()
-        assertThat(fixture.alertDialog.isShowing).isFalse
+        assertThat(fixture.alertDialog!!.isShowing).isFalse
         verify(filtersAdapter).save()
         verify(mainActivity).update()
     }
@@ -113,7 +114,7 @@ class FilterTest {
         button.performClick()
         // validate
         RobolectricUtil.INSTANCE.clearLooper()
-        assertThat(fixture.alertDialog.isShowing).isFalse
+        assertThat(fixture.alertDialog!!.isShowing).isFalse
         verify(filtersAdapter).reset()
         verify(mainActivity).update()
     }
@@ -129,7 +130,7 @@ class FilterTest {
         button.performClick()
         // validate
         RobolectricUtil.INSTANCE.clearLooper()
-        assertThat(fixture.alertDialog.isShowing).isFalse
+        assertThat(fixture.alertDialog!!.isShowing).isFalse
         verify(filtersAdapter).reload()
         verify(mainActivity, never()).update()
     }

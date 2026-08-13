@@ -30,10 +30,10 @@ class ChannelAxisLabelTest {
     @Test
     fun yAxis() {
         // execute & verify
-        assertThat(fixture.formatLabel(MIN_Y.toDouble(), false)).isEqualTo(String.EMPTY)
-        assertThat(fixture.formatLabel(MIN_Y + 1.toDouble(), false)).isEqualTo("-99")
-        assertThat(fixture.formatLabel(MAX_Y.toDouble(), false)).isEqualTo("0")
-        assertThat(fixture.formatLabel(MAX_Y + 1.toDouble(), false)).isEqualTo(String.EMPTY)
+        assertThat(fixture.getFormattedValue(MIN_Y.toFloat(), null)).isEqualTo(String.EMPTY)
+        assertThat(fixture.getFormattedValue((MIN_Y + 1).toFloat(), null)).isEqualTo("-99")
+        assertThat(fixture.getFormattedValue(MAX_Y.toFloat(), null)).isEqualTo("0")
+        assertThat(fixture.getFormattedValue((MAX_Y + 1).toFloat(), null)).isEqualTo(String.EMPTY)
     }
 
     @Test
@@ -41,7 +41,7 @@ class ChannelAxisLabelTest {
         // setup
         val frequency = WiFiBand.GHZ2.wiFiChannels.channelRange.first.frequency
         // execute
-        val actual = fixture.formatLabel(frequency + 10.toDouble(), true)
+        val actual = fixture.getFormattedValue((frequency + 10).toFloat(), info.appdev.charting.components.XAxis())
         // validate
         assertThat(actual).isEqualTo("1")
     }
@@ -51,7 +51,7 @@ class ChannelAxisLabelTest {
         // setup
         val frequency = WiFiBand.GHZ2.wiFiChannels.channelRange.second.frequency
         // execute
-        val actual = fixture.formatLabel(frequency - 10.toDouble(), true)
+        val actual = fixture.getFormattedValue((frequency - 10).toFloat(), info.appdev.charting.components.XAxis())
         // validate
         assertThat(actual).isEqualTo("13")
     }
@@ -61,7 +61,7 @@ class ChannelAxisLabelTest {
         // setup
         val frequency = WiFiBand.GHZ2.wiFiChannels.channelRange.first.frequency
         // execute
-        val actual = fixture.formatLabel(frequency.toDouble(), true)
+        val actual = fixture.getFormattedValue(frequency.toFloat(), info.appdev.charting.components.XAxis())
         // validate
         assertThat(actual).isEmpty()
     }
@@ -71,7 +71,7 @@ class ChannelAxisLabelTest {
         // setup
         val frequency = WiFiBand.GHZ2.wiFiChannels.channelRange.first.frequency
         // execute
-        val actual = fixture.formatLabel(frequency.toDouble(), true)
+        val actual = fixture.getFormattedValue(frequency.toFloat(), info.appdev.charting.components.XAxis())
         // validate
         assertThat(actual).isEmpty()
     }

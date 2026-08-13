@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.jjoe64.graphview.GraphView
+import info.appdev.charting.charts.LineChart
 import com.vrem.wifianalyzer.MainContextHelper
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import org.assertj.core.api.Assertions.assertThat
@@ -30,7 +30,7 @@ import org.mockito.kotlin.whenever
 
 class GraphAdapterTest {
     private val graphViewNotifier: GraphViewNotifier = mock()
-    private val graphView: GraphView = mock()
+    private val graphView: LineChart = mock()
     private val wiFiData: WiFiData = mock()
     private val fixture = GraphAdapter(listOf(graphViewNotifier))
 

@@ -26,7 +26,7 @@ import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointDetail
 import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointPopup
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import info.appdev.charting.charts.LineChart
-import info.appdev.charting.data.Entry
+import info.appdev.charting.data.EntryFloat
 import info.appdev.charting.data.LineData
 import info.appdev.charting.data.LineDataSet
 import info.appdev.charting.highlight.Highlight
@@ -44,8 +44,8 @@ class GraphViewWrapper(
     init {
         graphView.data = LineData()
         graphView.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
-            override fun onValueSelected(entry: Entry, highlight: Highlight) {
-                popup(entry)
+            override fun onValueSelected(entryFloat: EntryFloat, highlight: Highlight) {
+                popup(entryFloat)
             }
 
             override fun onNothingSelected() {}
@@ -64,17 +64,21 @@ class GraphViewWrapper(
 
     fun addSeries(
         wiFiDetail: WiFiDetail,
-        series: LineDataSet,
+        series: LineDataSet<EntryFloat>,
         drawBackground: Boolean,
     ): Boolean =
         if (seriesExists(wiFiDetail)) {
             false
         } else {
             seriesCache.put(wiFiDetail, series)
-            series.label = wiFiDetail.wiFiIdentifier.ssid + " " + wiFiDetail.wiFiSignal.channelDisplay()
+            val alias = runCatching { MainContext.INSTANCE.aliasRepository.alias(wiFiDetail.wiFiIdentifier.bssid) }.getOrNull()
+            val secondLine = if (alias.isNullOrEmpty()) wiFiDetail.wiFiIdentifier.bssid else alias
+            val label = "${wiFiDetail.wiFiIdentifier.ssid} ${wiFiDetail.wiFiSignal.channelDisplay()}\n($secondLine)"
+            series.label = label
             seriesOptions.highlightConnected(series, wiFiDetail.wiFiAdditional.wiFiConnection.connected)
             seriesOptions.setSeriesColor(series)
             seriesOptions.drawBackground(series, drawBackground)
+            seriesOptions.setupLabels(series, label)
             graphView.data?.addDataSet(series)
             graphView.notifyDataSetChanged()
             graphView.invalidate()
@@ -89,16 +93,23 @@ class GraphViewWrapper(
         if (seriesExists(wiFiDetail)) {
             val series = seriesCache[wiFiDetail]
             series.clear()
-            data.forEach { series.addEntry(it) }
-            series.label = wiFiDetail.wiFiIdentifier.ssid + " " + wiFiDetail.wiFiSignal.channelDisplay()
-            seriesOptions.highlightConnected(series, wiFiDetail.wiFiAdditional.wiFiConnection.connected)
+            data.forEach { series.addEntry(it.toEntry()) }
+            val alias = runCatching { MainContext.INSTANCE.aliasRepository.alias(wiFiDetail.wiFiIdentifier.bssid) }.getOrNull()
+            val secondLine = if (alias.isNullOrEmpty()) wiFiDetail.wiFiIdentifier.bssid else alias
+            val label = "${wiFiDetail.wiFiIdentifier.ssid} ${wiFiDetail.wiFiSignal.channelDisplay()}\n($secondLine)"
+            series.label = label
+            seriesOptions.highlightConnected(series, wiFiAdditional(wiFiDetail))
             seriesOptions.drawBackground(series, drawBackground)
+            seriesOptions.setupLabels(series, label)
             graphView.notifyDataSetChanged()
             graphView.invalidate()
             true
         } else {
             false
         }
+
+    private fun wiFiAdditional(wiFiDetail: WiFiDetail) =
+        wiFiDetail.wiFiAdditional.wiFiConnection.connected
 
     fun appendToSeries(
         wiFiDetail: WiFiDetail,
@@ -108,11 +119,14 @@ class GraphViewWrapper(
     ): Boolean =
         if (seriesExists(wiFiDetail)) {
             val series = seriesCache[wiFiDetail]
-            series.addEntry(data)
+            if (series.entryCount > 0) {
+                series.getEntryForIndex(series.entryCount - 1)?.data = null
+            }
+            series.addEntry(data.toEntry())
             if (series.entryCount > count + 1) {
                 series.removeEntry(0)
             }
-            seriesOptions.highlightConnected(series, wiFiDetail.wiFiAdditional.wiFiConnection.connected)
+            seriesOptions.highlightConnected(series, wiFiAdditional(wiFiDetail))
             seriesOptions.drawBackground(series, drawBackground)
             graphView.notifyDataSetChanged()
             graphView.invalidate()
@@ -138,7 +152,7 @@ class GraphViewWrapper(
 
     val viewportCntX: Int get() = graphView.xAxis.labelCount - 1
 
-    fun addSeries(series: LineDataSet) {
+    fun addSeries(series: LineDataSet<EntryFloat>) {
         graphView.data?.addDataSet(series)
         graphView.notifyDataSetChanged()
         graphView.invalidate()
@@ -176,12 +190,13 @@ class GraphViewWrapper(
 
     private fun seriesExists(wiFiDetail: WiFiDetail): Boolean = seriesCache.contains(wiFiDetail)
 
-    private fun popup(entry: Entry) {
-        val dataSet = graphView.data?.getDataSetForEntry(entry) as? LineDataSet
+    private fun popup(entry: EntryFloat) {
+        val dataSet = graphView.data?.getDataSetForEntry(entry) as? LineDataSet<EntryFloat>
         dataSet?.let {
-            val wiFiDetail = seriesCache.find(it)
-            runCatching {
-                AccessPointPopup().show(AccessPointDetail().makeViewDetailed(wiFiDetail))
+            seriesCache.find(it)?.let { wiFiDetail ->
+                runCatching {
+                    AccessPointPopup().show(AccessPointDetail().makeViewDetailed(wiFiDetail), wiFiDetail)
+                }
             }
         }
     }

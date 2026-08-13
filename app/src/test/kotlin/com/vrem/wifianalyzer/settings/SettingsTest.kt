@@ -49,7 +49,7 @@ import org.robolectric.annotation.Config
 import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class SettingsTest {
     private val scanSpeedDefault = 5
     private val graphYMultiplier = -10

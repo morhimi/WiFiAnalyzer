@@ -13,13 +13,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ * along with this program.  1f not, see <http://www.gnu.org/licenses/>
  */
 package com.vrem.wifianalyzer
 
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.vendor.model.VendorService
+import com.vrem.wifianalyzer.wifi.accesspoint.AliasRepository
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
@@ -34,59 +35,75 @@ enum class MainContextHelper {
 
     val settings: Settings
         get() {
-            runCatching { saved[Settings::class.java] = mainContext.settings }
+            runCatching { save(Settings::class.java, mainContext.settings) }
             mainContext.settings = mock()
             return mainContext.settings
         }
 
     val vendorService: VendorService
         get() {
-            runCatching { saved[VendorService::class.java] = mainContext.vendorService }
+            runCatching { save(VendorService::class.java, mainContext.vendorService) }
             mainContext.vendorService = mock()
             return mainContext.vendorService
         }
 
     val permissionService: PermissionService
         get() {
-            runCatching { saved[PermissionService::class.java] = mainContext.permissionService }
+            runCatching { save(PermissionService::class.java, mainContext.permissionService) }
             mainContext.permissionService = mock()
             return mainContext.permissionService
         }
 
     val scannerService: ScannerService
         get() {
-            runCatching { saved[ScannerService::class.java] = mainContext.scannerService }
+            runCatching { save(ScannerService::class.java, mainContext.scannerService) }
             mainContext.scannerService = mock()
             return mainContext.scannerService
         }
 
     val mainActivity: MainActivity
         get() {
-            runCatching { saved[MainActivity::class.java] = mainContext.mainActivity }
+            runCatching { save(MainActivity::class.java, mainContext.mainActivity) }
             mainContext.mainActivity = mock()
             return mainContext.mainActivity
         }
 
     val configuration: Configuration
         get() {
-            runCatching { saved[Configuration::class.java] = mainContext.configuration }
+            runCatching { save(Configuration::class.java, mainContext.configuration) }
             mainContext.configuration = mock()
             return mainContext.configuration
         }
 
     val filterAdapter: FiltersAdapter
         get() {
-            runCatching { saved[FiltersAdapter::class.java] = mainContext.filtersAdapter }
+            runCatching { save(FiltersAdapter::class.java, mainContext.filtersAdapter) }
             mainContext.filtersAdapter = mock()
             return mainContext.filtersAdapter
         }
 
+    val aliasRepository: AliasRepository
+        get() {
+            runCatching { save(AliasRepository::class.java, mainContext.aliasRepository) }
+            mainContext.aliasRepository = mock()
+            return mainContext.aliasRepository
+        }
+
     val wiFiManagerWrapper: WiFiManagerWrapper
         get() {
-            runCatching { saved[WiFiManagerWrapper::class.java] = mainContext.wiFiManagerWrapper }
+            runCatching { save(WiFiManagerWrapper::class.java, mainContext.wiFiManagerWrapper) }
             mainContext.wiFiManagerWrapper = mock()
             return mainContext.wiFiManagerWrapper
         }
+
+    private fun save(
+        clazz: Class<*>,
+        value: Any,
+    ) {
+        if (!saved.containsKey(clazz)) {
+            saved[clazz] = value
+        }
+    }
 
     fun restore() {
         saved.entries.forEach {
@@ -97,6 +114,7 @@ enum class MainContextHelper {
                 MainActivity::class.java -> mainContext.mainActivity = it.value as MainActivity
                 Configuration::class.java -> mainContext.configuration = it.value as Configuration
                 FiltersAdapter::class.java -> mainContext.filtersAdapter = it.value as FiltersAdapter
+                AliasRepository::class.java -> mainContext.aliasRepository = it.value as AliasRepository
                 WiFiManagerWrapper::class.java -> mainContext.wiFiManagerWrapper = it.value as WiFiManagerWrapper
             }
         }

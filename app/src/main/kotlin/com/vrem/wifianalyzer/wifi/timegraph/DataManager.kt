@@ -24,6 +24,7 @@ import com.vrem.wifianalyzer.wifi.graphutils.MAX_SCAN_COUNT
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y_OFFSET
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import info.appdev.charting.data.EntryFloat
 import info.appdev.charting.data.LineDataSet
 
 @OpenClass
@@ -74,11 +75,12 @@ internal class DataManager(
         val drawBackground = wiFiDetail.wiFiAdditional.wiFiConnection.connected
         val level = wiFiDetail.wiFiSignal.level.coerceAtMost(levelMax)
         if (graphViewWrapper.newSeries(wiFiDetail)) {
-            val dataPoint = GraphDataPoint(xValue, (if (scanCount > 0) MIN_Y + MIN_Y_OFFSET else level))
-            val series = LineDataSet(mutableListOf(dataPoint), "")
+            val dataPoint =
+                GraphDataPoint(xValue, (if (scanCount > 0) MIN_Y + MIN_Y_OFFSET else level), true)
+            val series = LineDataSet<EntryFloat>(mutableListOf(dataPoint.toEntry()), "")
             graphViewWrapper.addSeries(wiFiDetail, series, drawBackground)
         } else {
-            val dataPoint = GraphDataPoint(xValue, level)
+            val dataPoint = GraphDataPoint(xValue, level, true)
             graphViewWrapper.appendToSeries(wiFiDetail, dataPoint, scanCount, drawBackground)
         }
         timeGraphCache.reset(wiFiDetail)

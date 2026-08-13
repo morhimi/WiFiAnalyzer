@@ -27,6 +27,7 @@ import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.vendor.model.VendorService
+import com.vrem.wifianalyzer.wifi.accesspoint.AliasRepository
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
@@ -44,6 +45,7 @@ enum class MainContext {
     lateinit var vendorService: VendorService
     lateinit var configuration: Configuration
     lateinit var filtersAdapter: FiltersAdapter
+    lateinit var aliasRepository: AliasRepository
 
     val context: Context get() = mainActivity.applicationContext
 
@@ -65,5 +67,6 @@ enum class MainContext {
         permissionService = PermissionService(activity)
         scannerService = makeScannerService(mainActivity, wiFiManagerWrapper, Handler(Looper.getMainLooper()), settings)
         filtersAdapter = FiltersAdapter(settings)
+        aliasRepository = AliasRepository(context)
     }
 }

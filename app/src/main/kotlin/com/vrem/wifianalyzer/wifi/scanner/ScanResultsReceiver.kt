@@ -40,7 +40,7 @@ internal class ScanResultsReceiver(
     fun register() {
         if (!registered) {
             val intentFilter = makeIntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-            mainActivity.registerReceiver(this, intentFilter)
+            ContextCompat.registerReceiver(mainActivity, this, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED)
             registered = true
         }
     }

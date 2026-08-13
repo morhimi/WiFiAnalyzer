@@ -37,7 +37,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class PermissionDialogTest {
     private val activity = RobolectricUtil.INSTANCE.activity
     private val fixture = PermissionDialog(activity)
@@ -52,13 +52,13 @@ class PermissionDialogTest {
     }
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.O_MR1])
+    @Config(sdk = [Build.VERSION_CODES.P])
     fun showAndroidO() {
         // execute
         val actual = fixture.show()
         //
         assertThat(actual).isNotNull()
-        assertThat(actual?.findViewById<View>(R.id.throttling)?.isGone).isTrue
+        assertThat(actual?.findViewById<View>(R.id.throttling)?.isVisible).isTrue
     }
 
     @Test

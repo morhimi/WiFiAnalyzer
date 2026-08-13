@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WiFiAnalyzer v2</string>
+    <string name="about_contributor_title">תורמים</string>
+    <string name="about_description_text">בצע אופטימיזציה של רשת ה-Wi-Fi שלך, על ידי בדיקת סטטוס רשת ה-Wi-Fi, עוצמת האות וזיהוי ערוצים עמוסים באמצעות WiFiAnalyzer בקוד פתוח לאנדרואיד.</string>
+    <string name="about_description_title">תיאור:</string>
+    <string name="about_documentation">תיעוד:</string>
+    <string name="about_faq">שאלות נפוצות:</string>
+    <string name="about_how_to">מדריך:</string>
+    <string name="about_libraries_title">ספריות בשימוש:</string>
+    <string name="about_license_title">רשיון:</string>
+    <string name="about_privacy_policy">מדיניות פרטיות:</string>
+    <string name="about_write_review">כתוב ביקורת</string>
+    <string name="action_about">אודות</string>
+    <string name="action_access_points">נקודות גישה</string>
+    <string name="action_channel_available">ערוצים זמינים</string>
+    <string name="action_channel_graph">גרף ערוצים</string>
+    <string name="action_channel_rating">דירוג ערוצים</string>
+    <string name="action_export">ייצוא</string>
+    <string name="action_settings">הגדרות</string>
+    <string name="action_time_graph">גרף ציר זמן</string>
+    <string name="action_vendors">ספקים</string>
+    <string name="action_rename">שנה שם</string>
+    <string name="alias_hint">שם החדר (למשל סלון)</string>
+    <string name="ap_view_compact">קומפקטי</string>
+    <string name="ap_view_complete">שלם</string>
+    <string name="ap_view_title">תצוגת נק׳ גישה</string>
+    <string name="channel_rating_heading_number">מספר ערוץ</string>
+    <string name="channel_rating_heading_rating">דירוג ערוץ</string>
+    <string name="connection_view_hide">החבא</string>
+    <string name="filter_apply">החל</string>
+    <string name="filter_close">סגור</string>
+    <string name="filter_reset">אתחל</string>
+    <string name="filter_security_title">אבטחה</string>
+    <string name="filter_strength_title">עוצמת אות</string>
+    <string name="filter_title">פילטר</string>
+    <string name="filter_wifi_band_title">תדר Wi-Fi</string>
+    <string name="graph_legend_left">שמאל</string>
+    <string name="graph_legend_right">ימין</string>
+</resources>

@@ -40,7 +40,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class DataManagerTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val level = -40
@@ -64,11 +64,11 @@ class DataManagerTest {
         val actual = fixture.graphDataPoints(expected, MAX_Y)
         // validate
         assertThat(actual).hasSize(5)
-        assertThat(actual[0].toString()).isEqualTo(GraphDataPoint(2445, -100).toString())
-        assertThat(actual[1].toString()).isEqualTo(GraphDataPoint(2447, level).toString())
-        assertThat(actual[2].toString()).isEqualTo(GraphDataPoint(2455, level).toString())
-        assertThat(actual[3].toString()).isEqualTo(GraphDataPoint(2463, level).toString())
-        assertThat(actual[4].toString()).isEqualTo(GraphDataPoint(2465, -100).toString())
+        assertThat(actual[0].toString()).isEqualTo(GraphDataPoint(2445, -100, false).toString())
+        assertThat(actual[1].toString()).isEqualTo(GraphDataPoint(2447, level, false).toString())
+        assertThat(actual[2].toString()).isEqualTo(GraphDataPoint(2455, level, true).toString())
+        assertThat(actual[3].toString()).isEqualTo(GraphDataPoint(2463, level, false).toString())
+        assertThat(actual[4].toString()).isEqualTo(GraphDataPoint(2465, -100, false).toString())
     }
 
     @Test
@@ -80,11 +80,11 @@ class DataManagerTest {
         val actual = fixture.graphDataPoints(expected, expectedLevel)
         // validate
         assertThat(actual).hasSize(5)
-        assertThat(actual[0].toString()).isEqualTo(GraphDataPoint(2445, -100).toString())
-        assertThat(actual[1].toString()).isEqualTo(GraphDataPoint(2447, expectedLevel).toString())
-        assertThat(actual[2].toString()).isEqualTo(GraphDataPoint(2455, expectedLevel).toString())
-        assertThat(actual[3].toString()).isEqualTo(GraphDataPoint(2463, expectedLevel).toString())
-        assertThat(actual[4].toString()).isEqualTo(GraphDataPoint(2465, -100).toString())
+        assertThat(actual[0].toString()).isEqualTo(GraphDataPoint(2445, -100, false).toString())
+        assertThat(actual[1].toString()).isEqualTo(GraphDataPoint(2447, expectedLevel, false).toString())
+        assertThat(actual[2].toString()).isEqualTo(GraphDataPoint(2455, expectedLevel, true).toString())
+        assertThat(actual[3].toString()).isEqualTo(GraphDataPoint(2463, expectedLevel, false).toString())
+        assertThat(actual[4].toString()).isEqualTo(GraphDataPoint(2465, -100, false).toString())
     }
 
     @Test

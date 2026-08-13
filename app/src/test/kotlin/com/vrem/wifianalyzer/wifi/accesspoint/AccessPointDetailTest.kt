@@ -48,7 +48,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class AccessPointDetailTest {
     private val vendorName = "1VendorName-2VendorName-3VendorName-4VendorName-5VendorName-6VendorName"
     private val mainActivity = RobolectricUtil.INSTANCE.activity
@@ -308,6 +308,7 @@ class AccessPointDetailTest {
         // validate
         assertThat(actual.findViewById<TextView>(R.id.ssid).isTextSelectable).isTrue
         assertThat(actual.findViewById<TextView>(R.id.vendorLong).isTextSelectable).isTrue
+        assertThat(actual.findViewById<TextView>(R.id.bssid).isTextSelectable).isTrue
     }
 
     @Test
@@ -405,6 +406,7 @@ class AccessPointDetailTest {
             validateTextViewValue(view, expectedWiFiStandard, R.id.wiFiStandardFull)
             val expectedWiFiBand = view.context.getString(wiFiSignal.wiFiBand.textResource)
             validateTextViewValue(view, expectedWiFiBand, R.id.wiFiBand)
+            validateTextViewValue(view, wiFiIdentifier.bssid, R.id.bssid)
         }
     }
 

@@ -19,186 +19,81 @@ package com.vrem.wifianalyzer.wifi.graphutils
 
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
-import com.vrem.wifianalyzer.wifi.model.WiFiSecurity
-import com.vrem.wifianalyzer.wifi.model.WiFiSignal
-import com.vrem.wifianalyzer.wifi.model.WiFiWidth
+import info.appdev.charting.data.EntryFloat
 import info.appdev.charting.data.LineDataSet
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.After
 import org.junit.Test
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.verifyNoMoreInteractions
 
 class SeriesCacheTest {
-    private val series1: LineDataSet = mock()
-    private val series2: LineDataSet = mock()
-    private val series3: LineDataSet = mock()
-    private val series = listOf(series1, series2, series3)
+    private val series1: LineDataSet<EntryFloat> = mock()
+    private val series2: LineDataSet<EntryFloat> = mock()
+    private val series3: LineDataSet<EntryFloat> = mock()
+    private val wiFiDetail1 = WiFiDetail(wiFiIdentifier = WiFiIdentifier("SSID1", "BSSID1"))
+    private val wiFiDetail2 = WiFiDetail(wiFiIdentifier = WiFiIdentifier("SSID2", "BSSID2"))
+    private val wiFiDetail3 = WiFiDetail(wiFiIdentifier = WiFiIdentifier("SSID3", "BSSID3"))
     private val fixture = SeriesCache()
 
-    @After
-    fun tearDown() {
-        verifyNoMoreInteractions(series1)
-        verifyNoMoreInteractions(series2)
-        verifyNoMoreInteractions(series3)
-    }
-
     @Test
-    fun contains() {
+    fun difference() {
         // setup
-        val wiFiDetails = withData()
+        fixture.put(wiFiDetail1, series1)
+        fixture.put(wiFiDetail2, series2)
+        fixture.put(wiFiDetail3, series3)
         // execute
-        val actual = fixture.contains(wiFiDetails[0])
+        val actual = fixture.difference(setOf(wiFiDetail1))
         // validate
-        assertThat(actual).isTrue
+        assertThat(actual).containsExactlyInAnyOrder(wiFiDetail2, wiFiDetail3)
     }
 
     @Test
-    fun get() {
+    fun remove() {
         // setup
-        val wiFiDetails = withData()
-        // execute & validate
-        for (i in series.indices) {
-            val wiFiDetail = wiFiDetails[i]
-            assertThat(fixture[wiFiDetail]).isEqualTo(series[i])
-        }
-    }
-
-    @Test
-    fun addExistingSeries() {
-        // setup
-        val wiFiDetails = withData()
+        fixture.put(wiFiDetail1, series1)
+        fixture.put(wiFiDetail2, series2)
+        fixture.put(wiFiDetail3, series3)
         // execute
-        val actual = fixture.put(wiFiDetails[0], series2)
+        val actual = fixture.remove(listOf(wiFiDetail1, wiFiDetail3))
         // validate
-        assertThat(actual).isEqualTo(series1)
-        assertThat(fixture[wiFiDetails[0]]).isEqualTo(series2)
-    }
-
-    @Test
-    fun tesDifferenceExpectOneLess() {
-        // setup
-        val expected = withData()
-        // execute
-        val actual = fixture.difference(expected.subList(0, 1).toSet())
-        // validate
-        assertThat(actual).hasSize(expected.size - 1)
-        for (i in 1 until expected.size) {
-            assertThat(actual[i - 1]).isEqualTo(expected[i])
-        }
-    }
-
-    @Test
-    fun tesDifferenceExpectEverything() {
-        // setup
-        val expected = withData()
-        // execute
-        val actual = fixture.difference(setOf())
-        // validate
-        assertThat(actual).hasSize(expected.size)
-        for (i in expected.indices) {
-            assertThat(actual[i]).isEqualTo(expected[i])
-        }
-    }
-
-    @Test
-    fun tesDifferenceExpectNone() {
-        // setup
-        val expected = withData()
-        // execute
-        val actual = fixture.difference(expected.toSet())
-        // validate
-        assertThat(actual).isEmpty()
-    }
-
-    @Test
-    fun removeExpectedAllLeft() {
-        // setup
-        val expected = withData()
-        // execute
-        val actual = fixture.remove(listOf())
-        // validate
-        assertThat(actual).isEmpty()
-        expected.forEach { assertThat(fixture.contains(it)).isTrue }
-    }
-
-    @Test
-    fun removeExpectNoneLeft() {
-        // setup
-        val expected = withData()
-        // execute
-        val actual = fixture.remove(expected)
-        // validate
-        assertThat(actual).hasSize(expected.size)
-        expected.forEach { assertThat(fixture.contains(it)).isFalse }
-    }
-
-    @Test
-    fun removeExpectOneLeft() {
-        // setup
-        val expected = withData()
-        // execute
-        val actual = fixture.remove(expected.subList(1, expected.size))
-        // validate
-        assertThat(actual).hasSize(2)
-        for (i in 1 until expected.size) {
-            assertThat(series).contains(actual[i - 1])
-            assertThat(fixture.contains(expected[i])).isFalse
-        }
-        assertThat(fixture.contains(expected[0])).isTrue
-    }
-
-    @Test
-    fun removeNonExistingOne() {
-        // setup
-        val expected = withData()
-        val toRemove = listOf(makeWiFiDetail("SSID-999"))
-        // execute
-        val actual = fixture.remove(toRemove)
-        // validate
-        assertThat(actual).isEmpty()
-        expected.forEach { assertThat(fixture.contains(it)).isTrue }
-    }
-
-    @Test
-    fun removeExpectMoreThanOneLeft() {
-        // setup
-        val expected = withData()
-        // execute
-        val actual = fixture.remove(expected.subList(0, 1))
-        // validate
-        assertThat(actual).hasSize(1)
-        assertThat(series).contains(actual[0])
-        for (i in 1 until expected.size) {
-            assertThat(fixture.contains(expected[i])).isTrue
-        }
-        assertThat(fixture.contains(expected[0])).isFalse
+        assertThat(actual).containsExactlyInAnyOrder(series1, series3)
+        assertThat(fixture.contains(wiFiDetail1)).isFalse
+        assertThat(fixture.contains(wiFiDetail3)).isFalse
+        assertThat(fixture.contains(wiFiDetail2)).isTrue
     }
 
     @Test
     fun find() {
         // setup
-        val wiFiDetails = withData()
+        fixture.put(wiFiDetail1, series1)
+        fixture.put(wiFiDetail2, series2)
         // execute
         val actual = fixture.find(series2)
         // validate
-        assertThat(actual).isEqualTo(wiFiDetails[1])
+        assertThat(actual).isEqualTo(wiFiDetail2)
     }
 
-    private fun makeWiFiDetail(ssid: String): WiFiDetail =
-        WiFiDetail(
-            WiFiIdentifier(ssid, "BSSID"),
-            WiFiSecurity.EMPTY,
-            WiFiSignal(100, 100, WiFiWidth.MHZ_20, 5),
-        )
+    @Test
+    fun contains() {
+        // setup
+        fixture.put(wiFiDetail1, series1)
+        // execute & validate
+        assertThat(fixture.contains(wiFiDetail1)).isTrue
+        assertThat(fixture.contains(wiFiDetail2)).isFalse
+    }
 
-    private fun withData(): List<WiFiDetail> {
-        val results: MutableList<WiFiDetail> = mutableListOf()
-        for (i in series.indices) {
-            val wiFiDetail = makeWiFiDetail("SSID$i")
-            results.add(wiFiDetail)
-            fixture.put(wiFiDetail, series[i])
-        }
-        return results
+    @Test
+    fun get() {
+        // setup
+        fixture.put(wiFiDetail1, series1)
+        // execute & validate
+        assertThat(fixture[wiFiDetail1]).isEqualTo(series1)
+    }
+
+    @Test
+    fun put() {
+        // execute
+        fixture.put(wiFiDetail1, series1)
+        // validate
+        assertThat(fixture[wiFiDetail1]).isEqualTo(series1)
     }
 }

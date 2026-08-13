@@ -17,9 +17,11 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
+import info.appdev.charting.data.EntryFloat
 import info.appdev.charting.data.LineDataSet
 import org.junit.After
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
@@ -27,30 +29,29 @@ import org.mockito.kotlin.whenever
 
 class SeriesOptionsTest {
     private val graphColors: GraphColors = mock()
-    private val lineDataSet: LineDataSet = mock()
-    private val graphColor = GraphColor(22, 11)
+    private val lineDataSet: LineDataSet<EntryFloat> = mock()
     private val fixture = SeriesOptions(graphColors)
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(lineDataSet)
         verifyNoMoreInteractions(graphColors)
+        verifyNoMoreInteractions(lineDataSet)
     }
 
     @Test
-    fun removeSeries() {
+    fun removeSeriesColor() {
         // setup
-        val color = 10
-        whenever(lineDataSet.color).thenReturn(color)
+        val color = 111L
+        whenever(lineDataSet.colors).thenReturn(mutableListOf(color.toInt()))
         // execute
         fixture.removeSeriesColor(lineDataSet)
         // validate
-        verify(lineDataSet).color
-        verify(graphColors).addColor(color.toLong())
+        verify(lineDataSet).colors
+        verify(graphColors).addColor(color)
     }
 
     @Test
-    fun highlightConnectedSetsConnectedThickness() {
+    fun highlightConnectedTrue() {
         // execute
         fixture.highlightConnected(lineDataSet, true)
         // validate
@@ -58,7 +59,7 @@ class SeriesOptionsTest {
     }
 
     @Test
-    fun highlightConnectedSetsNotConnectedThickness() {
+    fun highlightConnectedFalse() {
         // execute
         fixture.highlightConnected(lineDataSet, false)
         // validate
@@ -68,13 +69,20 @@ class SeriesOptionsTest {
     @Test
     fun setSeriesColor() {
         // setup
+        val graphColor = GraphColor(1, 2)
         whenever(graphColors.graphColor()).thenReturn(graphColor)
         // execute
         fixture.setSeriesColor(lineDataSet)
         // validate
         verify(graphColors).graphColor()
-        verify(lineDataSet).color = graphColor.primary.toInt()
+        verify(lineDataSet).setColors(graphColor.primary.toInt())
         verify(lineDataSet).fillColor = graphColor.background.toInt()
+        verify(lineDataSet).isDrawCircles = false
+        verify(lineDataSet).isDrawValues = false
+        verify(lineDataSet).valueTextColor = graphColor.primary.toInt()
+        verify(lineDataSet).valueTextSize = 10f
+        verify(lineDataSet).setDrawHighlightIndicators(false)
+        verify(lineDataSet).fillFormatter = any()
     }
 
     @Test

@@ -73,6 +73,9 @@ internal class TimeGraphView(
             )
         graphViewWrapper.removeSeries(newSeries)
         graphViewWrapper.updateLegend(MainContext.INSTANCE.settings.timeGraphLegend())
+        if (dataManager.xValue > NUM_X_TIME) {
+            graphViewWrapper.setViewport(dataManager.xValue - NUM_X_TIME, dataManager.xValue)
+        }
         graphViewWrapper.visibility(if (selected()) View.VISIBLE else View.GONE)
     }
 

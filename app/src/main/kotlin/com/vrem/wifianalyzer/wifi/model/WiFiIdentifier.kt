@@ -18,6 +18,7 @@
 package com.vrem.wifianalyzer.wifi.model
 
 import com.vrem.util.EMPTY
+import com.vrem.wifianalyzer.MainContext
 
 typealias SSID = String
 typealias BSSID = String
@@ -32,7 +33,11 @@ data class WiFiIdentifier(
             else -> ssidRaw
         }
 
-    val title: String get() = "$ssid ($bssid)"
+    val title: String
+        get() {
+            val alias = runCatching { MainContext.INSTANCE.aliasRepository.alias(bssid) }.getOrNull()
+            return if (alias.isNullOrEmpty()) "$ssid ($bssid)" else "$ssid ($alias)"
+        }
 
     fun equals(
         other: WiFiIdentifier,

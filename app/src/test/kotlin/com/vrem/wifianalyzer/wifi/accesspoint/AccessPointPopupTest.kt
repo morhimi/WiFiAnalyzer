@@ -34,17 +34,18 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class AccessPointPopupTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val fixture = AccessPointPopup()
+    private val wiFiDetail = withWiFiDetail()
 
     @Test
     fun showOpensPopup() {
         // setup
         val view = mainActivity.layoutInflater.inflate(R.layout.access_point_view_popup, null)
         // execute
-        val actual = fixture.show(view)
+        val actual = fixture.show(view, wiFiDetail)
         // validate
         assertThat(actual).isNotNull()
         assertThat(actual.isShowing).isTrue
@@ -54,7 +55,7 @@ class AccessPointPopupTest {
     fun popupIsClosedOnPositiveButtonClick() {
         // setup
         val view = mainActivity.layoutInflater.inflate(R.layout.access_point_view_popup, null)
-        val alertDialog = fixture.show(view)
+        val alertDialog = fixture.show(view, wiFiDetail)
         val button = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE)
         // execute
         button.performClick()
@@ -64,10 +65,10 @@ class AccessPointPopupTest {
     }
 
     @Test
-    fun popupPositiveButtonIsNotVisible() {
+    fun popupPositiveButtonIsVisible() {
         // setup
         val view = mainActivity.layoutInflater.inflate(R.layout.access_point_view_popup, null)
-        val alertDialog = fixture.show(view)
+        val alertDialog = fixture.show(view, wiFiDetail)
         // execute
         val actual = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE)
         // validate
@@ -78,7 +79,7 @@ class AccessPointPopupTest {
     fun popupNegativeButtonIsNotVisible() {
         // setup
         val view = mainActivity.layoutInflater.inflate(R.layout.access_point_view_popup, null)
-        val alertDialog = fixture.show(view)
+        val alertDialog = fixture.show(view, wiFiDetail)
         // execute
         val actual = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
         // validate
@@ -86,20 +87,19 @@ class AccessPointPopupTest {
     }
 
     @Test
-    fun popupNeutralButtonIsNotVisible() {
+    fun popupNeutralButtonIsVisible() {
         // setup
         val view = mainActivity.layoutInflater.inflate(R.layout.access_point_view_popup, null)
-        val alertDialog = fixture.show(view)
+        val alertDialog = fixture.show(view, wiFiDetail)
         // execute
         val actual = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL)
         // validate
-        assertThat(actual.visibility).isEqualTo(View.GONE)
+        assertThat(actual.visibility).isEqualTo(View.VISIBLE)
     }
 
     @Test
     fun attach() {
         // setup
-        val wiFiDetail = withWiFiDetail()
         val view = mainActivity.layoutInflater.inflate(R.layout.access_point_view_compact, null)
         // execute
         fixture.attach(view, wiFiDetail)

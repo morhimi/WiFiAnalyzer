@@ -20,7 +20,7 @@ package com.vrem.wifianalyzer.wifi.channelgraph
 import android.os.Build
 import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.jjoe64.graphview.GraphView
+import info.appdev.charting.charts.LineChart
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.MainContextHelper
 import com.vrem.wifianalyzer.RobolectricUtil
@@ -49,7 +49,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class ChannelGraphViewTest {
     private val settings: Settings = MainContextHelper.INSTANCE.settings
     private val graphViewWrapper: GraphViewWrapper = mock()
@@ -96,7 +96,7 @@ class ChannelGraphViewTest {
     @Test
     fun graphView() {
         // setup
-        val expected: GraphView = mock()
+        val expected: LineChart = mock()
         whenever(graphViewWrapper.graphView).thenReturn(expected)
         // execute
         val actual = fixture.graphView()

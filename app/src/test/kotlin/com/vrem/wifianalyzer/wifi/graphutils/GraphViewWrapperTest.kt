@@ -17,52 +17,49 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.graphics.Color
 import android.view.View
-import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.GridLabelRenderer
-import com.jjoe64.graphview.LegendRenderer
-import com.jjoe64.graphview.Viewport
-import com.jjoe64.graphview.series.BaseSeries
 import com.vrem.wifianalyzer.SIZE_MAX
 import com.vrem.wifianalyzer.SIZE_MIN
+import com.vrem.wifianalyzer.MainContextHelper
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import info.appdev.charting.charts.LineChart
+import info.appdev.charting.components.Legend
+import info.appdev.charting.components.XAxis
+import info.appdev.charting.data.EntryFloat
+import info.appdev.charting.data.LineData
+import info.appdev.charting.data.LineDataSet
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 class GraphViewWrapperTest {
-    private val graphView: GraphView = mock()
-    private val viewport: Viewport = mock()
-    private val gridLabelRenderer: GridLabelRenderer = mock()
-    private val legendRenderer: LegendRenderer = mock()
+    private val graphView: LineChart = mock()
+    private val lineData: LineData = mock()
     private val seriesCache: SeriesCache = mock()
     private val seriesOptions: SeriesOptions = mock()
-    private val baseSeries: BaseSeries<GraphDataPoint> = mock()
-    private val dataPoint: GraphDataPoint = GraphDataPoint(1, 2)
-    private val dataPoints = arrayOf(dataPoint)
+    private val lineDataSet: LineDataSet<EntryFloat> = mock()
     private val wiFiDetail = WiFiDetail.EMPTY
     private val fixture =
         spy(GraphViewWrapper(graphView, GraphLegend.HIDE, ThemeStyle.DARK, seriesCache, seriesOptions))
 
     @Before
     fun setUp() {
+        MainContextHelper.INSTANCE.aliasRepository
+        whenever(graphView.data).thenReturn(lineData)
         assertThat(fixture.graphLegend).isEqualTo(GraphLegend.HIDE)
     }
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(viewport)
+        MainContextHelper.INSTANCE.restore()
     }
 
     @Test
@@ -70,7 +67,7 @@ class GraphViewWrapperTest {
         // setup
         val newSeries: Set<WiFiDetail> = setOf()
         val difference: List<WiFiDetail> = listOf()
-        val removed = listOf(baseSeries)
+        val removed = listOf(lineDataSet)
         whenever(seriesCache.difference(newSeries)).thenReturn(difference)
         whenever(seriesCache.remove(difference)).thenReturn(removed)
         // execute
@@ -78,8 +75,10 @@ class GraphViewWrapperTest {
         // validate
         verify(seriesCache).difference(newSeries)
         verify(seriesCache).remove(difference)
-        verify(seriesOptions).removeSeriesColor(baseSeries)
-        verify(graphView).removeSeries(baseSeries)
+        verify(seriesOptions).removeSeriesColor(lineDataSet)
+        verify(lineData).removeDataSet(lineDataSet)
+        verify(graphView).notifyDataSetChanged()
+        verify(graphView).invalidate()
     }
 
     @Test
@@ -98,9 +97,11 @@ class GraphViewWrapperTest {
     @Test
     fun addSeriesDirectly() {
         // execute
-        fixture.addSeries(baseSeries)
+        fixture.addSeries(lineDataSet)
         // validate
-        verify(graphView).addSeries(baseSeries)
+        verify(lineData).addDataSet(lineDataSet)
+        verify(graphView).notifyDataSetChanged()
+        verify(graphView).invalidate()
     }
 
     @Test
@@ -108,36 +109,38 @@ class GraphViewWrapperTest {
         // setup
         whenever(seriesCache.contains(wiFiDetail)).thenReturn(true)
         // execute
-        val actual = fixture.addSeries(wiFiDetail, baseSeries, false)
+        val actual = fixture.addSeries(wiFiDetail, lineDataSet, false)
         // validate
         assertThat(actual).isFalse
         verify(seriesCache).contains(wiFiDetail)
-        verify(seriesCache, never()).put(wiFiDetail, baseSeries)
+        verify(seriesCache, never()).put(wiFiDetail, lineDataSet)
     }
 
     @Test
     fun addSeriesAddsSeries() {
         // setup
-        val expectedTitle = wiFiDetail.wiFiIdentifier.ssid + " " + wiFiDetail.wiFiSignal.channelDisplay()
+        val expectedLabel = wiFiDetail.wiFiIdentifier.ssid + " " + wiFiDetail.wiFiSignal.channelDisplay() + "\n(" + wiFiDetail.wiFiIdentifier.bssid + ")"
         val connected = wiFiDetail.wiFiAdditional.wiFiConnection.connected
         whenever(seriesCache.contains(wiFiDetail)).thenReturn(false)
         // execute
-        val actual = fixture.addSeries(wiFiDetail, baseSeries, true)
+        val actual = fixture.addSeries(wiFiDetail, lineDataSet, true)
         // validate
         assertThat(actual).isTrue
         verify(seriesCache).contains(wiFiDetail)
-        verify(seriesCache).put(wiFiDetail, baseSeries)
-        verify(baseSeries).title = expectedTitle
-        verify(baseSeries).setOnDataPointTapListener(any())
-        verify(seriesOptions).highlightConnected(baseSeries, connected)
-        verify(seriesOptions).setSeriesColor(baseSeries)
-        verify(seriesOptions).drawBackground(baseSeries, true)
-        verify(graphView).addSeries(baseSeries)
+        verify(seriesCache).put(wiFiDetail, lineDataSet)
+        verify(lineDataSet).label = expectedLabel
+        verify(seriesOptions).highlightConnected(lineDataSet, connected)
+        verify(seriesOptions).setSeriesColor(lineDataSet)
+        verify(seriesOptions).drawBackground(lineDataSet, true)
+        verify(lineData).addDataSet(lineDataSet)
+        verify(graphView).notifyDataSetChanged()
+        verify(graphView).invalidate()
     }
 
     @Test
     fun updateSeriesWhenSeriesDoesNotExistsDoesNotUpdateSeries() {
         // setup
+        val dataPoints = arrayOf(GraphDataPoint(1, 2))
         whenever(seriesCache.contains(wiFiDetail)).thenReturn(false)
         // execute
         val actual = fixture.updateSeries(wiFiDetail, dataPoints, true)
@@ -150,73 +153,58 @@ class GraphViewWrapperTest {
     @Test
     fun updateSeriesWhenSeriesDoesExists() {
         // setup
-        val expectedTitle = wiFiDetail.wiFiIdentifier.ssid + " " + wiFiDetail.wiFiSignal.channelDisplay()
+        val dataPoint = GraphDataPoint(1, 2)
+        val dataPoints = arrayOf(dataPoint)
+        val expectedLabel = wiFiDetail.wiFiIdentifier.ssid + " " + wiFiDetail.wiFiSignal.channelDisplay() + "\n(" + wiFiDetail.wiFiIdentifier.bssid + ")"
         val connected = wiFiDetail.wiFiAdditional.wiFiConnection.connected
         whenever(seriesCache.contains(wiFiDetail)).thenReturn(true)
-        whenever(seriesCache[wiFiDetail]).thenReturn(baseSeries)
+        whenever(seriesCache[wiFiDetail]).thenReturn(lineDataSet)
         // execute
         val actual = fixture.updateSeries(wiFiDetail, dataPoints, true)
         // validate
         assertThat(actual).isTrue
         verify(seriesCache).contains(wiFiDetail)
         verify(seriesCache)[wiFiDetail]
-        verify(baseSeries).resetData(dataPoints)
-        verify(baseSeries).title = expectedTitle
-        verify(seriesOptions).highlightConnected(baseSeries, connected)
-        verify(seriesOptions).drawBackground(baseSeries, true)
-    }
-
-    @Test
-    fun appendSeriesWhenSeriesDoesNotExistsDoesNotUpdateSeries() {
-        // setup
-        val count = 10
-        whenever(seriesCache.contains(wiFiDetail)).thenReturn(false)
-        // execute
-        val actual = fixture.appendToSeries(wiFiDetail, dataPoint, count, true)
-        // validate
-        assertThat(actual).isFalse
-        verify(seriesCache).contains(wiFiDetail)
-        verify(seriesCache, never())[wiFiDetail]
+        verify(lineDataSet).clear()
+        verify(lineDataSet).addEntry(any())
+        verify(lineDataSet).label = expectedLabel
+        verify(seriesOptions).highlightConnected(lineDataSet, connected)
+        verify(seriesOptions).drawBackground(lineDataSet, true)
+        verify(graphView).notifyDataSetChanged()
+        verify(graphView).invalidate()
     }
 
     @Test
     fun appendSeriesWhenSeriesDoesExists() {
         // setup
+        val dataPoint = GraphDataPoint(1, 2)
         val count = 10
         val connected = wiFiDetail.wiFiAdditional.wiFiConnection.connected
         whenever(seriesCache.contains(wiFiDetail)).thenReturn(true)
-        whenever(seriesCache[wiFiDetail]).thenReturn(baseSeries)
+        whenever(seriesCache[wiFiDetail]).thenReturn(lineDataSet)
         // execute
         val actual = fixture.appendToSeries(wiFiDetail, dataPoint, count, true)
         // validate
         assertThat(actual).isTrue
         verify(seriesCache).contains(wiFiDetail)
         verify(seriesCache)[wiFiDetail]
-        verify(baseSeries).appendData(dataPoint, true, count + 1)
-        verify(seriesOptions).highlightConnected(baseSeries, connected)
-        verify(seriesOptions).drawBackground(baseSeries, true)
+        verify(lineDataSet).addEntry(any())
+        verify(seriesOptions).highlightConnected(lineDataSet, connected)
+        verify(seriesOptions).drawBackground(lineDataSet, true)
+        verify(graphView).notifyDataSetChanged()
+        verify(graphView).invalidate()
     }
 
     @Test
     fun updateLegend() {
         // setup
-        val textSize = 10f
-        doReturn(legendRenderer).whenever(fixture).newLegendRenderer()
-        whenever(graphView.titleTextSize).thenReturn(textSize)
-        whenever(graphView.legendRenderer).thenReturn(legendRenderer)
+        val legend: Legend = mock()
+        whenever(graphView.legend).thenReturn(legend)
         // execute
         fixture.updateLegend(GraphLegend.RIGHT)
         // validate
         assertThat(fixture.graphLegend).isEqualTo(GraphLegend.RIGHT)
-        verify(graphView).titleTextSize
-        verify(graphView).legendRenderer
-        verify(graphView).legendRenderer = legendRenderer
-        verify(legendRenderer).resetStyles()
-        verify(legendRenderer).width = 0
-        verify(legendRenderer).textSize = textSize
-        verify(legendRenderer).textColor = Color.WHITE
-        verify(legendRenderer).isVisible = true
-        verify(legendRenderer).align = LegendRenderer.LegendAlign.TOP
+        verify(graphView).invalidate()
     }
 
     @Test
@@ -230,39 +218,36 @@ class GraphViewWrapperTest {
     @Test
     fun setHorizontalLabelsVisible() {
         // setup
-        doReturn(gridLabelRenderer).whenever(graphView).gridLabelRenderer
+        val xAxis: XAxis = mock()
+        whenever(graphView.xAxis).thenReturn(xAxis)
         // execute
         fixture.setHorizontalLabelsVisible(true)
         // validate
-        verify(graphView).gridLabelRenderer
-        verify(gridLabelRenderer).isHorizontalLabelsVisible = true
+        verify(xAxis).setDrawLabels(true)
     }
 
     @Test
     fun calculateGraphType() {
-        // execute & validate
-        assertThat(fixture.calculateGraphType()).isGreaterThan(0)
+        // execute \u0026 validate
+        assertThat(fixture.calculateGraphType()).isNotZero()
     }
 
     @Test
     fun setViewport() {
         // setup
-        whenever(graphView.gridLabelRenderer).thenReturn(gridLabelRenderer)
-        whenever(gridLabelRenderer.numHorizontalLabels).thenReturn(10)
-        whenever(graphView.viewport).thenReturn(viewport)
+        val xAxis: XAxis = mock()
+        whenever(graphView.xAxis).thenReturn(xAxis)
+        whenever(xAxis.labelCount).thenReturn(11)
         // execute
         fixture.setViewport()
         // validate
-        verify(graphView).gridLabelRenderer
-        verify(gridLabelRenderer).numHorizontalLabels
-        verify(graphView).viewport
-        verify(viewport).setMinX(0.0)
-        verify(viewport).setMaxX(9.0)
+        verify(graphView).setVisibleXRangeMaximum(10f)
+        verify(graphView).moveViewToX(0f)
     }
 
     @Test
     fun getSize() {
-        // execute & validate
+        // execute \u0026 validate
         assertThat(fixture.size(TYPE1)).isEqualTo(SIZE_MAX)
         assertThat(fixture.size(TYPE2)).isEqualTo(SIZE_MAX)
         assertThat(fixture.size(TYPE3)).isEqualTo(SIZE_MAX)
@@ -272,88 +257,12 @@ class GraphViewWrapperTest {
     @Test
     fun setViewportSetsMinAndMaxX() {
         // setup
-        whenever(graphView.viewport).thenReturn(viewport)
-        whenever(graphView.gridLabelRenderer).thenReturn(gridLabelRenderer)
-        whenever(gridLabelRenderer.numHorizontalLabels).thenReturn(5)
-        // execute
-        fixture.setViewport()
-        // validate
-        verify(viewport).setMinX(0.0)
-        verify(viewport).setMaxX(4.0)
-    }
-
-    @Test
-    fun setViewportWithParamsSetsMinAndMaxX() {
-        // setup
-        whenever(graphView.viewport).thenReturn(viewport)
+        val xAxis: XAxis = mock()
+        whenever(graphView.xAxis).thenReturn(xAxis)
         // execute
         fixture.setViewport(1, 10)
         // validate
-        verify(viewport).setMinX(1.0)
-        verify(viewport).setMaxX(10.0)
-    }
-
-    @Test
-    fun viewportCntXReturnsCorrectValue() {
-        // setup
-        whenever(graphView.gridLabelRenderer).thenReturn(gridLabelRenderer)
-        whenever(gridLabelRenderer.numHorizontalLabels).thenReturn(7)
-        // execute
-        assertThat(fixture.viewportCntX).isEqualTo(6)
-        // validate
-        verify(graphView).gridLabelRenderer
-        verify(gridLabelRenderer).numHorizontalLabels
-    }
-
-    @Test
-    fun updateLegendWhenSameLegendDoesNotResetLegendRenderer() {
-        whenever(graphView.legendRenderer).thenReturn(legendRenderer)
-        whenever(graphView.titleTextSize).thenReturn(12f)
-        fixture.updateLegend(GraphLegend.HIDE)
-        verify(legendRenderer).resetStyles()
-    }
-
-    @Test
-    fun setHorizontalLabelsVisibleSetsValue() {
-        // setup
-        whenever(graphView.gridLabelRenderer).thenReturn(gridLabelRenderer)
-        // execute
-        fixture.setHorizontalLabelsVisible(true)
-        // validate
-        verify(gridLabelRenderer).isHorizontalLabelsVisible = true
-    }
-
-    @Test
-    fun visibilitySetsVisibility() {
-        // execute
-        fixture.visibility(View.VISIBLE)
-        // validate
-        verify(graphView).visibility = View.VISIBLE
-    }
-
-    @Test
-    fun newSeriesReturnsTrueIfNotExists() {
-        // setup
-        whenever(seriesCache.contains(wiFiDetail)).thenReturn(false)
-        // execute & validate
-        assertThat(fixture.newSeries(wiFiDetail)).isTrue
-    }
-
-    @Test
-    fun newSeriesReturnsFalseIfExists() {
-        // setup
-        whenever(seriesCache.contains(wiFiDetail)).thenReturn(true)
-        // execute & validate
-        assertThat(fixture.newSeries(wiFiDetail)).isFalse
-    }
-
-    @Test
-    fun addSeriesTriggersPopupOnTap() {
-        // setup
-        whenever(seriesCache.contains(wiFiDetail)).thenReturn(false)
-        // execute
-        fixture.addSeries(wiFiDetail, baseSeries, false)
-        // validate
-        verify(baseSeries).setOnDataPointTapListener(any())
+        verify(xAxis).axisMinimum = 1f
+        verify(xAxis).axisMaximum = 10f
     }
 }

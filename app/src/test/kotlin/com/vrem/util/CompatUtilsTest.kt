@@ -45,7 +45,7 @@ import org.robolectric.annotation.Config
 import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class CompatUtilsTest {
     private val context: Context = mock()
     private val contextWrapper: ContextWrapper = mock()

@@ -43,7 +43,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
+@Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
 class WarningViewTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val permissionService = MainContextHelper.INSTANCE.permissionService
@@ -169,8 +169,8 @@ class WarningViewTest {
     }
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.O_MR1])
-    fun noLocationVisibleAndThrottlingIsGoneAndroidP() {
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun noLocationVisibleAndThrottlingIsVisibleAndroidP() {
         // setup
         whenever(permissionService.enabled()).thenReturn(false)
         // execute
@@ -178,7 +178,7 @@ class WarningViewTest {
         // validate
         assertThat(actual).isTrue
         assertThat(mainActivity.findViewById<View>(R.id.no_location).isVisible).isTrue
-        assertThat(mainActivity.findViewById<View>(R.id.throttling).isGone).isTrue
+        assertThat(mainActivity.findViewById<View>(R.id.throttling).isVisible).isTrue
         verify(permissionService).enabled()
     }
 
