@@ -50,6 +50,11 @@
     <string name="action_vendors">"Vendors"</string>
     <string name="al" translatable="false">"<u>Apache License 2.0</u>"</string>
     <string name="al_url" translatable="false">"http://www.apache.org/licenses/LICENSE-2.0"</string>
+    <string name="ap_alias_clear">"Clear"</string>
+    <string name="ap_alias_edit">"Edit Alias"</string>
+    <string name="ap_alias_hint">"Enter custom name (e.g. Living Room)"</string>
+    <string name="ap_alias_save">"Save"</string>
+    <string name="ap_alias_title">"Access Point Name"</string>
     <string name="ap_view_compact">"Compact"</string>
     <string name="ap_view_complete">"Complete"</string>
     <string name="ap_view_default" translatable="false">"0"</string>

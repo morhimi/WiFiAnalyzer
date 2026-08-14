@@ -201,6 +201,12 @@ class GraphWrapper(
 
     private fun seriesExists(wiFiDetail: WiFiDetail): Boolean = seriesCache.contains(wiFiDetail)
 
-    private fun seriesTitle(wiFiDetail: WiFiDetail): String =
-        "${wiFiDetail.wiFiIdentifier.ssid} ${wiFiDetail.wiFiSignal.channelDisplay()}"
+    private fun seriesTitle(wiFiDetail: WiFiDetail): String {
+        val name =
+            when {
+                wiFiDetail.wiFiIdentifier.alias.isNotBlank() -> wiFiDetail.wiFiIdentifier.alias
+                else -> wiFiDetail.wiFiIdentifier.ssid
+            }
+        return "$name ${wiFiDetail.wiFiSignal.channelDisplay()}"
+    }
 }

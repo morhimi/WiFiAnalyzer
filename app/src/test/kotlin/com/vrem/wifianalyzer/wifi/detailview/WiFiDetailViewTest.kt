@@ -311,6 +311,28 @@ class WiFiDetailViewTest {
         // Assert
         assertThat(actual.findViewById<TextView>(R.id.ssid).isTextSelectable).isTrue
         assertThat(actual.findViewById<TextView>(R.id.vendorLong).isTextSelectable).isTrue
+        assertThat(actual.findViewById<TextView>(R.id.bssid).isTextSelectable).isTrue
+    }
+
+    @Test
+    fun makeViewDetailedWithBSSIDVisible() {
+        // Arrange
+        val wiFiDetail = withWiFiDetail()
+        // Act
+        val actual = fixture.makeViewDetailed(wiFiDetail)
+        // Assert
+        assertThat(actual.findViewById<View>(R.id.bssid).visibility).isEqualTo(View.VISIBLE)
+        validateTextViewValue(actual, wiFiDetail.wiFiIdentifier.bssid, R.id.bssid)
+    }
+
+    @Test
+    fun makeViewDetailedWithBSSIDNotVisibleWhenEmpty() {
+        // Arrange
+        val wiFiDetail = withWiFiDetail(bssid = "")
+        // Act
+        val actual = fixture.makeViewDetailed(wiFiDetail)
+        // Assert
+        assertThat(actual.findViewById<View>(R.id.bssid).visibility).isEqualTo(View.GONE)
     }
 
     @Test
@@ -384,11 +406,12 @@ class WiFiDetailViewTest {
 
     private fun withWiFiDetail(
         ssid: String = "SSID",
+        bssid: String = "BSSID",
         wiFiAdditional: WiFiAdditional = WiFiAdditional.EMPTY,
         is80211mc: Boolean = false,
     ): WiFiDetail =
         WiFiDetail(
-            WiFiIdentifier(ssid, "BSSID"),
+            WiFiIdentifier(ssid, bssid),
             WiFiSecurity("[WPS-capabilities][WPA2-XYZ][XYZ-FT]", WiFiSecurityTypeTest.All),
             WiFiSignal(
                 2432,

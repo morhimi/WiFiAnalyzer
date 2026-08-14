@@ -22,6 +22,7 @@ import android.net.wifi.ScanResult.InformationElement
 import android.net.wifi.WifiInfo
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.vrem.wifianalyzer.MainContextHelper
 import com.vrem.wifianalyzer.wifi.model.BSSID
 import com.vrem.wifianalyzer.wifi.model.FastRoaming
 import com.vrem.wifianalyzer.wifi.model.SSID
@@ -33,6 +34,7 @@ import com.vrem.wifianalyzer.wifi.model.WiFiStandard
 import com.vrem.wifianalyzer.wifi.model.WiFiWidth
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.doReturn
@@ -82,8 +84,14 @@ class TransformerTest {
     private val cache: Cache = mock()
     private val fixture = Transformer(cache)
 
+    @Before
+    fun setUp() {
+        MainContextHelper.INSTANCE.apAliasService
+    }
+
     @After
     fun tearDown() {
+        MainContextHelper.INSTANCE.restore()
         verifyNoMoreInteractions(wifiInfo)
         verifyNoMoreInteractions(cache)
     }

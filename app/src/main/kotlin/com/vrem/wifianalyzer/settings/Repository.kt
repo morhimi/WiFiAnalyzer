@@ -41,7 +41,14 @@ class Repository(
     fun save(
         key: Int,
         value: String,
-    ): Unit = sharedPreferences().edit { putString(context.getString(key), value) }
+    ): Unit = save(context.getString(key), value)
+
+    fun save(
+        key: String,
+        value: String,
+    ): Unit = sharedPreferences().edit { putString(key, value) }
+
+    fun remove(key: String): Unit = sharedPreferences().edit { remove(key) }
 
     fun stringAsInteger(
         key: Int,
@@ -51,15 +58,18 @@ class Repository(
     fun string(
         key: Int,
         defaultValue: String,
-    ): String {
-        val keyValue: String = context.getString(key)
-        return runCatching {
-            sharedPreferences().getString(keyValue, defaultValue) ?: defaultValue
+    ): String = string(context.getString(key), defaultValue)
+
+    fun string(
+        key: String,
+        defaultValue: String,
+    ): String =
+        runCatching {
+            sharedPreferences().getString(key, defaultValue) ?: defaultValue
         }.getOrElse {
-            sharedPreferences().edit { putString(keyValue, defaultValue) }
+            sharedPreferences().edit { putString(key, defaultValue) }
             defaultValue
         }
-    }
 
     fun boolean(
         key: Int,

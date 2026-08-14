@@ -29,6 +29,7 @@ import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.model.WiFiAdditional
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import com.vrem.wifianalyzer.wifi.model.WiFiSecurity
 import com.vrem.wifianalyzer.wifi.model.WiFiSignal
 
@@ -61,6 +62,7 @@ class WiFiDetailView {
         setViewCapabilitiesLong(view, wiFiDetail.wiFiSecurity)
         setViewSecurityTypes(view, wiFiDetail.wiFiSecurity)
         setViewVendor(view, R.id.vendorLong, wiFiDetail.wiFiAdditional)
+        setViewBSSID(view, wiFiDetail.wiFiIdentifier)
         setViewWiFiBand(view, wiFiDetail.wiFiSignal)
         setViewWiFiChannelPair(view, wiFiDetail.wiFiSignal)
         setView80211mc(view, wiFiDetail.wiFiSignal)
@@ -73,8 +75,21 @@ class WiFiDetailView {
     private fun enableTextSelection(view: View) =
         view.findViewById<TextView>(R.id.ssid)?.let {
             it.setTextIsSelectable(true)
-            view.findViewById<TextView>(R.id.vendorLong).setTextIsSelectable(true)
+            view.findViewById<TextView>(R.id.vendorLong)?.setTextIsSelectable(true)
+            view.findViewById<TextView>(R.id.bssid)?.setTextIsSelectable(true)
         }
+
+    private fun setViewBSSID(
+        view: View,
+        wiFiIdentifier: WiFiIdentifier,
+    ) = view.findViewById<TextView>(R.id.bssid)?.let {
+        if (wiFiIdentifier.bssid.isBlank()) {
+            it.visibility = View.GONE
+        } else {
+            it.visibility = View.VISIBLE
+            it.text = wiFiIdentifier.bssid
+        }
+    }
 
     private fun setViewCompact(
         view: View,

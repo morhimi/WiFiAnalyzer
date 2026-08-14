@@ -25,6 +25,7 @@ typealias BSSID = String
 data class WiFiIdentifier(
     val ssidRaw: SSID = String.EMPTY,
     val bssid: BSSID = String.EMPTY,
+    val alias: String = String.EMPTY,
 ) : Comparable<WiFiIdentifier> {
     val ssid =
         when {
@@ -32,7 +33,14 @@ data class WiFiIdentifier(
             else -> ssidRaw
         }
 
-    val title: String get() = "$ssid ($bssid)"
+    val title: String
+        get() {
+            val aliasName = alias.orEmpty()
+            return when {
+                aliasName.isNotBlank() -> "$aliasName ($ssid)"
+                else -> "$ssid ($bssid)"
+            }
+        }
 
     fun equals(
         other: WiFiIdentifier,

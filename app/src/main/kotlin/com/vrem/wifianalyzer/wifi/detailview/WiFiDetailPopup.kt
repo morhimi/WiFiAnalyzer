@@ -18,21 +18,79 @@
 package com.vrem.wifianalyzer.wifi.detailview
 
 import android.app.AlertDialog
+import android.content.Context
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.FrameLayout
 import com.vrem.annotation.OpenClass
+import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 @OpenClass
 class WiFiDetailPopup {
-    fun show(view: View): AlertDialog {
+    fun show(
+        view: View,
+        wiFiDetail: WiFiDetail? = null,
+    ): AlertDialog {
+        val builder = AlertDialog.Builder(view.context).setView(view)
+        wiFiDetail?.let { detail ->
+            if (detail.wiFiIdentifier.bssid.isNotBlank()) {
+                builder.setNeutralButton(R.string.ap_alias_edit) { dialog, _ ->
+                    dialog.dismiss()
+                    showAliasDialog(view.context, detail)
+                }
+            }
+        }
         val alertDialog: AlertDialog =
-            AlertDialog
-                .Builder(view.context)
-                .setView(view)
+            builder
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     dialog.cancel()
                 }.create()
+        alertDialog.show()
+        return alertDialog
+    }
+
+    fun showAliasDialog(
+        context: Context,
+        wiFiDetail: WiFiDetail,
+    ): AlertDialog {
+        val input = EditText(context)
+        input.setSingleLine()
+        input.setText(wiFiDetail.wiFiIdentifier.alias)
+        input.hint = context.getString(R.string.ap_alias_hint)
+
+        val container = FrameLayout(context)
+        val params =
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+        val margin = context.resources.getDimensionPixelSize(R.dimen.activity_horizontal_margin)
+        params.setMargins(margin, margin / 2, margin, margin / 2)
+        input.layoutParams = params
+        container.addView(input)
+
+        val builder =
+            AlertDialog
+                .Builder(context)
+                .setTitle(R.string.ap_alias_title)
+                .setMessage("${wiFiDetail.wiFiIdentifier.ssid} (${wiFiDetail.wiFiIdentifier.bssid})")
+                .setView(container)
+                .setPositiveButton(R.string.ap_alias_save) { dialog, _ ->
+                    val alias = input.text.toString()
+                    MainContext.INSTANCE.apAliasService.saveAlias(wiFiDetail.wiFiIdentifier.bssid, alias)
+                    MainContext.INSTANCE.scannerService.update()
+                    dialog.dismiss()
+                }.setNeutralButton(R.string.ap_alias_clear) { dialog, _ ->
+                    MainContext.INSTANCE.apAliasService.removeAlias(wiFiDetail.wiFiIdentifier.bssid)
+                    MainContext.INSTANCE.scannerService.update()
+                    dialog.dismiss()
+                }.setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                    dialog.cancel()
+                }
+        val alertDialog = builder.create()
         alertDialog.show()
         return alertDialog
     }
@@ -69,7 +127,7 @@ class WiFiDetailPopup {
         wiFiDetail: WiFiDetail,
     ) {
         view.setOnClickListener {
-            runCatching { show(WiFiDetailView().makeViewDetailed(wiFiDetail)) }
+            runCatching { show(WiFiDetailView().makeViewDetailed(wiFiDetail), wiFiDetail) }
         }
     }
 

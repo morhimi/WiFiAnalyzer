@@ -21,6 +21,7 @@ import android.net.wifi.WifiInfo
 import com.vrem.annotation.OpenClass
 import com.vrem.util.nullToEmpty
 import com.vrem.util.ssid
+import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.wifi.model.FastRoaming
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
 import com.vrem.wifianalyzer.wifi.model.WiFiData
@@ -47,7 +48,9 @@ internal class Transformer(
             WiFiConnection.EMPTY
         } else {
             val ssid = convertSSID(String.nullToEmpty(wifiInfo.ssid))
-            val wiFiIdentifier = WiFiIdentifier(ssid, String.nullToEmpty(wifiInfo.bssid))
+            val bssid = String.nullToEmpty(wifiInfo.bssid)
+            val alias = MainContext.INSTANCE.apAliasService.getAlias(bssid)
+            val wiFiIdentifier = WiFiIdentifier(ssid, bssid, alias)
             WiFiConnection(wiFiIdentifier, convertIpV4Address(wifiInfo.ipV4Address()), wifiInfo.linkSpeed)
         }
     }
@@ -59,8 +62,10 @@ internal class Transformer(
     private fun transform(cacheResult: CacheResult): WiFiDetail {
         val scanResult = cacheResult.scanResult
         val wiFiWidth = WiFiWidth.findOne(scanResult.channelWidth)
+        val bssid = String.nullToEmpty(scanResult.BSSID)
+        val alias = MainContext.INSTANCE.apAliasService.getAlias(bssid)
         return WiFiDetail(
-            WiFiIdentifier(scanResult.ssid(), String.nullToEmpty(scanResult.BSSID)),
+            WiFiIdentifier(scanResult.ssid(), bssid, alias),
             WiFiSecurity(String.nullToEmpty(scanResult.capabilities), WiFiSecurityType.find(scanResult)),
             WiFiSignal(
                 scanResult.frequency,

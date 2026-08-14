@@ -35,7 +35,16 @@ class WiFiIdentifierTest {
         assertThat(fixture.ssidRaw).isEqualTo(ssid)
         assertThat(fixture.ssid).isEqualTo(ssid)
         assertThat(fixture.bssid).isEqualTo(bssid)
+        assertThat(fixture.alias).isEqualTo(String.EMPTY)
         assertThat(fixture.title).isEqualTo(expectedTitle)
+    }
+
+    @Test
+    fun titleWithAlias() {
+        val alias = "Living Room"
+        val fixture = WiFiIdentifier(ssid, bssid, alias)
+        assertThat(fixture.alias).isEqualTo(alias)
+        assertThat(fixture.title).isEqualTo("$alias ($ssid)")
     }
 
     @Test

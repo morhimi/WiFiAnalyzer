@@ -36,6 +36,7 @@ class Export(
         "Time Stamp|" +
             "SSID|" +
             "BSSID|" +
+            "Alias|" +
             "Strength|" +
             "Primary Channel|" +
             "Primary Frequency|" +
@@ -92,6 +93,7 @@ class Export(
                 "$timestamp|" +
                     "${wiFiIdentifier.ssid}|" +
                     "${wiFiIdentifier.bssid}|" +
+                    "${wiFiIdentifier.alias}|" +
                     "${wiFiSignal.level}dBm|" +
                     "${wiFiSignal.primaryWiFiChannel.channel}|" +
                     "${wiFiSignal.primaryFrequency}$FREQUENCY_UNITS|" +

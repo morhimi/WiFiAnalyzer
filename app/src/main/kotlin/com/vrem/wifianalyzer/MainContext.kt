@@ -29,6 +29,7 @@ import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.makeScannerService
 
@@ -42,6 +43,7 @@ enum class MainContext {
     lateinit var permissionService: PermissionService
     lateinit var scannerService: ScannerService
     lateinit var vendorService: VendorService
+    lateinit var apAliasService: ApAliasService
     lateinit var configuration: Configuration
     lateinit var filtersAdapter: FiltersAdapter
 
@@ -59,7 +61,9 @@ enum class MainContext {
     ) {
         mainActivity = activity
         configuration = Configuration(largeScreen)
-        settings = Settings(Repository(context))
+        val repository = Repository(context)
+        settings = Settings(repository)
+        apAliasService = ApAliasService(repository)
         vendorService = VendorService(activity.resources)
         wiFiManagerWrapper = WiFiManagerWrapper(wiFiManager)
         permissionService = PermissionService(activity)

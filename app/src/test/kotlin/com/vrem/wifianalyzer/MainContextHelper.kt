@@ -17,13 +17,17 @@
  */
 package com.vrem.wifianalyzer
 
+import com.vrem.util.EMPTY
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 enum class MainContextHelper {
     INSTANCE,
@@ -44,6 +48,15 @@ enum class MainContextHelper {
             runCatching { saved[VendorService::class.java] = mainContext.vendorService }
             mainContext.vendorService = mock()
             return mainContext.vendorService
+        }
+
+    val apAliasService: ApAliasService
+        get() {
+            runCatching { saved[ApAliasService::class.java] = mainContext.apAliasService }
+            val mockApAliasService: ApAliasService = mock()
+            whenever(mockApAliasService.getAlias(any())).thenReturn(String.EMPTY)
+            mainContext.apAliasService = mockApAliasService
+            return mainContext.apAliasService
         }
 
     val permissionService: PermissionService
@@ -93,6 +106,7 @@ enum class MainContextHelper {
             when (it.key) {
                 Settings::class.java -> mainContext.settings = it.value as Settings
                 VendorService::class.java -> mainContext.vendorService = it.value as VendorService
+                ApAliasService::class.java -> mainContext.apAliasService = it.value as ApAliasService
                 ScannerService::class.java -> mainContext.scannerService = it.value as ScannerService
                 MainActivity::class.java -> mainContext.mainActivity = it.value as MainActivity
                 Configuration::class.java -> mainContext.configuration = it.value as Configuration
