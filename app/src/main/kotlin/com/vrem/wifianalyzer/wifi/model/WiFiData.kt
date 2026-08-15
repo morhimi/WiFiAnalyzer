@@ -57,7 +57,6 @@ class WiFiData(
                 .groupBy { groupBy.group(it) }
                 .values
                 .map(map(sortBy, groupBy))
-                .sortedWith(sortBy.sort)
         }
 
     private fun map(

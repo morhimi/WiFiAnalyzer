@@ -72,11 +72,12 @@ fun WiFiGraphScreen(
                         modifier = Modifier.weight(1f),
                         factory = { context ->
                             ViewFlipper(context).apply {
-                                graphAdapter.graphs().forEach { addView(it) }
+                                graphAdapter.graphNotifiers.forEach { addView(it.graph()) }
                             }
                         },
                         update = { flipper ->
                             flipper.displayedChild = displayedChild
+                            // Explicitly call update on each data/settings change
                             graphAdapter.update(wiFiData, settingsData)
                         },
                     )

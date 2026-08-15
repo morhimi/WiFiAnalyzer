@@ -39,7 +39,7 @@ fun calculateSignalLevel(
     numLevels: Int,
 ): Int =
     when {
-        rssi <= MIN_RSSI -> 0
+        rssi <= MIN_RSSI || rssi == 0 -> 0
         rssi >= MAX_RSSI -> numLevels - 1
         else -> (rssi - MIN_RSSI) * (numLevels - 1) / (MAX_RSSI - MIN_RSSI)
     }

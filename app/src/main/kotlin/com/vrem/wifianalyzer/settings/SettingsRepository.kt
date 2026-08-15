@@ -43,7 +43,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -195,13 +195,6 @@ class SettingsRepository @Inject constructor(
         dataStore.edit { preferences -> preferences[filterSecurityKey] = values }
     }
 
-    fun getAlias(bssid: String): String {
-        val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
-        return runBlocking {
-            dataStore.data.first()[key] ?: ""
-        }
-    }
-
     suspend fun saveAlias(bssid: String, alias: String) {
         val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
         dataStore.edit { preferences ->
@@ -211,5 +204,15 @@ class SettingsRepository @Inject constructor(
                 preferences[key] = alias
             }
         }
+    }
+
+    fun getAlias(bssid: String): Flow<String> {
+        val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
+        return dataStore.data.map { it[key] ?: "" }
+    }
+
+    suspend fun getAliasSync(bssid: String): String {
+        val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
+        return dataStore.data.first()[key] ?: ""
     }
 }

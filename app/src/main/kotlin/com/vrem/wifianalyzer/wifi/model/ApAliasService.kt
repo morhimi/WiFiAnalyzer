@@ -23,6 +23,7 @@ import com.vrem.wifianalyzer.settings.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
@@ -33,9 +34,26 @@ class ApAliasService(
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val cache = ConcurrentHashMap<BSSID, String>()
 
+    init {
+        // We don't have a global Flow of ALL aliases easily with Preferences DataStore keys.
+        // But we can rely on the in-memory cache for writes and eventual consistency for reads.
+        // Actually, for a small number of aliases, this is fine.
+    }
+
     fun getAlias(bssid: BSSID): String {
         if (bssid.isBlank()) return String.EMPTY
-        return cache.getOrPut(bssid) { settingsRepository.getAlias(bssid) }
+        val key = bssid.uppercase()
+        return cache[key] ?: fetchAndCache(key)
+    }
+
+    private fun fetchAndCache(key: String): String {
+        // Initial fetch - we still need a sync way for the Transformer.
+        // Let's use a non-blocking fetch that updates the cache.
+        scope.launch {
+            val alias = settingsRepository.getAliasSync(key)
+            cache[key] = alias
+        }
+        return String.EMPTY // Return empty for the first time, will be updated in next scan
     }
 
     fun saveAlias(
@@ -44,17 +62,19 @@ class ApAliasService(
     ) {
         if (bssid.isBlank()) return
         val trimmedAlias = alias.trim()
-        cache[bssid] = trimmedAlias
+        val key = bssid.uppercase()
+        cache[key] = trimmedAlias
         scope.launch {
-            settingsRepository.saveAlias(bssid, trimmedAlias)
+            settingsRepository.saveAlias(key, trimmedAlias)
         }
     }
 
     fun removeAlias(bssid: BSSID) {
         if (bssid.isBlank()) return
-        cache.remove(bssid)
+        val key = bssid.uppercase()
+        cache.remove(key)
         scope.launch {
-            settingsRepository.saveAlias(bssid, "")
+            settingsRepository.saveAlias(key, "")
         }
     }
 }

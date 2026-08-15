@@ -45,7 +45,7 @@ data class WiFiSignal(
     val primaryFrequency: Int = 0,
     val centerFrequency: Int = 0,
     val wiFiWidth: WiFiWidth = WiFiWidth.MHZ_20,
-    val level: Int = 0,
+    val level: Int = -100,
     val extra: WiFiSignalExtra = WiFiSignalExtra.EMPTY,
 ) {
     val wiFiBand: WiFiBand = WiFiBand.find(primaryFrequency)

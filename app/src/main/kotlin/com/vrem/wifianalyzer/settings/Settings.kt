@@ -58,11 +58,11 @@ class Settings(
     val settingsData: StateFlow<SettingsData> = _settingsData.asStateFlow()
 
     private val sharedPreferenceChangeListener = OnSharedPreferenceChangeListener { _, key ->
-        val currentSettings = transformSync()
-        _settingsData.value = currentSettings
+        _settingsData.value = transformSync()
 
         key?.let { k ->
             scope.launch {
+                val currentSettings = _settingsData.value
                 when (k) {
                     repository.contextString(R.string.scan_speed_key) -> settingsRepository?.updateScanSpeed(currentSettings.scanSpeed.toString())
                     repository.contextString(R.string.cache_off_key) -> settingsRepository?.updateCacheOff(currentSettings.cacheOff)
