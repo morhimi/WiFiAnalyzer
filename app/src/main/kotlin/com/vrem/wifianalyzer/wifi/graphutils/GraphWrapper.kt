@@ -73,7 +73,6 @@ class GraphWrapper(
         if (removed.isNotEmpty()) {
             chartUpdater.resetStyles()
             chartUpdater.syncPointMap(seriesCache.populatedEntries())
-            flushData()
         }
         removed.filterNot { it.connected }.forEach {
             graphColors.addColor(it.graphColor.primary)

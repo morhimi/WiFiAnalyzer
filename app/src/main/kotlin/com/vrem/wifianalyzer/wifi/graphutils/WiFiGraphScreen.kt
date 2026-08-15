@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
@@ -50,11 +49,6 @@ fun WiFiGraphScreen(
     onRefresh: () -> Unit,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
-    // Explicitly update graphs when data or settings change
-    LaunchedEffect(wiFiData, settingsData) {
-        graphAdapter.update(wiFiData, settingsData)
-    }
-
     WiFiAnalyzerTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -83,6 +77,7 @@ fun WiFiGraphScreen(
                         },
                         update = { flipper ->
                             flipper.displayedChild = displayedChild
+                            graphAdapter.update(wiFiData, settingsData)
                         },
                     )
                 }

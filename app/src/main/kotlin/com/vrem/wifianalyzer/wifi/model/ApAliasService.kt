@@ -24,16 +24,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 
 @OpenClass
 class ApAliasService(
     private val settingsRepository: SettingsRepository,
 ) {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val cache = ConcurrentHashMap<BSSID, String>()
 
     fun getAlias(bssid: BSSID): String {
         if (bssid.isBlank()) return String.EMPTY
-        return settingsRepository.getAlias(bssid)
+        return cache.getOrPut(bssid) { settingsRepository.getAlias(bssid) }
     }
 
     fun saveAlias(
@@ -42,6 +44,7 @@ class ApAliasService(
     ) {
         if (bssid.isBlank()) return
         val trimmedAlias = alias.trim()
+        cache[bssid] = trimmedAlias
         scope.launch {
             settingsRepository.saveAlias(bssid, trimmedAlias)
         }
@@ -49,6 +52,7 @@ class ApAliasService(
 
     fun removeAlias(bssid: BSSID) {
         if (bssid.isBlank()) return
+        cache.remove(bssid)
         scope.launch {
             settingsRepository.saveAlias(bssid, "")
         }
