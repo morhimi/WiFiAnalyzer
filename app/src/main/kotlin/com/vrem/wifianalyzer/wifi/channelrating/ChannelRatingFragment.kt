@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,18 +32,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vrem.wifianalyzer.MainContext
-import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
+import com.vrem.wifianalyzer.wifi.model.ChannelRating
+import com.vrem.wifianalyzer.wifi.model.SortBy
+import com.vrem.wifianalyzer.wifi.predicate.predicate
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class ChannelRatingFragment : Fragment() {
-    lateinit var channelRatingAdapter: ChannelRatingAdapter
-        private set
+    private val channelRating = ChannelRating()
     internal val wiFiScanViewModel: WiFiScanViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -62,12 +62,23 @@ class ChannelRatingFragment : Fragment() {
                 }
                 val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
                 val wiFiBand = settings.wiFiBand()
+                val countryCode = settings.countryCode()
+
+                val wiFiChannels = wiFiBand.wiFiChannels.availableChannels(wiFiBand, countryCode)
+                val wiFiDetails = wiFiData.wiFiDetails(wiFiBand.predicate(), SortBy.STRENGTH)
+                channelRating.wiFiDetails(wiFiDetails)
+                val bestChannels = channelRating.bestChannels(wiFiBand, wiFiChannels)
+
                 var isRefreshing by remember { mutableStateOf(false) }
                 val scope = rememberCoroutineScope()
 
                 WiFiAnalyzerTheme(darkTheme = isDark) {
                     ChannelRatingScreen(
                         wiFiData = wiFiData,
+                        wiFiBand = wiFiBand,
+                        wiFiChannels = wiFiChannels,
+                        bestChannels = bestChannels,
+                        channelRating = channelRating,
                         wiFiBandAvailable = wiFiBand.available(),
                         wiFiBandName = getString(wiFiBand.textResource),
                         scanThrottleEnabled = MainContext.INSTANCE.wiFiManagerWrapper.isScanThrottleEnabled(),
@@ -80,16 +91,6 @@ class ChannelRatingFragment : Fragment() {
                                 wiFiScanViewModel.update()
                                 delay(1.seconds)
                                 isRefreshing = false
-                            }
-                        },
-                        onBind = { binding ->
-                            channelRatingAdapter = ChannelRatingAdapter(requireActivity(), binding.channelRatingBest)
-                            val listView = binding.channelRatingRefresh.findViewById<android.widget.ListView>(R.id.channelRatingView)
-                            listView.adapter = channelRatingAdapter
-                        },
-                        onUpdate = {
-                            if (::channelRatingAdapter.isInitialized) {
-                                channelRatingAdapter.update(wiFiData)
                             }
                         },
                         onDetailClick = { detail ->

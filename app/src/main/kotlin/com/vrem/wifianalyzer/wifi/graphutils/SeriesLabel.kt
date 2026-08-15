@@ -40,8 +40,9 @@ internal fun CartesianDrawingContext.canvasY(point: DataPoint): Float {
 internal val configureLabel: ConfigureLabel = { context, position, seriesData, paint ->
     paint.textAlign = position.textAlign
     paint.color = seriesData.graphColor.primary
-    paint.textSize = context.spToPx(10f)
-    paint.typeface = if (seriesData.connected) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+    paint.textSize = context.spToPx(13f)
+    paint.typeface = Typeface.create(Typeface.DEFAULT, if (seriesData.connected) Typeface.BOLD else Typeface.NORMAL)
+    paint.setShadowLayer(3f, 1f, 1f, android.graphics.Color.BLACK)
 }
 
 class SeriesLabel(
@@ -55,7 +56,7 @@ class SeriesLabel(
         if (seriesSnapshot.isEmpty()) return
         with(context) {
             canvas.withClip(layerBounds) {
-                val verticalOffset = spToPx(4f)
+                val verticalOffset = spToPx(6f)
                 seriesSnapshot.forEach { seriesData ->
                     calculateLabelPosition(context, seriesData)?.let { position ->
                         configure(context, position, seriesData, paint)

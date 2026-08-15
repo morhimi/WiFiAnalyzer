@@ -17,20 +17,25 @@
  */
 package com.vrem.wifianalyzer.wifi.channelrating
 
-import android.view.LayoutInflater
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
-import com.vrem.wifianalyzer.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
-import com.vrem.wifianalyzer.databinding.ChannelRatingContentBinding
 import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionHeader
+import com.vrem.wifianalyzer.wifi.band.WiFiBand
+import com.vrem.wifianalyzer.wifi.band.WiFiChannel
+import com.vrem.wifianalyzer.wifi.model.ChannelAPCount
+import com.vrem.wifianalyzer.wifi.model.ChannelRating
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
@@ -38,6 +43,10 @@ import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 @Composable
 fun ChannelRatingScreen(
     wiFiData: WiFiData,
+    wiFiBand: WiFiBand,
+    wiFiChannels: List<WiFiChannel>,
+    bestChannels: List<ChannelAPCount>,
+    channelRating: ChannelRating,
     wiFiBandAvailable: Boolean,
     wiFiBandName: String,
     scanThrottleEnabled: Boolean,
@@ -45,8 +54,6 @@ fun ChannelRatingScreen(
     isScanning: Boolean,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
-    onBind: (ChannelRatingContentBinding) -> Unit,
-    onUpdate: () -> Unit,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
     WiFiAnalyzerTheme {
@@ -68,17 +75,30 @@ fun ChannelRatingScreen(
                         isScanning = isScanning,
                         onDetailClick = onDetailClick,
                     )
-                    AndroidView(
-                        modifier = Modifier.weight(1f),
-                        factory = { context ->
-                            val binding = ChannelRatingContentBinding.inflate(LayoutInflater.from(context))
-                            onBind(binding)
-                            binding.root
-                        },
-                        update = {
-                            onUpdate()
-                        },
-                    )
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp),
+                    ) {
+                        item {
+                            ChannelRatingBest(
+                                wiFiBand = wiFiBand,
+                                bestChannels = bestChannels,
+                            )
+                        }
+
+                        items(wiFiChannels) { channel ->
+                            ChannelRatingItem(
+                                wiFiChannel = channel,
+                                wiFiWidthName = stringResource(
+                                    id = wiFiBand.wiFiChannels.wiFiWidthByChannel(channel.channel).textResource
+                                ),
+                                apCount = channelRating.count(channel),
+                                strength = channelRating.strength(channel),
+                            )
+                        }
+                    }
                 }
             }
         }
