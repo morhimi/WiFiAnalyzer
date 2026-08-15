@@ -79,6 +79,15 @@ fun AccessPointsRoute(
 ) {
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
     val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+
+    val wiFiDetails = remember(wiFiData, settingsData) {
+        wiFiData.wiFiDetails(
+            makeAccessPointsPredicate(settingsData),
+            settingsData.sortBy,
+            settingsData.groupBy,
+        )
+    }
+
     val wiFiBand = settingsData.wiFiBand
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -87,12 +96,7 @@ fun AccessPointsRoute(
 
     AccessPointsScreen(
         wiFiData = wiFiData,
-        wiFiDetails =
-            wiFiData.wiFiDetails(
-                makeAccessPointsPredicate(settingsData),
-                settingsData.sortBy,
-                settingsData.groupBy,
-            ),
+        wiFiDetails = wiFiDetails,
         viewType = settingsData.accessPointView,
         wiFiBandAvailable = wiFiBand.available(),
         wiFiBandName = stringResource(wiFiBand.textResource),
@@ -126,16 +130,22 @@ fun ChannelRatingRoute(
 ) {
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
     val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+
     val wiFiBand = settingsData.wiFiBand
     val countryCode = settingsData.countryCode
     val channelRating = remember { ChannelRating() }
     val context = LocalContext.current
     val fragmentActivity = context as? FragmentActivity
 
-    val wiFiChannels = wiFiBand.wiFiChannels.availableChannels(wiFiBand, countryCode)
-    val wiFiDetails = wiFiData.wiFiDetails(wiFiBand.predicate(), SortBy.STRENGTH)
-    channelRating.wiFiDetails(wiFiDetails)
-    val bestChannels = channelRating.bestChannels(wiFiBand, wiFiChannels)
+    val wiFiChannels = remember(wiFiBand, countryCode) {
+        wiFiBand.wiFiChannels.availableChannels(wiFiBand, countryCode)
+    }
+
+    val bestChannels = remember(wiFiData, settingsData, wiFiChannels) {
+        val wiFiDetails = wiFiData.wiFiDetails(wiFiBand.predicate(), SortBy.STRENGTH)
+        channelRating.wiFiDetails(wiFiDetails)
+        channelRating.bestChannels(wiFiBand, wiFiChannels)
+    }
 
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -178,6 +188,7 @@ fun ChannelGraphRoute(
 ) {
     val context = LocalContext.current
     val fragmentActivity = context as? FragmentActivity
+
     val graphAdapter = remember {
         val channelGraphs = WiFiBand.entries.map { ChannelGraph(it, context = context) }
         GraphAdapter(channelGraphs)
@@ -197,6 +208,7 @@ fun ChannelGraphRoute(
 
     WiFiGraphScreen(
         wiFiData = wiFiData,
+        settingsData = settingsData,
         graphAdapter = graphAdapter,
         displayedChild = wiFiBand.ordinal,
         wiFiBandAvailable = wiFiBand.available(),
@@ -231,6 +243,7 @@ fun TimeGraphRoute(
 ) {
     val context = LocalContext.current
     val fragmentActivity = context as? FragmentActivity
+
     val graphAdapter = remember {
         val timeGraphs = WiFiBand.entries.map { TimeGraph(it, context = context) }
         GraphAdapter(timeGraphs)
@@ -250,6 +263,7 @@ fun TimeGraphRoute(
 
     WiFiGraphScreen(
         wiFiData = wiFiData,
+        settingsData = settingsData,
         graphAdapter = graphAdapter,
         displayedChild = wiFiBand.ordinal,
         wiFiBandAvailable = wiFiBand.available(),

@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionHeader
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -36,6 +37,7 @@ import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 @Composable
 fun WiFiGraphScreen(
     wiFiData: WiFiData,
+    settingsData: SettingsData,
     graphAdapter: GraphAdapter,
     displayedChild: Int,
     wiFiBandAvailable: Boolean,
@@ -75,6 +77,8 @@ fun WiFiGraphScreen(
                         },
                         update = { flipper ->
                             flipper.displayedChild = displayedChild
+                            // Force update when settingsData changes, even if wiFiData is the same instance
+                            val forceReactivity = settingsData
                             graphAdapter.update(wiFiData)
                         },
                     )
