@@ -84,7 +84,7 @@ class MarkerInteraction(
         entries
             .filter { it.key != PLACEHOLDER_DETAIL }
             .forEach { entry ->
-                val wiFiDetail = entry.key
+                val wiFiDetail = entry.value.wiFiDetail
                 entry.value.dataPoints.forEach { dataPoint ->
                     pointMap.getOrPut(dataPoint.key) { mutableListOf() }.add(wiFiDetail)
                 }

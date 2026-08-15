@@ -50,6 +50,7 @@ data class DataPoint(
 }
 
 class SeriesData(
+    var wiFiDetail: WiFiDetail,
     dataPoints: List<DataPoint> = emptyList(),
     var graphColor: GraphColor = GraphColor(0, 0),
     var title: String = "",
@@ -93,7 +94,7 @@ class SeriesCache(
 ) {
     private val cache: MutableMap<WiFiDetail, SeriesData> =
         linkedMapOf(
-            PLACEHOLDER_DETAIL to SeriesData(placeholder, TRANSPARENT_COLOR),
+            PLACEHOLDER_DETAIL to SeriesData(PLACEHOLDER_DETAIL, placeholder, TRANSPARENT_COLOR),
         )
 
     fun difference(series: Set<WiFiDetail>): List<WiFiDetail> =
