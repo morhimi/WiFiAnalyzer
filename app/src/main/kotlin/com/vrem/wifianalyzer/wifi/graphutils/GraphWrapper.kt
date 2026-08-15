@@ -60,7 +60,7 @@ class GraphWrapper(
     private val chartUpdater: ChartUpdater = ChartUpdater(chartView, seriesLabel, seriesCache),
 ) {
     internal val modelProducer: CartesianChartModelProducer = CartesianChartModelProducer()
-    internal val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    internal val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     init {
         chartView.modelProducer = modelProducer

@@ -42,6 +42,8 @@ import com.vrem.wifianalyzer.wifi.model.Strength
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -191,5 +193,23 @@ class SettingsRepository @Inject constructor(
 
     suspend fun updateFilterSecurities(values: Set<String>) {
         dataStore.edit { preferences -> preferences[filterSecurityKey] = values }
+    }
+
+    fun getAlias(bssid: String): String {
+        val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
+        return runBlocking {
+            dataStore.data.first()[key] ?: ""
+        }
+    }
+
+    suspend fun saveAlias(bssid: String, alias: String) {
+        val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
+        dataStore.edit { preferences ->
+            if (alias.isBlank()) {
+                preferences.remove(key)
+            } else {
+                preferences[key] = alias
+            }
+        }
     }
 }

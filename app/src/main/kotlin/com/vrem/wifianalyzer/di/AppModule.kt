@@ -91,8 +91,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApAliasService(
-        @ApplicationContext context: Context,
-    ): ApAliasService = ApAliasService(Repository(context))
+        settingsRepository: SettingsRepository,
+    ): ApAliasService = ApAliasService(settingsRepository)
 
     @Provides
     @Singleton

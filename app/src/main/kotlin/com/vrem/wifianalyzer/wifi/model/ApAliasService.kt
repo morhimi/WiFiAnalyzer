@@ -19,15 +19,21 @@ package com.vrem.wifianalyzer.wifi.model
 
 import com.vrem.annotation.OpenClass
 import com.vrem.util.EMPTY
-import com.vrem.wifianalyzer.settings.Repository
+import com.vrem.wifianalyzer.settings.SettingsRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 @OpenClass
 class ApAliasService(
-    private val repository: Repository,
+    private val settingsRepository: SettingsRepository,
 ) {
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
     fun getAlias(bssid: BSSID): String {
         if (bssid.isBlank()) return String.EMPTY
-        return repository.string(key(bssid), String.EMPTY)
+        return settingsRepository.getAlias(bssid)
     }
 
     fun saveAlias(
@@ -36,21 +42,15 @@ class ApAliasService(
     ) {
         if (bssid.isBlank()) return
         val trimmedAlias = alias.trim()
-        if (trimmedAlias.isEmpty()) {
-            removeAlias(bssid)
-        } else {
-            repository.save(key(bssid), trimmedAlias)
+        scope.launch {
+            settingsRepository.saveAlias(bssid, trimmedAlias)
         }
     }
 
     fun removeAlias(bssid: BSSID) {
         if (bssid.isBlank()) return
-        repository.remove(key(bssid))
-    }
-
-    private fun key(bssid: BSSID): String = PREFIX + bssid.uppercase()
-
-    companion object {
-        private const val PREFIX = "ap_alias_"
+        scope.launch {
+            settingsRepository.saveAlias(bssid, "")
+        }
     }
 }

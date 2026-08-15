@@ -25,6 +25,7 @@ import android.os.Looper
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.SettingsRepository
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
@@ -32,6 +33,8 @@ import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.makeScannerService
 import kotlin.properties.Delegates
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.preferencesDataStoreFile
 
 enum class MainContext {
     INSTANCE,
@@ -82,10 +85,12 @@ enum class MainContext {
         this.context = context.applicationContext
         configuration = Configuration(largeScreen)
         val repository = Repository(this.context)
-        // We can't easily create a SettingsRepository here without DataStore
-        // So we'll just pass null for now, which is supported by the new Settings constructor.
-        settings = Settings(repository, null)
-        apAliasService = ApAliasService(repository)
+        val settingsRepo = SettingsRepository(
+            PreferenceDataStoreFactory.create(produceFile = { this.context.preferencesDataStoreFile("settings_fallback") }),
+            this.context
+        )
+        settings = Settings(repository, settingsRepo)
+        apAliasService = ApAliasService(settingsRepo)
         vendorService = VendorService(this.context.resources)
         wiFiManagerWrapper = WiFiManagerWrapper(wiFiManager)
         permissionService = PermissionService(this.context)
