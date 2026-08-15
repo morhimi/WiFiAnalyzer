@@ -57,13 +57,34 @@ class Settings(
     private val _settingsData = MutableStateFlow(SettingsData())
     val settingsData: StateFlow<SettingsData> = _settingsData.asStateFlow()
 
-    private val sharedPreferenceChangeListener = OnSharedPreferenceChangeListener { _, _ ->
-        // We only update if we're not currently in the middle of a manual update
-        // or just let it update and rely on StateFlow's equality check.
-        // To avoid the race condition where transformSync() reads stale data from apply(),
-        // we can either use commit() in Repository or just accept that the StateFlow
-        // will eventually converge to the correct state.
-        _settingsData.update { transformSync() }
+    private val sharedPreferenceChangeListener = OnSharedPreferenceChangeListener { _, key ->
+        val currentSettings = transformSync()
+        _settingsData.update { currentSettings }
+        // Push to DataStore to keep them in sync
+        key?.let { k ->
+            scope.launch {
+                when (k) {
+                    repository.contextString(R.string.scan_speed_key) -> settingsRepository?.updateScanSpeed(currentSettings.scanSpeed.toString())
+                    repository.contextString(R.string.cache_off_key) -> settingsRepository?.updateCacheOff(currentSettings.cacheOff)
+                    repository.contextString(R.string.graph_maximum_y_key) -> settingsRepository?.updateGraphMaximumY((currentSettings.graphMaximumY / -10).toString())
+                    repository.contextString(R.string.wifi_band_key) -> settingsRepository?.updateWiFiBand(currentSettings.wiFiBand.ordinal)
+                    repository.contextString(R.string.country_code_key) -> settingsRepository?.updateCountryCode(currentSettings.countryCode)
+                    repository.contextString(R.string.language_key) -> settingsRepository?.updateLanguage(currentSettings.languageLocale.toLanguageTag())
+                    repository.contextString(R.string.sort_by_key) -> settingsRepository?.updateSortBy(currentSettings.sortBy.ordinal)
+                    repository.contextString(R.string.group_by_key) -> settingsRepository?.updateGroupBy(currentSettings.groupBy.ordinal)
+                    repository.contextString(R.string.ap_view_key) -> settingsRepository?.updateApView(currentSettings.accessPointView.ordinal)
+                    repository.contextString(R.string.connection_view_key) -> settingsRepository?.updateConnectionView(currentSettings.connectionViewType.ordinal)
+                    repository.contextString(R.string.wifi_off_on_exit_key) -> settingsRepository?.updateWiFiOffOnExit(currentSettings.wiFiOffOnExit)
+                    repository.contextString(R.string.keep_screen_on_key) -> settingsRepository?.updateKeepScreenOn(currentSettings.keepScreenOn)
+                    repository.contextString(R.string.theme_key) -> settingsRepository?.updateTheme(currentSettings.themeStyle.ordinal)
+                    repository.contextString(R.string.selected_menu_key) -> settingsRepository?.updateSelectedMenu(currentSettings.selectedMenu.ordinal)
+                    repository.contextString(R.string.filter_ssid_key) -> settingsRepository?.updateFilterSsids(currentSettings.filterSsids)
+                    repository.contextString(R.string.filter_wifi_band_key) -> settingsRepository?.updateFilterWiFiBands(ordinals(currentSettings.filterWiFiBands))
+                    repository.contextString(R.string.filter_strength_key) -> settingsRepository?.updateFilterStrengths(ordinals(currentSettings.filterStrengths))
+                    repository.contextString(R.string.filter_security_key) -> settingsRepository?.updateFilterSecurities(ordinals(currentSettings.filterSecurities))
+                }
+            }
+        }
     }
 
     init {

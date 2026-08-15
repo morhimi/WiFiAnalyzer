@@ -123,6 +123,8 @@ class Repository(
         readAgain: Boolean,
     ): Unit = PreferenceManager.setDefaultValues(context, resId, readAgain)
 
+    fun contextString(key: Int): String = context.getString(key)
+
     fun defaultSharedPreferences(context: Context): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(context)
 
