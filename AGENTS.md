@@ -24,14 +24,14 @@ WiFiAnalyzer is an Android application for analyzing WiFi networks. It helps use
 
 clearAdditional repository-specific versions and toolchain (source-of-truth files shown):
 
-- Kotlin: 2.3.20 (top-level `build.gradle` ext.kotlin_version)
-- Android Gradle Plugin (AGP): 9.1.1 (top-level `build.gradle` classpath `com.android.tools.build:gradle:9.1.1`)
- - Note: the top-level `build.gradle` also adds `gradlePluginPortal()` to repositories and includes additional classpath entries used by the build:
-   - `org.jetbrains.kotlin:kotlin-allopen:$kotlin_version`
-   - `com.github.ben-manes:gradle-versions-plugin:0.53.0`
-- Gradle wrapper: 9.4.1 (`gradle/wrapper/gradle-wrapper.properties` distributionUrl)
-- JDK: 21 is used in CI and repository setup (`.github/actions/common-setup/action.yml` and `.github/workflows/*` use setup-java with `java-version: 21`). Note: project `compileOptions` and `kotlinOptions.jvmTarget` are set to Java 17 in `app/build.gradle`.
-- Android compile/target SDK: compileSdk = 36, minSdk = 24 (see `app/build.gradle`).
+- Kotlin: 2.4.0 (top-level `build.gradle.kts` extra kotlinVersion)
+- Android Gradle Plugin (AGP): 9.3.1 (top-level `build.gradle.kts` classpath `com.android.tools.build:gradle:9.3.1`)
+ - Note: the top-level `build.gradle.kts` also adds `gradlePluginPortal()` to repositories and includes additional classpath entries used by the build:
+   - `org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion`
+   - `org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion`
+- Gradle wrapper: 9.5.0 (`gradle/wrapper/gradle-wrapper.properties` distributionUrl)
+- JDK: 21 is used in CI and repository setup (`.github/actions/common-setup/action.yml` and `.github/workflows/*` use setup-java with `java-version: 21`). Note: project `compileOptions` and `kotlinOptions.jvmTarget` are set to Java 17 in `app/build.gradle.kts`.
+- Android compile/target SDK: compileSdk = 37, minSdk = 24 (see `app/build.gradle.kts`).
 
 ## Project Structure
 
@@ -79,7 +79,7 @@ Use ktlint for code formatting:
 - Format: `./gradlew ktlintFormat`
  
 Repository-specific ktlint notes:
-- Plugin configured in `app/build.gradle` as `org.jlleitschuh.gradle.ktlint` (version `14.2.0`).
+- Plugin configured in `app/build.gradle.kts` as `org.jlleitschuh.gradle.ktlint` (version `14.2.0`).
 - Baseline and rules: see `app/config/ktlint/baseline.xml` and project `.editorconfig` for formatting rules.
 
 ## Communication Philosophy
