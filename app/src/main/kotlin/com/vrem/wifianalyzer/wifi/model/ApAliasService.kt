@@ -35,9 +35,14 @@ class ApAliasService(
     private val cache = ConcurrentHashMap<BSSID, String>()
 
     init {
-        // We don't have a global Flow of ALL aliases easily with Preferences DataStore keys.
-        // But we can rely on the in-memory cache for writes and eventual consistency for reads.
-        // Actually, for a small number of aliases, this is fine.
+        // Optimistically populate cache from DataStore updates
+        scope.launch {
+            settingsRepository.preferencesFlow.collectLatest { _ ->
+                // Clear cache to force re-fetch from DataStore for any key
+                // This ensures consistency when DataStore changes
+                cache.clear()
+            }
+        }
     }
 
     fun getAlias(bssid: BSSID): String {
@@ -47,13 +52,15 @@ class ApAliasService(
     }
 
     private fun fetchAndCache(key: String): String {
-        // Initial fetch - we still need a sync way for the Transformer.
-        // Let's use a non-blocking fetch that updates the cache.
-        scope.launch {
+        // Initial fetch - we still need a way for the Transformer.
+        // Transformer runs on scanner thread, but getAlias is called synchronously.
+        // We use a non-blocking fetch that updates the cache for NEXT time.
+        // For the VERY first time, it might show BSSID, then update to Alias on next scan.
+        scope.launch(Dispatchers.IO) {
             val alias = settingsRepository.getAliasSync(key)
             cache[key] = alias
         }
-        return String.EMPTY // Return empty for the first time, will be updated in next scan
+        return String.EMPTY
     }
 
     fun saveAlias(

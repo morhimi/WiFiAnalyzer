@@ -19,9 +19,11 @@ package com.vrem.wifianalyzer.wifi.model
 
 typealias GroupByKey<T> = (T) -> String
 
-internal val groupByChannel: GroupByKey<WiFiDetail> = { it.wiFiSignal.primaryFrequency.toString() }
+internal val groupByBSSID: GroupByKey<WiFiDetail> = { it.wiFiIdentifier.bssid }
 
 internal val groupBySSID: GroupByKey<WiFiDetail> = { it.wiFiIdentifier.ssid }
+
+internal val groupByChannel: GroupByKey<WiFiDetail> = { it.wiFiSignal.primaryFrequency.toString() }
 
 internal val groupByVirtual: GroupByKey<WiFiDetail> = { it.wiFiVirtual.key }
 
@@ -29,7 +31,7 @@ enum class GroupBy(
     val sort: Comparator<WiFiDetail>,
     val group: GroupByKey<WiFiDetail>,
 ) {
-    NONE(sortByDefault(), groupBySSID),
+    NONE(sortByDefault(), groupByBSSID),
     SSID(sortBySSID(), groupBySSID),
     CHANNEL(sortByChannel(), groupByChannel),
     VIRTUAL(sortBySSID(), groupByVirtual),

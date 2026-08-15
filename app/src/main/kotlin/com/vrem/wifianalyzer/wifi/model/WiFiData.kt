@@ -39,25 +39,19 @@ class WiFiData(
         groupBy: GroupBy,
     ): List<WiFiDetail> {
         val connection: WiFiDetail = connection()
-        return wiFiDetails
+        val filtered = wiFiDetails
             .filter { predicate(it) }
             .map { transform(it, connection) }
-            .sortAndGroup(sortBy, groupBy)
-            .sortedWith(sortBy.sort)
-    }
 
-    private fun List<WiFiDetail>.sortAndGroup(
-        sortBy: SortBy,
-        groupBy: GroupBy,
-    ): List<WiFiDetail> =
-        if (groupBy.none) {
-            this
+        return if (groupBy.none) {
+            filtered.sortedWith(sortBy.sort)
         } else {
-            this
-                .groupBy { groupBy.group(it) }
+            filtered.groupBy { groupBy.group(it) }
                 .values
                 .map(map(sortBy, groupBy))
+                .sortedWith(sortBy.sort)
         }
+    }
 
     private fun map(
         sortBy: SortBy,
