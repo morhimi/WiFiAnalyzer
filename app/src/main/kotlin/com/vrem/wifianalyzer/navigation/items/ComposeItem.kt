@@ -17,39 +17,12 @@
  */
 package com.vrem.wifianalyzer.navigation.items
 
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.commit
 import com.vrem.wifianalyzer.MainActivity
-import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 
-internal class FragmentItem(
-    val fragmentProvider: () -> Fragment,
-    override val registered: Boolean = true,
-) : NavigationItem {
-    override fun activate(
-        mainActivity: MainActivity,
-        navigationMenu: NavigationMenu,
-    ) {
-        val fragmentManager: FragmentManager = mainActivity.supportFragmentManager
-        if (fragmentManager.isStateSaved) return
-        updateMainActivity(mainActivity, navigationMenu)
-        startFragment(fragmentManager)
-    }
-
-    private fun startFragment(fragmentManager: FragmentManager) {
-        val fragment = fragmentProvider()
-        fragmentManager.commit {
-            replace(R.id.main_fragment, fragment)
-        }
-    }
-
-    private fun updateMainActivity(
-        mainActivity: MainActivity,
-        navigationMenu: NavigationMenu,
-    ) {
-        mainActivity.currentNavigationMenu(navigationMenu)
+class ComposeItem(override val registered: Boolean = true) : NavigationItem {
+    override fun activate(mainActivity: MainActivity, navigationMenu: NavigationMenu) {
+        // NavController handles the navigation, we just update the title and action bar
         mainActivity.title = mainActivity.getString(navigationMenu.title)
         mainActivity.updateActionBar()
     }

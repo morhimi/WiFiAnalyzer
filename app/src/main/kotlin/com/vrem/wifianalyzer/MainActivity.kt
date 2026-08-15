@@ -24,14 +24,24 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.google.android.material.navigation.NavigationView
 import com.vrem.annotation.OpenClass
 import com.vrem.util.createContext
 import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
+import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.navigation.MainNavigationGraph
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 import com.vrem.wifianalyzer.navigation.NavigationMenuControl
 import com.vrem.wifianalyzer.navigation.NavigationMenuController
@@ -44,6 +54,7 @@ import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
+import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -76,10 +87,13 @@ class MainActivity :
     @Inject
     lateinit var filtersAdapter: FiltersAdapter
 
+    private val wiFiScanViewModel: WiFiScanViewModel by viewModels()
+
     internal lateinit var drawerNavigation: DrawerNavigation
     internal lateinit var mainReload: MainReload
     internal lateinit var navigationMenuController: NavigationMenuController
     internal lateinit var optionMenu: OptionMenu
+    internal lateinit var navController: NavHostController
 
     override fun attachBaseContext(newBase: Context) =
         super.attachBaseContext(newBase.createContext(Settings(Repository(newBase)).languageLocale()))
@@ -107,6 +121,52 @@ class MainActivity :
 
         setContentView(R.layout.main_activity)
 
+        val composeView = findViewById<ComposeView>(R.id.main_fragment_compose)
+        composeView.setContent {
+            val controller = rememberNavController()
+            navController = controller
+
+            DisposableEffect(controller) {
+                val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+                    val menu = NavigationMenu.findByRoute(destination.route)
+                    navigationMenuController.currentNavigationMenu(menu)
+                    title = getString(menu.title)
+                    settings.saveSelectedMenu(menu)
+                    updateActionBar()
+                }
+                controller.addOnDestinationChangedListener(listener)
+                onDispose {
+                    controller.removeOnDestinationChangedListener(listener)
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                val selectedMenu = settings.selectedMenu()
+                if (selectedMenu != NavigationMenu.ACCESS_POINTS) {
+                    controller.navigate(selectedMenu.route) {
+                        popUpTo(controller.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
+
+            WiFiAnalyzerTheme {
+                MainNavigationGraph(
+                    navController = controller,
+                    wiFiScanViewModel = wiFiScanViewModel,
+                    settings = settings,
+                    wiFiManagerWrapper = wiFiManagerWrapper,
+                    permissionService = permissionService,
+                    scannerService = scannerService,
+                    vendorService = vendorService,
+                    configuration = configuration,
+                )
+            }
+        }
+
         settings.registerOnSharedPreferenceChangeListener(this)
         optionMenu = OptionMenu()
 
@@ -118,7 +178,6 @@ class MainActivity :
 
         navigationMenuController = NavigationMenuController(this)
         navigationMenuController.currentNavigationMenu(settings.selectedMenu())
-        onNavigationItemSelected(currentMenuItem())
 
         onBackPressedDispatcher.addCallback(this, MainActivityBackPressed(this))
     }
@@ -173,7 +232,22 @@ class MainActivity :
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
         closeDrawer()
         val currentNavigationMenu = NavigationMenu.find(menuItem.itemId)
-        currentNavigationMenu.activateNavigationMenu(this)
+
+        if (currentNavigationMenu == NavigationMenu.EXPORT) {
+            currentNavigationMenu.activateNavigationMenu(this)
+            return true
+        }
+
+        if (::navController.isInitialized) {
+            navController.navigate(currentNavigationMenu.route) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+        currentNavigationMenu(currentNavigationMenu)
         return true
     }
 

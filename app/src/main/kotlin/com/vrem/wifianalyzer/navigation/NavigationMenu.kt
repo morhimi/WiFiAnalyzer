@@ -52,6 +52,7 @@ enum class NavigationMenu(
     val title: Int,
     val navigationItem: NavigationItem,
     val navigationOptions: List<NavigationOption> = navigationOptionOff,
+    val route: String,
 ) {
     ACCESS_POINTS(
         R.id.nav_drawer_access_points,
@@ -59,6 +60,7 @@ enum class NavigationMenu(
         R.string.action_access_points,
         navigationItemAccessPoints,
         navigationOptionAp,
+        "access_points",
     ),
     CHANNEL_RATING(
         R.id.nav_drawer_channel_rating,
@@ -66,6 +68,7 @@ enum class NavigationMenu(
         R.string.action_channel_rating,
         navigationItemChannelRating,
         navigationOptionRating,
+        "channel_rating",
     ),
     CHANNEL_GRAPH(
         R.id.nav_drawer_channel_graph,
@@ -73,6 +76,7 @@ enum class NavigationMenu(
         R.string.action_channel_graph,
         navigationItemChannelGraph,
         navigationOptionOther,
+        "channel_graph",
     ),
     TIME_GRAPH(
         R.id.nav_drawer_time_graph,
@@ -80,36 +84,42 @@ enum class NavigationMenu(
         R.string.action_time_graph,
         navigationItemTimeGraph,
         navigationOptionOther,
+        "time_graph",
     ),
     EXPORT(
         R.id.nav_drawer_export,
         MENU_ITEM_INVALID_ID,
         title = R.string.action_export,
         navigationItem = navigationItemExport,
+        route = "export",
     ),
     CHANNEL_AVAILABLE(
         R.id.nav_drawer_channel_available,
         MENU_ITEM_INVALID_ID,
         title = R.string.action_channel_available,
         navigationItem = navigationItemChannelAvailable,
+        route = "channel_available",
     ),
     VENDORS(
         R.id.nav_drawer_vendors,
         MENU_ITEM_INVALID_ID,
         title = R.string.action_vendors,
         navigationItem = navigationItemVendors,
+        route = "vendors",
     ),
     SETTINGS(
         R.id.nav_drawer_settings,
         MENU_ITEM_INVALID_ID,
         title = R.string.action_settings,
         navigationItem = navigationItemSettings,
+        route = "settings",
     ),
     ABOUT(
         R.id.nav_drawer_about,
         MENU_ITEM_INVALID_ID,
         title = R.string.action_about,
         navigationItem = navigationItemAbout,
+        route = "about",
     ),
     ;
 
@@ -124,5 +134,8 @@ enum class NavigationMenu(
     companion object {
         fun find(id: Int): NavigationMenu =
             entries.firstOrNull { it.idDrawer == id || it.idBottom == id } ?: ACCESS_POINTS
+
+        fun findByRoute(route: String?): NavigationMenu =
+            entries.firstOrNull { it.route == route } ?: ACCESS_POINTS
     }
 }
