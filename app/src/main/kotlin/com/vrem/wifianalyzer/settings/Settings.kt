@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.settings
 
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import androidx.datastore.preferences.core.Preferences
 import com.vrem.annotation.OpenClass
 import com.vrem.util.buildMinVersionQ
 import com.vrem.util.defaultCountryCode
@@ -44,6 +43,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.enums.EnumEntries
@@ -57,17 +57,24 @@ class Settings(
     private val _settingsData = MutableStateFlow(SettingsData())
     val settingsData: StateFlow<SettingsData> = _settingsData.asStateFlow()
 
+    private val sharedPreferenceChangeListener = OnSharedPreferenceChangeListener { _, _ ->
+        _settingsData.update { transformSync() }
+    }
+
     init {
         // Initialize with current repository values
-        _settingsData.value = transform()
+        _settingsData.value = transformSync()
+        repository.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
         scope.launch {
-            settingsRepository?.preferencesFlow?.collectLatest {
-                _settingsData.value = transform()
+            settingsRepository?.let { repo ->
+                repo.preferencesFlow.collectLatest { preferences ->
+                    _settingsData.value = repo.toSettingsData(preferences)
+                }
             }
         }
     }
 
-    private fun transform(): SettingsData {
+    private fun transformSync(): SettingsData {
         return SettingsData(
             scanSpeed = scanSpeedSync(),
             cacheOff = cacheOffSync(),
@@ -183,33 +190,39 @@ class Settings(
     // Save methods
     fun wiFiBand(wiFiBand: WiFiBand) {
         repository.save(R.string.wifi_band_key, wiFiBand.ordinal)
+        _settingsData.update { it.copy(wiFiBand = wiFiBand) }
         scope.launch { settingsRepository?.updateWiFiBand(wiFiBand.ordinal) }
     }
 
     fun saveSelectedMenu(navigationMenu: NavigationMenu) {
         if (MAIN_NAVIGATION.contains(navigationMenu)) {
             repository.save(R.string.selected_menu_key, navigationMenu.ordinal)
+            _settingsData.update { it.copy(selectedMenu = navigationMenu) }
             scope.launch { settingsRepository?.updateSelectedMenu(navigationMenu.ordinal) }
         }
     }
 
     fun saveSSIDs(values: Set<String>) {
         repository.saveStringSet(R.string.filter_ssid_key, values)
+        _settingsData.update { it.copy(filterSsids = values) }
         scope.launch { settingsRepository?.updateFilterSsids(values) }
     }
 
     fun saveWiFiBands(values: Set<WiFiBand>) {
         settingsSaveSet(R.string.filter_wifi_band_key, values)
+        _settingsData.update { it.copy(filterWiFiBands = values) }
         scope.launch { settingsRepository?.updateFilterWiFiBands(ordinals(values)) }
     }
 
     fun saveStrengths(values: Set<Strength>) {
         settingsSaveSet(R.string.filter_strength_key, values)
+        _settingsData.update { it.copy(filterStrengths = values) }
         scope.launch { settingsRepository?.updateFilterStrengths(ordinals(values)) }
     }
 
     fun saveSecurities(values: Set<Security>) {
         settingsSaveSet(R.string.filter_security_key, values)
+        _settingsData.update { it.copy(filterSecurities = values) }
         scope.launch { settingsRepository?.updateFilterSecurities(ordinals(values)) }
     }
 

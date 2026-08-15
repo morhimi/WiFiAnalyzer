@@ -23,14 +23,25 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.vrem.util.defaultCountryCode
+import com.vrem.util.defaultLanguageTag
+import com.vrem.util.findByLanguageTag
+import com.vrem.util.findOne
+import com.vrem.util.findSet
 import com.vrem.wifianalyzer.R
+import com.vrem.wifianalyzer.navigation.NavigationMenu
+import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointViewType
+import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionViewType
+import com.vrem.wifianalyzer.wifi.band.WiFiBand
+import com.vrem.wifianalyzer.wifi.model.GroupBy
+import com.vrem.wifianalyzer.wifi.model.Security
+import com.vrem.wifianalyzer.wifi.model.SortBy
+import com.vrem.wifianalyzer.wifi.model.Strength
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -67,6 +78,48 @@ class SettingsRepository @Inject constructor(
                 throw exception
             }
         }
+
+    fun toSettingsData(preferences: Preferences): SettingsData {
+        val scanSpeed = preferences[scanSpeedKey]?.toIntOrNull() ?: 5
+        val cacheOff = preferences[cacheOffKey] ?: false
+        val graphMaximumY = (preferences[graphMaximumYKey]?.toIntOrNull() ?: 2) * -10
+        val wiFiBand = findOne(WiFiBand.entries, preferences[wiFiBandKey]?.toIntOrNull() ?: WiFiBand.GHZ2.ordinal, WiFiBand.GHZ2)
+        val countryCode = preferences[countryCodeKey] ?: defaultCountryCode()
+        val languageLocale = findByLanguageTag(preferences[languageKey] ?: defaultLanguageTag())
+        val sortBy = findOne(SortBy.entries, preferences[sortByKey]?.toIntOrNull() ?: SortBy.STRENGTH.ordinal, SortBy.STRENGTH)
+        val groupBy = findOne(GroupBy.entries, preferences[groupByKey]?.toIntOrNull() ?: GroupBy.NONE.ordinal, GroupBy.NONE)
+        val accessPointView = findOne(AccessPointViewType.entries, preferences[apViewKey]?.toIntOrNull() ?: AccessPointViewType.COMPLETE.ordinal, AccessPointViewType.COMPLETE)
+        val connectionViewType = findOne(ConnectionViewType.entries, preferences[connectionViewKey]?.toIntOrNull() ?: ConnectionViewType.COMPACT.ordinal, ConnectionViewType.COMPACT)
+        val wiFiOffOnExit = preferences[wifiOffOnExitKey] ?: false
+        val keepScreenOn = preferences[keepScreenOnKey] ?: false
+        val themeStyle = findOne(ThemeStyle.entries, preferences[themeKey]?.toIntOrNull() ?: ThemeStyle.DARK.ordinal, ThemeStyle.DARK)
+        val selectedMenu = findOne(NavigationMenu.entries, preferences[selectedMenuKey]?.toIntOrNull() ?: NavigationMenu.ACCESS_POINTS.ordinal, NavigationMenu.ACCESS_POINTS)
+        val filterSsids = preferences[filterSsidKey] ?: emptySet()
+        val filterWiFiBands = findSet(WiFiBand.entries, preferences[filterWifiBandKey] ?: emptySet(), WiFiBand.GHZ2)
+        val filterStrengths = findSet(Strength.entries, preferences[filterStrengthKey] ?: emptySet(), Strength.FOUR)
+        val filterSecurities = findSet(Security.entries, preferences[filterSecurityKey] ?: emptySet(), Security.NONE)
+
+        return SettingsData(
+            scanSpeed = scanSpeed,
+            cacheOff = cacheOff,
+            graphMaximumY = graphMaximumY,
+            wiFiBand = wiFiBand,
+            countryCode = countryCode,
+            languageLocale = languageLocale,
+            sortBy = sortBy,
+            groupBy = groupBy,
+            accessPointView = accessPointView,
+            connectionViewType = connectionViewType,
+            wiFiOffOnExit = wiFiOffOnExit,
+            keepScreenOn = keepScreenOn,
+            themeStyle = themeStyle,
+            selectedMenu = selectedMenu,
+            filterSsids = filterSsids,
+            filterWiFiBands = filterWiFiBands,
+            filterStrengths = filterStrengths,
+            filterSecurities = filterSecurities
+        )
+    }
 
     suspend fun updateScanSpeed(value: String) {
         dataStore.edit { preferences -> preferences[scanSpeedKey] = value }

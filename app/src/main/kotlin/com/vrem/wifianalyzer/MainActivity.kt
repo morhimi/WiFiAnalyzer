@@ -40,6 +40,8 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.material.navigation.NavigationView
 import com.vrem.annotation.OpenClass
 import com.vrem.util.createContext
+import com.vrem.util.defaultLanguageTag
+import com.vrem.util.findByLanguageTag
 import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 import com.vrem.wifianalyzer.navigation.MainNavigationGraph
@@ -97,8 +99,13 @@ class MainActivity :
     internal lateinit var optionMenu: OptionMenu
     internal lateinit var navController: NavHostController
 
-    override fun attachBaseContext(newBase: Context) =
-        super.attachBaseContext(newBase.createContext(Settings(Repository(newBase)).languageLocale()))
+    override fun attachBaseContext(newBase: Context) {
+        val repository = Repository(newBase)
+        val defaultLanguageTag = defaultLanguageTag()
+        val languageTag = repository.string(R.string.language_key, defaultLanguageTag)
+        val locale = findByLanguageTag(languageTag)
+        super.attachBaseContext(newBase.createContext(locale))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
