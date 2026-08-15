@@ -77,9 +77,7 @@ fun WiFiGraphScreen(
                         },
                         update = { flipper ->
                             flipper.displayedChild = displayedChild
-                            // Force update when settingsData changes, even if wiFiData is the same instance
-                            val forceReactivity = settingsData
-                            graphAdapter.update(wiFiData)
+                            graphAdapter.update(wiFiData, settingsData)
                         },
                     )
                 }

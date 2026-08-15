@@ -58,6 +58,11 @@ class Settings(
     val settingsData: StateFlow<SettingsData> = _settingsData.asStateFlow()
 
     private val sharedPreferenceChangeListener = OnSharedPreferenceChangeListener { _, _ ->
+        // We only update if we're not currently in the middle of a manual update
+        // or just let it update and rely on StateFlow's equality check.
+        // To avoid the race condition where transformSync() reads stale data from apply(),
+        // we can either use commit() in Repository or just accept that the StateFlow
+        // will eventually converge to the correct state.
         _settingsData.update { transformSync() }
     }
 
@@ -189,40 +194,40 @@ class Settings(
 
     // Save methods
     fun wiFiBand(wiFiBand: WiFiBand) {
-        repository.save(R.string.wifi_band_key, wiFiBand.ordinal)
         _settingsData.update { it.copy(wiFiBand = wiFiBand) }
+        repository.save(R.string.wifi_band_key, wiFiBand.ordinal)
         scope.launch { settingsRepository?.updateWiFiBand(wiFiBand.ordinal) }
     }
 
     fun saveSelectedMenu(navigationMenu: NavigationMenu) {
         if (MAIN_NAVIGATION.contains(navigationMenu)) {
-            repository.save(R.string.selected_menu_key, navigationMenu.ordinal)
             _settingsData.update { it.copy(selectedMenu = navigationMenu) }
+            repository.save(R.string.selected_menu_key, navigationMenu.ordinal)
             scope.launch { settingsRepository?.updateSelectedMenu(navigationMenu.ordinal) }
         }
     }
 
     fun saveSSIDs(values: Set<String>) {
-        repository.saveStringSet(R.string.filter_ssid_key, values)
         _settingsData.update { it.copy(filterSsids = values) }
+        repository.saveStringSet(R.string.filter_ssid_key, values)
         scope.launch { settingsRepository?.updateFilterSsids(values) }
     }
 
     fun saveWiFiBands(values: Set<WiFiBand>) {
-        settingsSaveSet(R.string.filter_wifi_band_key, values)
         _settingsData.update { it.copy(filterWiFiBands = values) }
+        settingsSaveSet(R.string.filter_wifi_band_key, values)
         scope.launch { settingsRepository?.updateFilterWiFiBands(ordinals(values)) }
     }
 
     fun saveStrengths(values: Set<Strength>) {
-        settingsSaveSet(R.string.filter_strength_key, values)
         _settingsData.update { it.copy(filterStrengths = values) }
+        settingsSaveSet(R.string.filter_strength_key, values)
         scope.launch { settingsRepository?.updateFilterStrengths(ordinals(values)) }
     }
 
     fun saveSecurities(values: Set<Security>) {
-        settingsSaveSet(R.string.filter_security_key, values)
         _settingsData.update { it.copy(filterSecurities = values) }
+        settingsSaveSet(R.string.filter_security_key, values)
         scope.launch { settingsRepository?.updateFilterSecurities(ordinals(values)) }
     }
 

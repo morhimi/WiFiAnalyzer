@@ -32,7 +32,7 @@ import com.patrykandpatrick.vico.views.common.data.ExtraStore
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
-import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
@@ -144,8 +144,8 @@ internal class TimeGraph(
 
     private var wasSelected: Boolean = false
 
-    override fun update(wiFiData: WiFiData) {
-        if (!selected()) {
+    override fun update(wiFiData: WiFiData, settingsData: SettingsData) {
+        if (!selected(settingsData)) {
             wasSelected = false
             graphWrapper.gone()
             return
@@ -154,20 +154,18 @@ internal class TimeGraph(
             dataManager.reset(graphWrapper)
         }
         wasSelected = true
-        val mainContext = MainContext.INSTANCE
-        val settings = mainContext.settings
-        val sortBy = settings.sortBy()
-        val levelMax = settings.graphMaximumY()
-        val predicate = predicate(settings)
+        val sortBy = settingsData.sortBy
+        val levelMax = settingsData.graphMaximumY
+        val predicate = predicate(settingsData)
         val wiFiDetails = wiFiData.wiFiDetails(predicate, sortBy)
         val newSeries = dataManager.addSeriesData(graphWrapper, wiFiDetails, levelMax)
         graphWrapper.removeSeries(newSeries)
         graphWrapper.show()
     }
 
-    fun predicate(settings: Settings): Predicate = makeOtherPredicate(settings)
+    fun predicate(settingsData: SettingsData): Predicate = makeOtherPredicate(settingsData)
 
-    private fun selected(): Boolean = wiFiBand == MainContext.INSTANCE.settings.wiFiBand()
+    private fun selected(settingsData: SettingsData): Boolean = wiFiBand == settingsData.wiFiBand
 
     override fun graph(): View = graphWrapper.chartView
 

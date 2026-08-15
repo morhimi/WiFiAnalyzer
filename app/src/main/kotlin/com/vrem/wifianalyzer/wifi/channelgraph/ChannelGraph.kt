@@ -13,6 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
+ * along with this program.  See the  GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
@@ -28,7 +29,7 @@ import com.patrykandpatrick.vico.views.common.data.ExtraStore
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
-import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.band.FREQUENCY_SPREAD
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
@@ -158,8 +159,8 @@ internal class ChannelGraph(
 
     private var wasSelected: Boolean = false
 
-    override fun update(wiFiData: WiFiData) {
-        if (!selected()) {
+    override fun update(wiFiData: WiFiData, settingsData: SettingsData) {
+        if (!selected(settingsData)) {
             wasSelected = false
             graphWrapper.gone()
             return
@@ -169,19 +170,17 @@ internal class ChannelGraph(
             graphWrapper.reset()
         }
         wasSelected = true
-        val mainContext = MainContext.INSTANCE
-        val settings = mainContext.settings
-        val levelMax = settings.graphMaximumY()
-        val predicate = predicate(settings)
-        val wiFiDetails = wiFiData.wiFiDetails(predicate, settings.sortBy())
+        val levelMax = settingsData.graphMaximumY
+        val predicate = predicate(settingsData)
+        val wiFiDetails = wiFiData.wiFiDetails(predicate, settingsData.sortBy)
         val newSeries = dataManager.newSeries(wiFiDetails)
-        dataManager.addSeriesData(graphWrapper, newSeries, levelMax)
         graphWrapper.removeSeries(newSeries)
+        dataManager.addSeriesData(graphWrapper, newSeries, levelMax)
     }
 
-    fun selected(): Boolean = wiFiBand == MainContext.INSTANCE.settings.wiFiBand()
+    private fun selected(settingsData: SettingsData): Boolean = wiFiBand == settingsData.wiFiBand
 
-    fun predicate(settings: Settings): Predicate = makeOtherPredicate(settings)
+    fun predicate(settingsData: SettingsData): Predicate = makeOtherPredicate(settingsData)
 
     override fun graph(): View = graphWrapper.chartView
 
