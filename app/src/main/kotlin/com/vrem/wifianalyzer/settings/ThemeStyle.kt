@@ -17,10 +17,10 @@
  */
 package com.vrem.wifianalyzer.settings
 
+import android.app.Activity
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.StyleRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.vrem.wifianalyzer.R
 
@@ -35,8 +35,8 @@ enum class ThemeStyle(
     BLACK(Color.WHITE, R.style.ThemeBlackNoActionBar, AppCompatDelegate.MODE_NIGHT_YES),
     ;
 
-    fun setTheme(activity: AppCompatActivity) {
+    fun setTheme(activity: Activity) {
         activity.setTheme(theme)
-        AppCompatDelegate.setDefaultNightMode(nightMode)
+        // AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 }

@@ -22,7 +22,6 @@ import android.os.Build
 import android.provider.Settings
 import android.view.WindowManager
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.Toolbar
 
 internal fun MainActivity.keepScreenOn() =
     if (MainContext.INSTANCE.settings.keepScreenOn()) {
@@ -30,16 +29,6 @@ internal fun MainActivity.keepScreenOn() =
     } else {
         this.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
-
-internal fun MainActivity.setupToolbar(): Toolbar {
-    val toolbar: Toolbar = this.findViewById(R.id.toolbar)
-    this.setSupportActionBar(toolbar)
-    this.supportActionBar?.let {
-        it.setHomeButtonEnabled(true)
-        it.setDisplayHomeAsUpEnabled(true)
-    }
-    return toolbar
-}
 
 private fun makeIntent(action: String): Intent = Intent(action)
 

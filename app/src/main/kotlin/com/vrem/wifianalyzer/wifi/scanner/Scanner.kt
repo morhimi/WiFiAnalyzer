@@ -22,6 +22,9 @@ import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.WiFiData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @OpenClass
 internal class Scanner(
@@ -30,6 +33,9 @@ internal class Scanner(
     val permissionService: PermissionService,
     val transformer: Transformer,
 ) : ScannerService {
+    private val _runningFlow = MutableStateFlow(false)
+    override val runningFlow: StateFlow<Boolean> = _runningFlow.asStateFlow()
+
     private val updateNotifiers: MutableList<UpdateNotifier> = mutableListOf()
 
     private var wiFiData: WiFiData = WiFiData.EMPTY
@@ -61,17 +67,25 @@ internal class Scanner(
 
     override fun pause() {
         periodicScan.stop()
+        _runningFlow.value = false
         scanResultsReceiver.unregister()
     }
 
     override fun running(): Boolean = periodicScan.running
 
-    override fun resume(): Unit = periodicScan.start()
+    override fun resume() {
+        periodicScan.start()
+        _runningFlow.value = true
+    }
 
-    override fun resumeWithDelay(): Unit = periodicScan.startWithDelay()
+    override fun resumeWithDelay() {
+        periodicScan.startWithDelay()
+        _runningFlow.value = true
+    }
 
     override fun stop() {
         periodicScan.stop()
+        _runningFlow.value = false
         updateNotifiers.clear()
         if (settings.wiFiOffOnExit()) {
             wiFiManagerWrapper.disableWiFi()
@@ -79,12 +93,13 @@ internal class Scanner(
         scanResultsReceiver.unregister()
     }
 
-    override fun toggle(): Unit =
+    override fun toggle() {
         if (periodicScan.running) {
-            periodicScan.stop()
+            pause()
         } else {
-            periodicScan.start()
+            resume()
         }
+    }
 
     fun registered(): Int = updateNotifiers.size
 }

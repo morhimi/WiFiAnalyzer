@@ -17,6 +17,9 @@
  */
 package com.vrem.wifianalyzer.settings
 
+import com.vrem.util.defaultCountryCode
+import com.vrem.util.defaultLanguageTag
+import com.vrem.util.findByLanguageTag
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointViewType
 import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionViewType
@@ -32,8 +35,8 @@ data class SettingsData(
     val cacheOff: Boolean = false,
     val graphMaximumY: Int = -20,
     val wiFiBand: WiFiBand = WiFiBand.GHZ2,
-    val countryCode: String = "",
-    val languageLocale: Locale = Locale.getDefault(),
+    val countryCode: String = defaultCountryCode(),
+    val languageLocale: Locale = findByLanguageTag(defaultLanguageTag()),
     val sortBy: SortBy = SortBy.STRENGTH,
     val groupBy: GroupBy = GroupBy.NONE,
     val accessPointView: AccessPointViewType = AccessPointViewType.COMPLETE,
@@ -43,7 +46,7 @@ data class SettingsData(
     val themeStyle: ThemeStyle = ThemeStyle.DARK,
     val selectedMenu: NavigationMenu = NavigationMenu.ACCESS_POINTS,
     val filterSsids: Set<String> = emptySet(),
-    val filterWiFiBands: Set<WiFiBand> = setOf(WiFiBand.GHZ2),
-    val filterStrengths: Set<Strength> = setOf(Strength.FOUR),
-    val filterSecurities: Set<Security> = setOf(Security.NONE),
+    val filterWiFiBands: Set<WiFiBand> = setOf(WiFiBand.GHZ2, WiFiBand.GHZ5, WiFiBand.GHZ6),
+    val filterStrengths: Set<Strength> = Strength.entries.toSet(),
+    val filterSecurities: Set<Security> = Security.entries.toSet(),
 )

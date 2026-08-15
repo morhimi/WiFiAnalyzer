@@ -23,12 +23,15 @@ import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.WiFiData
+import kotlinx.coroutines.flow.StateFlow
 
 fun interface UpdateNotifier { // Compliant, function interface used
     fun update(wiFiData: WiFiData)
 }
 
 interface ScannerService {
+    val runningFlow: StateFlow<Boolean>
+
     fun update()
 
     fun wiFiData(): WiFiData

@@ -13,25 +13,32 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
+ * along with this program.  See the  GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
 package com.vrem.wifianalyzer
 
 import androidx.activity.OnBackPressedCallback
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 
 class MainActivityBackPressed(
     private val mainActivity: MainActivity,
 ) : OnBackPressedCallback(true) {
     override fun handleOnBackPressed() {
-        if (mainActivity.closeDrawer()) return
-
         val navController = mainActivity.navController
-        if (navController.currentBackStackEntry?.destination?.route != NavigationMenu.ACCESS_POINTS.route) {
-            mainActivity.onNavigationItemSelected(
-                mainActivity.navigationView().menu.findItem(NavigationMenu.ACCESS_POINTS.idDrawer)
-            )
+        val currentRoute = navController.currentBackStackEntry?.destination?.route
+        val startRoute = NavigationMenu.ACCESS_POINTS.route
+
+        if (currentRoute != startRoute) {
+            navController.navigate(startRoute) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
         } else {
             mainActivity.finish()
         }

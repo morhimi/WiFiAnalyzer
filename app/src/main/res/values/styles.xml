@@ -31,7 +31,7 @@
     </style>
 
     <!-- System (DayNight) theme -->
-    <style name="ThemeSystem" parent="Theme.AppCompat.DayNight.DarkActionBar">
+    <style name="ThemeSystem" parent="Theme.AppCompat.DayNight">
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
         <item name="android:actionMenuTextColor">@color/selected</item>
     </style>
@@ -46,6 +46,7 @@
         <item name="windowSplashScreenBackground">@color/background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_inset</item>
         <item name="windowSplashScreenAnimationDuration">500</item>
+        <item name="postSplashScreenTheme">@style/ThemeSystemNoActionBar</item>
     </style>
 
     <!-- Window animation style -->

@@ -13,6 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
+ * along with this program.  See the  GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 package com.vrem.wifianalyzer
@@ -20,39 +21,31 @@ package com.vrem.wifianalyzer
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.android.material.navigation.NavigationView
-import com.vrem.annotation.OpenClass
 import com.vrem.util.createContext
 import com.vrem.util.defaultLanguageTag
 import com.vrem.util.findByLanguageTag
 import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
+import com.vrem.wifianalyzer.compose.WiFiAnalyzerApp
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
-import com.vrem.wifianalyzer.navigation.MainNavigationGraph
-import com.vrem.wifianalyzer.navigation.NavigationMenu
-import com.vrem.wifianalyzer.navigation.NavigationMenuControl
-import com.vrem.wifianalyzer.navigation.NavigationMenuController
-import com.vrem.wifianalyzer.navigation.options.OptionMenu
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.vendor.model.VendorService
+import com.vrem.wifianalyzer.wifi.filter.Filter
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.ApAliasService
@@ -64,9 +57,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity :
-    AppCompatActivity(),
-    NavigationMenuControl {
+class MainActivity : FragmentActivity() {
     @Inject
     lateinit var settings: Settings
 
@@ -93,10 +84,7 @@ class MainActivity :
 
     private val wiFiScanViewModel: WiFiScanViewModel by viewModels()
 
-    internal lateinit var drawerNavigation: DrawerNavigation
     internal lateinit var mainReload: MainReload
-    internal lateinit var navigationMenuController: NavigationMenuController
-    internal lateinit var optionMenu: OptionMenu
     internal lateinit var navController: NavHostController
 
     override fun attachBaseContext(newBase: Context) {
@@ -110,6 +98,7 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         MainContext.INSTANCE.initialize(
             applicationContext,
@@ -125,45 +114,22 @@ class MainActivity :
 
         settings.initializeDefaultValues()
         settings.themeStyle().setTheme(this)
-
         mainReload = MainReload(settings)
 
-        setContentView(R.layout.main_activity)
-
-        val composeView = findViewById<ComposeView>(R.id.main_fragment_compose)
-        composeView.setContent {
-            val controller = rememberNavController()
-            navController = controller
-
-            DisposableEffect(controller) {
-                val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
-                    val menu = NavigationMenu.findByRoute(destination.route)
-                    navigationMenuController.currentNavigationMenu(menu)
-                    title = getString(menu.title)
-                    settings.saveSelectedMenu(menu)
-                    updateActionBar()
+        setContent {
+            val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+            val isDark =
+                when (settingsData.themeStyle) {
+                    ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                    ThemeStyle.LIGHT -> false
+                    ThemeStyle.SYSTEM -> isSystemInDarkTheme()
                 }
-                controller.addOnDestinationChangedListener(listener)
-                onDispose {
-                    controller.removeOnDestinationChangedListener(listener)
-                }
-            }
 
-            LaunchedEffect(Unit) {
-                val selectedMenu = settings.selectedMenu()
-                if (selectedMenu != NavigationMenu.ACCESS_POINTS) {
-                    controller.navigate(selectedMenu.route) {
-                        popUpTo(controller.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            }
+            WiFiAnalyzerTheme(darkTheme = isDark) {
+                val controller = rememberNavController()
+                navController = controller
 
-            WiFiAnalyzerTheme {
-                MainNavigationGraph(
+                WiFiAnalyzerApp(
                     navController = controller,
                     wiFiScanViewModel = wiFiScanViewModel,
                     settings = settings,
@@ -172,20 +138,10 @@ class MainActivity :
                     scannerService = scannerService,
                     vendorService = vendorService,
                     configuration = configuration,
+                    onFilterClick = { Filter.build(this).show() }
                 )
             }
         }
-
-        optionMenu = OptionMenu()
-
-        keepScreenOn()
-
-        val toolbar = setupToolbar()
-        drawerNavigation = DrawerNavigation(this, toolbar)
-        drawerNavigation.create()
-
-        navigationMenuController = NavigationMenuController(this)
-        navigationMenuController.currentNavigationMenu(settings.selectedMenu())
 
         onBackPressedDispatcher.addCallback(this, MainActivityBackPressed(this))
 
@@ -196,22 +152,11 @@ class MainActivity :
                         scannerService.stop()
                         recreate()
                     } else {
-                        keepScreenOn()
                         update()
                     }
                 }
             }
         }
-    }
-
-    public override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        drawerNavigation.syncState()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        drawerNavigation.onConfigurationChanged(newConfig)
     }
 
     override fun onRequestPermissionsResult(
@@ -235,43 +180,10 @@ class MainActivity :
 
     fun update() {
         scannerService.update()
-        updateActionBar()
-    }
-
-    override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
-        closeDrawer()
-        val currentNavigationMenu = NavigationMenu.find(menuItem.itemId)
-
-        if (currentNavigationMenu == NavigationMenu.EXPORT) {
-            currentNavigationMenu.activateNavigationMenu(this)
-            return true
-        }
-
-        if (::navController.isInitialized) {
-            navController.navigate(currentNavigationMenu.route) {
-                popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
-                }
-                launchSingleTop = true
-                restoreState = true
-            }
-        }
-        currentNavigationMenu(currentNavigationMenu)
-        return true
-    }
-
-    fun closeDrawer(): Boolean {
-        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
-            return true
-        }
-        return false
     }
 
     public override fun onPause() {
         scannerService.pause()
-        updateActionBar()
         super.onPause()
     }
 
@@ -285,12 +197,10 @@ class MainActivity :
         } else {
             scannerService.pause()
         }
-        updateActionBar()
     }
 
     public override fun onStop() {
         scannerService.stop()
-        updateActionBar()
         super.onStop()
     }
 
@@ -304,31 +214,5 @@ class MainActivity :
         } else {
             permissionService.check(this)
         }
-        updateActionBar()
     }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        optionMenu.create(this, menu)
-        updateActionBar()
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        optionMenu.select(item)
-        updateActionBar()
-        return true
-    }
-
-    fun updateActionBar() = currentNavigationMenu().activateOptions(this)
-
-    override fun currentMenuItem(): MenuItem = navigationMenuController.currentMenuItem()
-
-    override fun currentNavigationMenu(): NavigationMenu = navigationMenuController.currentNavigationMenu()
-
-    override fun currentNavigationMenu(navigationMenu: NavigationMenu) {
-        navigationMenuController.currentNavigationMenu(navigationMenu)
-        settings.saveSelectedMenu(navigationMenu)
-    }
-
-    override fun navigationView(): NavigationView = navigationMenuController.drawerNavigationView
 }

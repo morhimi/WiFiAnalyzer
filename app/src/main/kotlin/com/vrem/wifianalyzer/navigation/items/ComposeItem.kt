@@ -22,8 +22,6 @@ import com.vrem.wifianalyzer.navigation.NavigationMenu
 
 class ComposeItem(override val registered: Boolean = true) : NavigationItem {
     override fun activate(mainActivity: MainActivity, navigationMenu: NavigationMenu) {
-        // NavController handles the navigation, we just update the title and action bar
-        mainActivity.title = mainActivity.getString(navigationMenu.title)
-        mainActivity.updateActionBar()
+        // NavController handles the navigation, title is handled by destination listener in MainActivity
     }
 }
