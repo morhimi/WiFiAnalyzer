@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,7 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.compose.BackgroundColor
+import com.vrem.wifianalyzer.compose.ChannelNumber
 import com.vrem.wifianalyzer.compose.ErrorColor
+import com.vrem.wifianalyzer.compose.Frequency
 import com.vrem.wifianalyzer.compose.Selected
 import com.vrem.wifianalyzer.compose.SuccessColor
 import com.vrem.wifianalyzer.compose.WarningColor
@@ -69,14 +72,14 @@ fun ConnectionHeader(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(BackgroundColor)
+                    .background(MaterialTheme.colorScheme.surface)
                     .clickable { onDetailClick(connection) }
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = stringResource(id = R.string.current_connection),
-                        color = Selected,
+                        color = Color(0xFF90CAF9), // Brighter blue for better readability
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(end = 8.dp),
@@ -84,7 +87,7 @@ fun ConnectionHeader(
                     Text(
                         text = connection.wiFiIdentifier.title,
                         color = Color.White,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.ExtraBold,
                         fontSize = 14.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -95,6 +98,20 @@ fun ConnectionHeader(
                     modifier = Modifier.padding(top = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Text(
+                        text = stringResource(id = connection.wiFiSignal.wiFiBand.textResource),
+                        color = Frequency,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                    Text(
+                        text = "CH ${connection.wiFiSignal.channelDisplay()}",
+                        color = ChannelNumber,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
                     if (wiFiConnection.linkSpeed != WiFiConnection.LINK_SPEED_INVALID) {
                         Text(
                             text = "${wiFiConnection.linkSpeed}${WifiInfo.LINK_SPEED_UNITS}",
