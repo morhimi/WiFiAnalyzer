@@ -72,6 +72,7 @@ dependencies {
     implementation("androidx.savedstate:savedstate-ktx:1.5.0")
     implementation("androidx.navigation:navigation-compose:2.9.8")
     implementation("androidx.hilt:hilt-navigation-compose:1.4.0")
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     // Unit Test Dependencies

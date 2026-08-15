@@ -77,10 +77,14 @@ enum class MainContext {
         context: Context,
         largeScreen: Boolean,
     ) {
+        // This is a fallback/legacy initializer.
+        // In a Hilt-enabled app, we should use the other initialize method.
         this.context = context.applicationContext
         configuration = Configuration(largeScreen)
         val repository = Repository(this.context)
-        settings = Settings(repository)
+        // We can't easily create a SettingsRepository here without DataStore
+        // So we'll just pass null for now, which is supported by the new Settings constructor.
+        settings = Settings(repository, null)
         apAliasService = ApAliasService(repository)
         vendorService = VendorService(this.context.resources)
         wiFiManagerWrapper = WiFiManagerWrapper(wiFiManager)

@@ -18,8 +18,6 @@
 package com.vrem.wifianalyzer
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
@@ -32,6 +30,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -56,13 +57,14 @@ import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity :
     AppCompatActivity(),
-    NavigationMenuControl,
-    OnSharedPreferenceChangeListener {
+    NavigationMenuControl {
     @Inject
     lateinit var settings: Settings
 
@@ -167,7 +169,6 @@ class MainActivity :
             }
         }
 
-        settings.registerOnSharedPreferenceChangeListener(this)
         optionMenu = OptionMenu()
 
         keepScreenOn()
@@ -180,6 +181,20 @@ class MainActivity :
         navigationMenuController.currentNavigationMenu(settings.selectedMenu())
 
         onBackPressedDispatcher.addCallback(this, MainActivityBackPressed(this))
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                settings.settingsData.collectLatest { _ ->
+                    if (mainReload.shouldReload(settings)) {
+                        scannerService.stop()
+                        recreate()
+                    } else {
+                        keepScreenOn()
+                        update()
+                    }
+                }
+            }
+        }
     }
 
     public override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -210,19 +225,6 @@ class MainActivity :
             return screenLayoutSize == Configuration.SCREENLAYOUT_SIZE_LARGE ||
                 screenLayoutSize == Configuration.SCREENLAYOUT_SIZE_XLARGE
         }
-
-    override fun onSharedPreferenceChanged(
-        sharedPreferences: SharedPreferences,
-        key: String?,
-    ) {
-        if (mainReload.shouldReload(settings)) {
-            scannerService.stop()
-            recreate()
-        } else {
-            keepScreenOn()
-            update()
-        }
-    }
 
     fun update() {
         scannerService.update()

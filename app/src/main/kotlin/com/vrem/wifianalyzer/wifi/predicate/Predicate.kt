@@ -18,6 +18,7 @@
 package com.vrem.wifianalyzer.wifi.predicate
 
 import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.model.SSID
 import com.vrem.wifianalyzer.wifi.model.Security
@@ -64,17 +65,36 @@ internal fun <T : Enum<T>> makePredicate(
     }
 
 private fun predicates(
-    settings: Settings,
-    wiFiBands: Set<WiFiBand>,
+    filterSsids: Set<String>,
+    filterWiFiBands: Set<WiFiBand>,
+    filterStrengths: Set<Strength>,
+    filterSecurities: Set<Security>,
 ): List<Predicate> =
     listOf(
-        settings.findSSIDs().ssidPredicate(),
-        makePredicate(WiFiBand.entries, wiFiBands) { wiFiBand -> wiFiBand.predicate() },
-        makePredicate(Strength.entries, settings.findStrengths()) { strength -> strength.predicate() },
-        makePredicate(Security.entries, settings.findSecurities()) { security -> security.predicate() },
+        filterSsids.ssidPredicate(),
+        makePredicate(WiFiBand.entries, filterWiFiBands) { wiFiBand -> wiFiBand.predicate() },
+        makePredicate(Strength.entries, filterStrengths) { strength -> strength.predicate() },
+        makePredicate(Security.entries, filterSecurities) { security -> security.predicate() },
     )
 
 fun makeAccessPointsPredicate(settings: Settings): Predicate =
-    predicates(settings, settings.findWiFiBands()).allPredicate()
+    makeAccessPointsPredicate(settings.settingsData.value)
 
-fun makeOtherPredicate(settings: Settings): Predicate = predicates(settings, setOf(settings.wiFiBand())).allPredicate()
+fun makeAccessPointsPredicate(settingsData: SettingsData): Predicate =
+    predicates(
+        settingsData.filterSsids,
+        settingsData.filterWiFiBands,
+        settingsData.filterStrengths,
+        settingsData.filterSecurities
+    ).allPredicate()
+
+fun makeOtherPredicate(settings: Settings): Predicate =
+    makeOtherPredicate(settings.settingsData.value)
+
+fun makeOtherPredicate(settingsData: SettingsData): Predicate =
+    predicates(
+        settingsData.filterSsids,
+        setOf(settingsData.wiFiBand),
+        settingsData.filterStrengths,
+        settingsData.filterSecurities
+    ).allPredicate()

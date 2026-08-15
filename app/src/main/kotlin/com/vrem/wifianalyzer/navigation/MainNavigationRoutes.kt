@@ -41,6 +41,7 @@ import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.about.AboutScreen
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.vendor.VendorsScreen
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointsScreen
@@ -77,7 +78,8 @@ fun AccessPointsRoute(
     scannerService: ScannerService,
 ) {
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val wiFiBand = settings.wiFiBand()
+    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+    val wiFiBand = settingsData.wiFiBand
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -87,11 +89,11 @@ fun AccessPointsRoute(
         wiFiData = wiFiData,
         wiFiDetails =
             wiFiData.wiFiDetails(
-                makeAccessPointsPredicate(settings),
-                settings.sortBy(),
-                settings.groupBy(),
+                makeAccessPointsPredicate(settingsData),
+                settingsData.sortBy,
+                settingsData.groupBy,
             ),
-        viewType = settings.accessPointView(),
+        viewType = settingsData.accessPointView,
         wiFiBandAvailable = wiFiBand.available(),
         wiFiBandName = stringResource(wiFiBand.textResource),
         scanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
@@ -123,8 +125,9 @@ fun ChannelRatingRoute(
     scannerService: ScannerService,
 ) {
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val wiFiBand = settings.wiFiBand()
-    val countryCode = settings.countryCode()
+    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+    val wiFiBand = settingsData.wiFiBand
+    val countryCode = settingsData.countryCode
     val channelRating = remember { ChannelRating() }
     val context = LocalContext.current
     val fragmentActivity = context as? FragmentActivity
@@ -187,7 +190,8 @@ fun ChannelGraphRoute(
     }
 
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val wiFiBand = settings.wiFiBand()
+    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+    val wiFiBand = settingsData.wiFiBand
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -239,7 +243,8 @@ fun TimeGraphRoute(
     }
 
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val wiFiBand = settings.wiFiBand()
+    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+    val wiFiBand = settingsData.wiFiBand
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -276,9 +281,10 @@ fun VendorsRoute(vendorService: VendorService) {
 
 @Composable
 fun ChannelAvailableRoute(settings: Settings) {
+    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
     ChannelAvailableScreen(
-        countryCode = settings.countryCode(),
-        languageLocale = settings.languageLocale(),
+        countryCode = settingsData.countryCode,
+        languageLocale = settingsData.languageLocale,
     )
 }
 
