@@ -59,8 +59,8 @@ class Settings(
 
     private val sharedPreferenceChangeListener = OnSharedPreferenceChangeListener { _, key ->
         val currentSettings = transformSync()
-        _settingsData.update { currentSettings }
-        // Push to DataStore to keep them in sync
+        _settingsData.value = currentSettings
+
         key?.let { k ->
             scope.launch {
                 when (k) {
@@ -88,7 +88,6 @@ class Settings(
     }
 
     init {
-        // Initialize with current repository values
         _settingsData.value = transformSync()
         repository.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
         scope.launch {
@@ -131,7 +130,6 @@ class Settings(
         onSharedPreferenceChangeListener: OnSharedPreferenceChangeListener,
     ): Unit = repository.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
 
-    // Reactive methods
     fun scanSpeed(): Int = settingsData.value.scanSpeed
     fun cacheOff(): Boolean = settingsData.value.cacheOff
     fun graphMaximumY(): Int = settingsData.value.graphMaximumY
@@ -151,7 +149,6 @@ class Settings(
     fun findStrengths(): Set<Strength> = settingsData.value.filterStrengths
     fun findSecurities(): Set<Security> = settingsData.value.filterSecurities
 
-    // Sync methods (internal/private)
     private fun scanSpeedSync(): Int =
         repository.stringAsInteger(
             R.string.scan_speed_key,
@@ -168,52 +165,21 @@ class Settings(
     }
 
     private fun wiFiBandSync(): WiFiBand = settingsFind(WiFiBand.entries, R.string.wifi_band_key, WiFiBand.GHZ2)
-
     private fun countryCodeSync(): String = repository.string(R.string.country_code_key, defaultCountryCode())
-
-    private fun languageLocaleSync(): Locale {
-        val defaultLanguageTag = defaultLanguageTag()
-        val languageTag = repository.string(R.string.language_key, defaultLanguageTag)
-        return findByLanguageTag(languageTag)
-    }
-
+    private fun languageLocaleSync(): Locale = findByLanguageTag(repository.string(R.string.language_key, defaultLanguageTag()))
     private fun sortBySync(): SortBy = settingsFind(SortBy.entries, R.string.sort_by_key, SortBy.STRENGTH)
-
     private fun groupBySync(): GroupBy = settingsFind(GroupBy.entries, R.string.group_by_key, GroupBy.NONE)
-
-    private fun accessPointViewSync(): AccessPointViewType =
-        settingsFind(AccessPointViewType.entries, R.string.ap_view_key, AccessPointViewType.COMPLETE)
-
-    private fun connectionViewTypeSync(): ConnectionViewType =
-        settingsFind(ConnectionViewType.entries, R.string.connection_view_key, ConnectionViewType.COMPACT)
-
-    private fun wiFiOffOnExitSync(): Boolean =
-        if (buildMinVersionQ()) {
-            false
-        } else {
-            repository.boolean(
-                R.string.wifi_off_on_exit_key,
-                repository.resourceBoolean(R.bool.wifi_off_on_exit_default),
-            )
-        }
-
-    private fun keepScreenOnSync(): Boolean =
-        repository.boolean(R.string.keep_screen_on_key, repository.resourceBoolean(R.bool.keep_screen_on_default))
-
+    private fun accessPointViewSync(): AccessPointViewType = settingsFind(AccessPointViewType.entries, R.string.ap_view_key, AccessPointViewType.COMPLETE)
+    private fun connectionViewTypeSync(): ConnectionViewType = settingsFind(ConnectionViewType.entries, R.string.connection_view_key, ConnectionViewType.COMPACT)
+    private fun wiFiOffOnExitSync(): Boolean = if (buildMinVersionQ()) false else repository.boolean(R.string.wifi_off_on_exit_key, repository.resourceBoolean(R.bool.wifi_off_on_exit_default))
+    private fun keepScreenOnSync(): Boolean = repository.boolean(R.string.keep_screen_on_key, repository.resourceBoolean(R.bool.keep_screen_on_default))
     private fun themeStyleSync(): ThemeStyle = settingsFind(ThemeStyle.entries, R.string.theme_key, ThemeStyle.DARK)
-
-    private fun selectedMenuSync(): NavigationMenu =
-        settingsFind(NavigationMenu.entries, R.string.selected_menu_key, NavigationMenu.ACCESS_POINTS)
-
+    private fun selectedMenuSync(): NavigationMenu = settingsFind(NavigationMenu.entries, R.string.selected_menu_key, NavigationMenu.ACCESS_POINTS)
     private fun findSSIDsSync(): Set<String> = repository.stringSet(R.string.filter_ssid_key, setOf())
-
     private fun findWiFiBandsSync(): Set<WiFiBand> = settingsFindSet(WiFiBand.entries, R.string.filter_wifi_band_key, WiFiBand.GHZ2)
-
     private fun findStrengthsSync(): Set<Strength> = settingsFindSet(Strength.entries, R.string.filter_strength_key, Strength.FOUR)
-
     private fun findSecuritiesSync(): Set<Security> = settingsFindSet(Security.entries, R.string.filter_security_key, Security.NONE)
 
-    // Save methods
     fun wiFiBand(wiFiBand: WiFiBand) {
         _settingsData.update { it.copy(wiFiBand = wiFiBand) }
         repository.save(R.string.wifi_band_key, wiFiBand.ordinal)
@@ -252,29 +218,18 @@ class Settings(
         scope.launch { settingsRepository?.updateFilterSecurities(ordinals(values)) }
     }
 
-    private fun <T : Enum<T>> settingsFind(
-        values: EnumEntries<T>,
-        key: Int,
-        defaultValue: T,
-    ): T {
+    private fun <T : Enum<T>> settingsFind(values: EnumEntries<T>, key: Int, defaultValue: T): T {
         val value = repository.stringAsInteger(key, defaultValue.ordinal)
         return findOne(values, value, defaultValue)
     }
 
-    private fun <T : Enum<T>> settingsFindSet(
-        values: EnumEntries<T>,
-        key: Int,
-        defaultValue: T,
-    ): Set<T> {
+    private fun <T : Enum<T>> settingsFindSet(values: EnumEntries<T>, key: Int, defaultValue: T): Set<T> {
         val ordinalDefault = ordinals(values)
         val ordinalSaved = repository.stringSet(key, ordinalDefault)
         return findSet(values, ordinalSaved, defaultValue)
     }
 
-    private fun <T : Enum<T>> settingsSaveSet(
-        key: Int,
-        values: Set<T>,
-    ): Unit = repository.saveStringSet(key, ordinals(values))
+    private fun <T : Enum<T>> settingsSaveSet(key: Int, values: Set<T>) = repository.saveStringSet(key, ordinals(values))
 
     companion object {
         private const val SCAN_SPEED_DEFAULT = 5
