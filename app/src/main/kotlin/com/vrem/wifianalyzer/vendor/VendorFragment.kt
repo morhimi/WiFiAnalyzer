@@ -24,17 +24,23 @@ import android.view.ViewGroup
 import android.widget.SearchView
 import androidx.fragment.app.ListFragment
 import com.vrem.util.specialTrim
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.databinding.VendorContentBinding
+import com.vrem.wifianalyzer.vendor.model.VendorService
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class VendorFragment : ListFragment() {
+    @Inject
+    lateinit var vendorService: VendorService
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         val binding: VendorContentBinding = VendorContentBinding.inflate(inflater, container, false)
-        val vendorAdapter = VendorAdapter(requireActivity(), MainContext.INSTANCE.vendorService)
+        val vendorAdapter = VendorAdapter(requireActivity(), vendorService)
         listAdapter = vendorAdapter
         binding.vendorSearchText.setOnQueryTextListener(Listener(vendorAdapter))
         return binding.root

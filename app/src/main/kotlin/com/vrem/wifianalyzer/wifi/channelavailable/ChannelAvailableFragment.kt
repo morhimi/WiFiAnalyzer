@@ -22,13 +22,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.databinding.ChannelAvailableContentBinding
+import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.band.WiFiChannelCountry
 import com.vrem.wifianalyzer.wifi.model.WiFiWidth
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ChannelAvailableFragment : Fragment() {
+    @Inject
+    lateinit var settings: Settings
+
     private lateinit var binding: ChannelAvailableContentBinding
 
     override fun onCreateView(
@@ -42,7 +48,6 @@ class ChannelAvailableFragment : Fragment() {
     }
 
     private fun update() {
-        val settings = MainContext.INSTANCE.settings
         val countryCode = settings.countryCode()
         val languageLocale = settings.languageLocale()
         binding.apply {

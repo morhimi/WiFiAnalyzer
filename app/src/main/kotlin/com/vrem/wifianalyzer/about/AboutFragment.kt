@@ -36,30 +36,43 @@ import androidx.fragment.app.FragmentActivity
 import com.vrem.util.EMPTY
 import com.vrem.util.packageInfo
 import com.vrem.util.readFile
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
+import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
+import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 
+@AndroidEntryPoint
 class AboutFragment : Fragment() {
+    @Inject
+    lateinit var settings: Settings
+
+    @Inject
+    lateinit var wiFiManagerWrapper: WiFiManagerWrapper
+
+    @Inject
+    lateinit var configuration: WiFiConfiguration
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         val activity: FragmentActivity = requireActivity()
-        val wiFiManagerWrapper = MainContext.INSTANCE.wiFiManagerWrapper
         return ComposeView(requireContext()).apply {
             setContent {
-                val settings = MainContext.INSTANCE.settings
-                val isDark = when (settings.themeStyle()) {
-                    ThemeStyle.DARK, ThemeStyle.BLACK -> true
-                    ThemeStyle.LIGHT -> false
-                    ThemeStyle.SYSTEM -> isSystemInDarkTheme()
-                }
+                val isDark =
+                    when (settings.themeStyle()) {
+                        ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                        ThemeStyle.LIGHT -> false
+                        ThemeStyle.SYSTEM -> isSystemInDarkTheme()
+                    }
                 WiFiAnalyzerTheme(darkTheme = isDark) {
                     AboutScreen(
                         applicationName = getString(R.string.app_full_name),
@@ -118,7 +131,6 @@ class AboutFragment : Fragment() {
         resources.getString(R.string.app_copyright) + SimpleDateFormat(YEAR_FORMAT, Locale.getDefault()).format(Date())
 
     private fun version(activity: FragmentActivity): String {
-        val configuration = MainContext.INSTANCE.configuration
         return applicationVersion(activity) +
             ifElse(configuration.sizeAvailable, "S") +
             ifElse(configuration.largeScreen, "L") +

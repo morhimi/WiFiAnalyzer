@@ -22,16 +22,18 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import com.vrem.annotation.OpenClass
+import com.vrem.util.findActivity
 
 @OpenClass
 class ApplicationPermission(
     private val context: Context,
-    private val permissionDialog: PermissionDialog? = (context as? Activity)?.let { PermissionDialog(it) },
 ) {
-    fun check() {
-        val activity = context as? Activity
-        if (!granted() && activity?.isFinishing != true) {
-            permissionDialog?.show()
+    fun check(targetContext: Context = context) {
+        if (!granted()) {
+            val activity = targetContext.findActivity()
+            if (activity != null && !activity.isFinishing) {
+                PermissionDialog(activity).show()
+            }
         }
     }
 

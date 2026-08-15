@@ -29,14 +29,27 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import com.vrem.wifianalyzer.wifi.scanner.ScannerService
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 @OpenClass
 class WiFiDetailPopup : DialogFragment() {
+    @Inject
+    lateinit var settings: Settings
+
+    @Inject
+    lateinit var apAliasService: ApAliasService
+
+    @Inject
+    lateinit var scannerService: ScannerService
 
     companion object {
         private var wiFiDetailsList: List<WiFiDetail> = emptyList()
@@ -67,12 +80,12 @@ class WiFiDetailPopup : DialogFragment() {
         val composeView =
             ComposeView(requireContext()).apply {
                 setContent {
-                    val settings = MainContext.INSTANCE.settings
-                    val isDark = when (settings.themeStyle()) {
-                        ThemeStyle.DARK, ThemeStyle.BLACK -> true
-                        ThemeStyle.LIGHT -> false
-                        ThemeStyle.SYSTEM -> isSystemInDarkTheme()
-                    }
+                    val isDark =
+                        when (settings.themeStyle()) {
+                            ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                            ThemeStyle.LIGHT -> false
+                            ThemeStyle.SYSTEM -> isSystemInDarkTheme()
+                        }
                     WiFiAnalyzerTheme(darkTheme = isDark) {
                         WiFiDetailContent(wiFiDetail = detail)
                     }
@@ -134,12 +147,12 @@ class WiFiDetailPopup : DialogFragment() {
                 .setView(container)
                 .setPositiveButton(R.string.ap_alias_save) { dialog, _ ->
                     val alias = input.text.toString()
-                    MainContext.INSTANCE.apAliasService.saveAlias(wiFiDetail.wiFiIdentifier.bssid, alias)
-                    MainContext.INSTANCE.scannerService.update()
+                    apAliasService.saveAlias(wiFiDetail.wiFiIdentifier.bssid, alias)
+                    scannerService.update()
                     dialog.dismiss()
                 }.setNeutralButton(R.string.ap_alias_clear) { dialog, _ ->
-                    MainContext.INSTANCE.apAliasService.removeAlias(wiFiDetail.wiFiIdentifier.bssid)
-                    MainContext.INSTANCE.scannerService.update()
+                    apAliasService.removeAlias(wiFiDetail.wiFiIdentifier.bssid)
+                    scannerService.update()
                     dialog.dismiss()
                 }.setNegativeButton(android.R.string.cancel) { dialog, _ ->
                     dialog.cancel()

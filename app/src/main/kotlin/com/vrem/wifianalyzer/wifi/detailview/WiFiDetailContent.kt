@@ -42,9 +42,7 @@ import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointViewType
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 @Composable
-fun WiFiDetailContent(
-    wiFiDetail: WiFiDetail,
-) {
+fun WiFiDetailContent(wiFiDetail: WiFiDetail) {
     val context = LocalContext.current
     val signal = wiFiDetail.wiFiSignal
 
@@ -53,9 +51,10 @@ fun WiFiDetailContent(
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
         ) {
             AccessPointItem(wiFiDetail = wiFiDetail, viewType = AccessPointViewType.COMPLETE)
 

@@ -15,16 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.vrem.wifianalyzer.navigation.items
+package com.vrem.wifianalyzer
 
-import com.vrem.wifianalyzer.MainActivity
-import com.vrem.wifianalyzer.navigation.NavigationMenu
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-interface NavigationItem {
-    fun activate(
-        mainActivity: MainActivity,
-        navigationMenu: NavigationMenu,
-    )
-
-    val registered: Boolean get() = false
-}
+@HiltAndroidApp
+class WiFiAnalyzerApp : Application()

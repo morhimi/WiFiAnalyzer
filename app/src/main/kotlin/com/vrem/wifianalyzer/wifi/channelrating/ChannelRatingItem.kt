@@ -17,31 +17,26 @@
  */
 package com.vrem.wifianalyzer.wifi.channelrating
 
+import android.content.res.ColorStateList
+import android.widget.RatingBar
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.compose.ChannelNumber
 import com.vrem.wifianalyzer.compose.Selected
 import com.vrem.wifianalyzer.wifi.band.WiFiChannel
 import com.vrem.wifianalyzer.wifi.model.Strength
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.viewinterop.AndroidView
-import android.widget.RatingBar
-import android.content.res.ColorStateList
-import androidx.core.content.ContextCompat
 
 @Composable
 fun ChannelRatingItem(
@@ -51,9 +46,10 @@ fun ChannelRatingItem(
     strength: Strength,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Rating Stars (using legacy RatingBar for visual consistency)
@@ -70,7 +66,7 @@ fun ChannelRatingItem(
                 ratingBar.rating = rating
                 val color = ContextCompat.getColor(ratingBar.context, Strength.reverse(strength).colorResource)
                 ratingBar.progressTintList = ColorStateList.valueOf(color)
-            }
+            },
         )
 
         // Channel and Width

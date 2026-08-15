@@ -19,15 +19,17 @@ package com.vrem.wifianalyzer.wifi.scanner
 
 import androidx.lifecycle.ViewModel
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.wifi.model.WiFiData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
+@HiltViewModel
 @OpenClass
-class WiFiScanViewModel(
-    private val scannerService: ScannerService = MainContext.INSTANCE.scannerService,
+class WiFiScanViewModel @Inject constructor(
+    private val scannerService: ScannerService,
 ) : ViewModel() {
     private val _wiFiData: MutableStateFlow<WiFiData> = MutableStateFlow(scannerService.wiFiData())
     val wiFiData: StateFlow<WiFiData> = _wiFiData.asStateFlow()

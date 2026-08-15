@@ -31,19 +31,37 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.permission.PermissionService
+import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
+import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.ChannelRating
 import com.vrem.wifianalyzer.wifi.model.SortBy
 import com.vrem.wifianalyzer.wifi.predicate.predicate
+import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
-import kotlin.time.Duration.Companion.seconds
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
+@AndroidEntryPoint
 class ChannelRatingFragment : Fragment() {
+    @Inject
+    lateinit var settings: Settings
+
+    @Inject
+    lateinit var wiFiManagerWrapper: WiFiManagerWrapper
+
+    @Inject
+    lateinit var permissionService: PermissionService
+
+    @Inject
+    lateinit var scannerService: ScannerService
+
     private val channelRating = ChannelRating()
     internal val wiFiScanViewModel: WiFiScanViewModel by activityViewModels()
 
@@ -51,15 +69,15 @@ class ChannelRatingFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
-        return ComposeView(requireContext()).apply {
+    ): View =
+        ComposeView(requireContext()).apply {
             setContent {
-                val settings = MainContext.INSTANCE.settings
-                val isDark = when (settings.themeStyle()) {
-                    ThemeStyle.DARK, ThemeStyle.BLACK -> true
-                    ThemeStyle.LIGHT -> false
-                    ThemeStyle.SYSTEM -> isSystemInDarkTheme()
-                }
+                val isDark =
+                    when (settings.themeStyle()) {
+                        ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                        ThemeStyle.LIGHT -> false
+                        ThemeStyle.SYSTEM -> isSystemInDarkTheme()
+                    }
                 val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
                 val wiFiBand = settings.wiFiBand()
                 val countryCode = settings.countryCode()
@@ -81,9 +99,9 @@ class ChannelRatingFragment : Fragment() {
                         channelRating = channelRating,
                         wiFiBandAvailable = wiFiBand.available(),
                         wiFiBandName = getString(wiFiBand.textResource),
-                        scanThrottleEnabled = MainContext.INSTANCE.wiFiManagerWrapper.isScanThrottleEnabled(),
-                        permissionEnabled = MainContext.INSTANCE.permissionService.enabled(),
-                        isScanning = MainContext.INSTANCE.scannerService.running(),
+                        scanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
+                        permissionEnabled = permissionService.enabled(),
+                        isScanning = scannerService.running(),
                         isRefreshing = isRefreshing,
                         onRefresh = {
                             scope.launch {
@@ -95,10 +113,9 @@ class ChannelRatingFragment : Fragment() {
                         },
                         onDetailClick = { detail ->
                             WiFiDetailPopup.show(parentFragmentManager, detail)
-                        }
+                        },
                     )
                 }
             }
         }
-    }
 }

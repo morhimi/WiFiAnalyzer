@@ -44,13 +44,14 @@ fun AccessPointsList(
                 wiFiDetail = detail,
                 viewType = viewType,
                 expanded = isExpanded,
-                modifier = Modifier.clickable {
-                    if (detail.children.isNotEmpty()) {
-                        expandedStates[detail.wiFiIdentifier] = !isExpanded
-                    } else {
-                        onDetailClick(detail)
-                    }
-                },
+                modifier =
+                    Modifier.clickable {
+                        if (detail.children.isNotEmpty()) {
+                            expandedStates[detail.wiFiIdentifier] = !isExpanded
+                        } else {
+                            onDetailClick(detail)
+                        }
+                    },
             )
 
             if (isExpanded) {

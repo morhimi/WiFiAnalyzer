@@ -43,9 +43,10 @@ fun ChannelRatingBest(
     bestChannels: List<ChannelAPCount>,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
@@ -63,16 +64,18 @@ fun ChannelRatingBest(
         }
 
         WiFiWidth.entries.forEach { wiFiWidth ->
-            val channels = bestChannels
-                .filter { it.wiFiWidth == wiFiWidth }
-                .map { it.wiFiChannel.channel }
-                .joinToString(",")
+            val channels =
+                bestChannels
+                    .filter { it.wiFiWidth == wiFiWidth }
+                    .map { it.wiFiChannel.channel }
+                    .joinToString(",")
 
             if (channels.isNotEmpty()) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, top = 2.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, top = 2.dp),
                 ) {
                     Text(
                         text = stringResource(id = wiFiWidth.textResource),
@@ -94,8 +97,8 @@ fun ChannelRatingBest(
 }
 
 @Composable
-private fun errorMessage(wiFiBand: WiFiBand): String {
-    return if (WiFiBand.GHZ2 == wiFiBand) {
+private fun errorMessage(wiFiBand: WiFiBand): String =
+    if (WiFiBand.GHZ2 == wiFiBand) {
         stringResource(
             id = R.string.channel_rating_best_alternative,
             stringResource(id = R.string.channel_rating_best_none),
@@ -104,4 +107,3 @@ private fun errorMessage(wiFiBand: WiFiBand): String {
     } else {
         stringResource(id = R.string.channel_rating_best_none)
     }
-}

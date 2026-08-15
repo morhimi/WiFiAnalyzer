@@ -34,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +42,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vrem.wifianalyzer.R
-import com.vrem.wifianalyzer.compose.BackgroundColor
 import com.vrem.wifianalyzer.compose.ChannelNumber
 import com.vrem.wifianalyzer.compose.ErrorColor
 import com.vrem.wifianalyzer.compose.Frequency
@@ -70,11 +68,12 @@ fun ConnectionHeader(
     Column(modifier = Modifier.fillMaxWidth()) {
         if (wiFiConnection.connected) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .clickable { onDetailClick(connection) }
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
+                        .clickable { onDetailClick(connection) }
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -158,9 +157,10 @@ fun ConnectionHeader(
 @Composable
 private fun WiFiSupportWarning(wiFiBandName: String) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -182,9 +182,10 @@ private fun WiFiSupportWarning(wiFiBandName: String) {
 @Composable
 private fun WiFiThrottlingWarning() {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -210,9 +211,10 @@ private fun WarningSection(
     isScanning: Boolean,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isScanning) {

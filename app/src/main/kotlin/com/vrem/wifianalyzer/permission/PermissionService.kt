@@ -30,7 +30,7 @@ class PermissionService(
 
     fun locationEnabled(): Boolean = locationPermission.enabled()
 
-    fun check(): Unit = applicationPermission.check()
+    fun check(context: Context? = null): Unit = applicationPermission.check(context ?: this.context)
 
     fun granted(
         requestCode: Int,

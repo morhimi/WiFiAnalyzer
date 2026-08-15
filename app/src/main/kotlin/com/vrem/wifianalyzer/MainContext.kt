@@ -31,24 +31,47 @@ import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.makeScannerService
+import kotlin.properties.Delegates
 
 enum class MainContext {
     INSTANCE,
     ;
 
-    lateinit var context: Context
-    lateinit var settings: Settings
-    lateinit var wiFiManagerWrapper: WiFiManagerWrapper
-    lateinit var permissionService: PermissionService
-    lateinit var scannerService: ScannerService
-    lateinit var vendorService: VendorService
-    lateinit var apAliasService: ApAliasService
-    lateinit var configuration: Configuration
-    lateinit var filtersAdapter: FiltersAdapter
+    var context: Context by Delegates.notNull()
+    var settings: Settings by Delegates.notNull()
+    var wiFiManagerWrapper: WiFiManagerWrapper by Delegates.notNull()
+    var permissionService: PermissionService by Delegates.notNull()
+    var scannerService: ScannerService by Delegates.notNull()
+    var vendorService: VendorService by Delegates.notNull()
+    var apAliasService: ApAliasService by Delegates.notNull()
+    var configuration: Configuration by Delegates.notNull()
+    var filtersAdapter: FiltersAdapter by Delegates.notNull()
 
     val resources: Resources get() = context.resources
 
     private val wiFiManager: WifiManager get() = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+    fun initialize(
+        context: Context,
+        settings: Settings,
+        wiFiManagerWrapper: WiFiManagerWrapper,
+        permissionService: PermissionService,
+        scannerService: ScannerService,
+        vendorService: VendorService,
+        apAliasService: ApAliasService,
+        configuration: Configuration,
+        filtersAdapter: FiltersAdapter,
+    ) {
+        this.context = context
+        this.settings = settings
+        this.wiFiManagerWrapper = wiFiManagerWrapper
+        this.permissionService = permissionService
+        this.scannerService = scannerService
+        this.vendorService = vendorService
+        this.apAliasService = apAliasService
+        this.configuration = configuration
+        this.filtersAdapter = filtersAdapter
+    }
 
     fun initialize(
         context: Context,
@@ -62,7 +85,13 @@ enum class MainContext {
         vendorService = VendorService(this.context.resources)
         wiFiManagerWrapper = WiFiManagerWrapper(wiFiManager)
         permissionService = PermissionService(this.context)
-        scannerService = makeScannerService(this.context, wiFiManagerWrapper, Handler(Looper.getMainLooper()), settings)
+        scannerService = makeScannerService(
+            this.context,
+            wiFiManagerWrapper,
+            permissionService,
+            Handler(Looper.getMainLooper()),
+            settings,
+        )
         filtersAdapter = FiltersAdapter(settings)
     }
 }

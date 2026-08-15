@@ -24,46 +24,49 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Selected,
-    secondary = ChannelNumber,
-    tertiary = SuccessColor,
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E),
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onTertiary = Color.White,
-    onBackground = Color.White,
-    onSurface = Color.White,
-    onSurfaceVariant = Color.LightGray,
-    error = ErrorColor,
-)
+private val DarkColorScheme =
+    darkColorScheme(
+        primary = Selected,
+        secondary = ChannelNumber,
+        tertiary = SuccessColor,
+        background = Color(0xFF121212),
+        surface = Color(0xFF1E1E1E),
+        onPrimary = Color.White,
+        onSecondary = Color.Black,
+        onTertiary = Color.White,
+        onBackground = Color.White,
+        onSurface = Color.White,
+        onSurfaceVariant = Color.LightGray,
+        error = ErrorColor,
+    )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Selected,
-    secondary = ChannelNumber,
-    tertiary = SuccessColor,
-    background = Color.White,
-    surface = Color(0xFFF5F5F5),
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onTertiary = Color.White,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    onSurfaceVariant = Color.DarkGray,
-    error = ErrorColor,
-)
+private val LightColorScheme =
+    lightColorScheme(
+        primary = Selected,
+        secondary = ChannelNumber,
+        tertiary = SuccessColor,
+        background = Color.White,
+        surface = Color(0xFFF5F5F5),
+        onPrimary = Color.White,
+        onSecondary = Color.Black,
+        onTertiary = Color.White,
+        onBackground = Color.Black,
+        onSurface = Color.Black,
+        onSurfaceVariant = Color.DarkGray,
+        error = ErrorColor,
+    )
 
 @Composable
 fun WiFiAnalyzerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (darkTheme) {
-        DarkColorScheme
-    } else {
-        LightColorScheme
-    }
+    val colorScheme =
+        if (darkTheme) {
+            DarkColorScheme
+        } else {
+            LightColorScheme
+        }
 
     MaterialTheme(
         colorScheme = colorScheme,

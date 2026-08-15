@@ -19,6 +19,7 @@ package com.vrem.wifianalyzer.wifi.scanner
 
 import android.content.Context
 import android.os.Handler
+import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import org.assertj.core.api.Assertions.assertThat
@@ -30,6 +31,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 class ScannerServiceTest {
     private val wiFiManagerWrapper: WiFiManagerWrapper = mock()
     private val context: Context = mock()
+    private val permissionService: PermissionService = mock()
     private val handler: Handler = mock()
     private val settings: Settings = mock()
 
@@ -37,6 +39,7 @@ class ScannerServiceTest {
     fun tearDown() {
         verifyNoMoreInteractions(wiFiManagerWrapper)
         verifyNoMoreInteractions(context)
+        verifyNoMoreInteractions(permissionService)
         verifyNoMoreInteractions(handler)
         verifyNoMoreInteractions(settings)
     }
@@ -45,7 +48,7 @@ class ScannerServiceTest {
     fun makeScannerService() {
         // setup
         // execute
-        val actual = makeScannerService(context, wiFiManagerWrapper, handler, settings) as Scanner
+        val actual = makeScannerService(context, wiFiManagerWrapper, permissionService, handler, settings) as Scanner
         // validate
         assertThat(actual.wiFiManagerWrapper).isEqualTo(wiFiManagerWrapper)
         assertThat(actual.settings).isEqualTo(settings)

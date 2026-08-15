@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -61,9 +60,10 @@ fun AccessPointItem(
     expanded: Boolean = false,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (isChild) {
@@ -74,9 +74,10 @@ fun AccessPointItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (!isChild && wiFiDetail.children.isNotEmpty()) {
                     Icon(
-                        painter = painterResource(
-                            id = if (expanded) R.drawable.ic_expand_less else R.drawable.ic_expand_more,
-                        ),
+                        painter =
+                            painterResource(
+                                id = if (expanded) R.drawable.ic_expand_less else R.drawable.ic_expand_more,
+                            ),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
                     )
@@ -124,9 +125,10 @@ private fun AccessPointComplete(wiFiDetail: WiFiDetail) {
                 Icon(
                     painter = painterResource(id = wiFiDetail.wiFiSecurity.security.imageResource),
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(12.dp)
-                        .align(Alignment.BottomEnd),
+                    modifier =
+                        Modifier
+                            .size(12.dp)
+                            .align(Alignment.BottomEnd),
                 )
             }
         }
@@ -215,9 +217,10 @@ private fun AccessPointCompact(wiFiDetail: WiFiDetail) {
         Icon(
             painter = painterResource(id = wiFiDetail.wiFiSecurity.security.imageResource),
             contentDescription = null,
-            modifier = Modifier
-                .size(12.dp)
-                .padding(end = 4.dp),
+            modifier =
+                Modifier
+                    .size(12.dp)
+                    .padding(end = 4.dp),
         )
         Text(
             text = signal.distance,

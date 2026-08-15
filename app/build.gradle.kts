@@ -31,6 +31,8 @@ plugins {
     id("jacoco")
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 val kotlinVersion: String by rootProject.extra
@@ -53,6 +55,9 @@ dependencies {
     implementation("com.google.android.material:material:1.14.0")
     implementation("com.patrykandpatrick.vico:views:3.2.3")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    // Hilt Dependencies
+    implementation("com.google.dagger:hilt-android:2.60.1")
+    ksp("com.google.dagger:hilt-compiler:2.60.1")
     // Compose Dependencies
     val composeBom = "2025.02.00"
     implementation(platform("androidx.compose:compose-bom:$composeBom"))
@@ -92,10 +97,6 @@ configure<ApplicationExtension> {
     namespace = "com.vrem.wifianalyzer"
     compileSdk = 37
     buildToolsVersion = "36.1.0"
-
-    sourceSets.all {
-        java.directories.add("src/$name/kotlin")
-    }
 
     defaultConfig {
         applicationId = "com.vrem.wifianalyzer"
@@ -138,6 +139,7 @@ configure<ApplicationExtension> {
     kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.add("-XXLanguage:+ExplicitBackingFields")
         }
     }
 

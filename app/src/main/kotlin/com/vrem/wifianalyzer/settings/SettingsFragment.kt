@@ -24,6 +24,9 @@ import androidx.preference.PreferenceFragmentCompat
 import com.vrem.util.buildMinVersionQ
 import com.vrem.wifianalyzer.R
 
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
 open class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(
         bundle: Bundle?,

@@ -77,9 +77,10 @@ fun ChannelRatingScreen(
                     )
 
                     LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 16.dp),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .padding(horizontal = 16.dp),
                     ) {
                         item {
                             ChannelRatingBest(
@@ -91,9 +92,10 @@ fun ChannelRatingScreen(
                         items(wiFiChannels) { channel ->
                             ChannelRatingItem(
                                 wiFiChannel = channel,
-                                wiFiWidthName = stringResource(
-                                    id = wiFiBand.wiFiChannels.wiFiWidthByChannel(channel.channel).textResource
-                                ),
+                                wiFiWidthName =
+                                    stringResource(
+                                        id = wiFiBand.wiFiChannels.wiFiWidthByChannel(channel.channel).textResource,
+                                    ),
                                 apCount = channelRating.count(channel),
                                 strength = channelRating.strength(channel),
                             )
