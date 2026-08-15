@@ -30,6 +30,7 @@ plugins {
     id("kotlin-allopen")
     id("jacoco")
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 val kotlinVersion: String by rootProject.extra
@@ -52,6 +53,17 @@ dependencies {
     implementation("com.google.android.material:material:1.14.0")
     implementation("com.patrykandpatrick.vico:views:3.2.3")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    // Compose Dependencies
+    val composeBom = "2025.02.00"
+    implementation(platform("androidx.compose:compose-bom:$composeBom"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.activity:activity-compose:1.13.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
     // Unit Test Dependencies
     testImplementation("androidx.test.ext:junit:1.3.0")
     testImplementation("com.googlecode.junit-toolbox:junit-toolbox:2.4")
@@ -92,6 +104,7 @@ configure<ApplicationExtension> {
 
     buildFeatures {
         viewBinding = true
+        compose = true
     }
 
     buildTypes {

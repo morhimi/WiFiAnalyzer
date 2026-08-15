@@ -47,6 +47,8 @@ class TimeGraphAdapter(
 class TimeGraphFragment :
     Fragment(),
     OnRefreshListener {
+    private var _binding: GraphContentBinding? = null
+    private val binding get() = _binding!!
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var timeGraphAdapter: TimeGraphAdapter
         private set
@@ -57,7 +59,7 @@ class TimeGraphFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val binding = GraphContentBinding.inflate(inflater, container, false)
+        _binding = GraphContentBinding.inflate(inflater, container, false)
         swipeRefreshLayout = binding.graphRefresh
         swipeRefreshLayout.setOnRefreshListener(this)
         if (buildVersionP()) {
@@ -78,6 +80,7 @@ class TimeGraphFragment :
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 wiFiScanViewModel.wiFiData.collect { wiFiData ->
                     timeGraphAdapter.update(wiFiData)
+                    binding.graphFlipper.displayedChild = MainContext.INSTANCE.settings.wiFiBand().ordinal
                 }
             }
         }
@@ -96,6 +99,7 @@ class TimeGraphFragment :
 
     override fun onDestroyView() {
         timeGraphAdapter.destroy()
+        _binding = null
         super.onDestroyView()
     }
 }

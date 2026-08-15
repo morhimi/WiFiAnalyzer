@@ -29,6 +29,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.vrem.util.buildVersionP
+import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.databinding.GraphContentBinding
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.GraphAdapter
@@ -38,6 +39,8 @@ import kotlinx.coroutines.launch
 class ChannelGraphFragment :
     Fragment(),
     OnRefreshListener {
+    private var _binding: GraphContentBinding? = null
+    private val binding get() = _binding!!
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var graphAdapter: GraphAdapter
         private set
@@ -48,7 +51,7 @@ class ChannelGraphFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val binding = GraphContentBinding.inflate(inflater, container, false)
+        _binding = GraphContentBinding.inflate(inflater, container, false)
         swipeRefreshLayout = binding.graphRefresh
         swipeRefreshLayout.setOnRefreshListener(this)
         if (buildVersionP()) {
@@ -70,6 +73,7 @@ class ChannelGraphFragment :
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 wiFiScanViewModel.wiFiData.collect { wiFiData ->
                     graphAdapter.update(wiFiData)
+                    binding.graphFlipper.displayedChild = MainContext.INSTANCE.settings.wiFiBand().ordinal
                 }
             }
         }
@@ -88,6 +92,7 @@ class ChannelGraphFragment :
 
     override fun onDestroyView() {
         graphAdapter.destroy()
+        _binding = null
         super.onDestroyView()
     }
 }
