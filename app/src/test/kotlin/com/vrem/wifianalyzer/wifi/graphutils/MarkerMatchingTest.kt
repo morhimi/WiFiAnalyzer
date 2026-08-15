@@ -135,7 +135,7 @@ class WithinProximityTest {
     @Test
     fun outsideThresholdY() {
         // Arrange
-        val touch = Point(CANVAS_X, CANVAS_Y + THRESHOLD + 1f)
+        val touch = Point(CANVAS_X, CANVAS_Y - THRESHOLD - 1f)
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
@@ -143,10 +143,20 @@ class WithinProximityTest {
     }
 
     @Test
+    fun insideCurveBodyBelowPeak() {
+        // Arrange - touch is inside the curve below peak
+        val touch = Point(CANVAS_X, CANVAS_Y + THRESHOLD + 50f)
+        // Act
+        val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
+        // Assert
+        assertThat(actual).isTrue()
+    }
+
+    @Test
     fun outsideThresholdDiagonal() {
-        // Arrange - each axis within threshold but Euclidean distance exceeds it
-        val offset = THRESHOLD * 0.8f
-        val touch = Point(CANVAS_X + offset, CANVAS_Y + offset)
+        // Arrange - touch is far horizontally and above threshold in Y
+        val offset = THRESHOLD + 5f
+        val touch = Point(CANVAS_X + offset, CANVAS_Y - offset)
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
@@ -236,12 +246,22 @@ class MatchDetailsTest {
 
     @Test
     fun outsideThresholdY() {
-        // Arrange
-        val touch = Point(CANVAS_X, CANVAS_Y + THRESHOLD + 1f)
+        // Arrange - touch far above peak
+        val touch = Point(CANVAS_X, CANVAS_Y - THRESHOLD - 1f)
         // Act
         val actual = matchDetails(points, CANVAS_X, touch, THRESHOLD, pointMap)
         // Assert
         assertThat(actual).isEmpty()
+    }
+
+    @Test
+    fun insideCurveBodyMatches() {
+        // Arrange - touch is inside the curve below peak
+        val touch = Point(CANVAS_X, CANVAS_Y + 40f)
+        // Act
+        val actual = matchDetails(points, CANVAS_X, touch, THRESHOLD, pointMap)
+        // Assert
+        assertThat(actual).containsExactly(wiFiDetails[0], wiFiDetails[1], wiFiDetails[2])
     }
 
     @Test

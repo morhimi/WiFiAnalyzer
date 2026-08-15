@@ -39,7 +39,13 @@ internal fun Point.withinProximity(
     canvasX: Float,
     canvasY: Float,
     thresholdPx: Float,
-): Boolean = distanceTo(canvasX, canvasY) < thresholdPx
+): Boolean {
+    val distX = if (x.isNaN()) 0f else kotlin.math.abs(x - canvasX)
+    if (distX > thresholdPx) return false
+    val distY = if (y.isNaN()) 0f else y - canvasY
+    if (distY >= -thresholdPx) return true
+    return distanceTo(canvasX, canvasY) < thresholdPx
+}
 
 internal fun matchDetails(
     points: List<MarkerPoint>,
@@ -50,10 +56,18 @@ internal fun matchDetails(
 ): List<WiFiDetail> =
     points
         .asSequence()
-        .map { it to touch.distanceTo(canvasX, it.canvasY) }
-        .filter { it.second < thresholdPx }
-        .filter { pointMap.containsKey(it.first.entry.key) }
-        .flatMap { (point, dist) ->
+        .filter { touch.withinProximity(canvasX, it.canvasY, thresholdPx) }
+        .filter { pointMap.containsKey(it.entry.key) }
+        .map {
+            val dist =
+                if (touch.y.isNaN() || touch.y < it.canvasY) {
+                    touch.distanceTo(canvasX, it.canvasY)
+                } else {
+                    val distX = if (touch.x.isNaN()) 0f else kotlin.math.abs(touch.x - canvasX)
+                    distX + (touch.y - it.canvasY) * 0.1f
+                }
+            it to dist
+        }.flatMap { (point, dist) ->
             pointMap.getValue(point.entry.key).map { it to dist }
         }.sortedBy { it.second }
         .map { it.first }

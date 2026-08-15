@@ -52,34 +52,33 @@ private const val CANVAS_Y = 200f
 class MarkerHandlerTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val chartView: CartesianChartView = CartesianChartView(mainActivity)
-    private val seriesCache: SeriesCache = mock()
     private val wiFiDetailView: WiFiDetailView = mock()
     private val wiFiDetailPopup: WiFiDetailPopup = mock()
     private val lineCartesianLayerMarkerTarget: LineCartesianLayerMarkerTarget = mock()
     private val view: View = mock()
     private val lastTouch = Point(CANVAS_X, CANVAS_Y)
 
-    private val fixture = MarkerHandler(chartView, seriesCache, wiFiDetailView, wiFiDetailPopup)
+    private val fixture = MarkerHandler(chartView, wiFiDetailView, wiFiDetailPopup)
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(seriesCache, wiFiDetailView, wiFiDetailPopup, lineCartesianLayerMarkerTarget, view)
+        verifyNoMoreInteractions(wiFiDetailView, wiFiDetailPopup, lineCartesianLayerMarkerTarget, view)
     }
 
     @Test
-    fun eventReturnsLastTouchWhenNoLineTarget() {
+    fun eventReturnsFalseWhenNoLineTarget() {
         // Arrange
         val targets: List<CartesianMarker.Target> = emptyList()
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, emptyMap(), targets)
         // Assert
-        assertThat(actual).isEqualTo(lastTouch)
-        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>())
+        assertThat(actual).isFalse()
+        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>(), any())
         verify(wiFiDetailPopup, never()).showSequence(any<List<View>>())
     }
 
     @Test
-    fun eventReturnsLastTouchWhenEmptyPoints() {
+    fun eventReturnsFalseWhenEmptyPoints() {
         // Arrange
         val points = emptyList<LineCartesianLayerMarkerTarget.Point>()
         doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
@@ -87,26 +86,11 @@ class MarkerHandlerTest {
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, emptyMap(), listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isEqualTo(lastTouch)
+        assertThat(actual).isFalse()
         verify(lineCartesianLayerMarkerTarget).points
         verifyNoMoreInteractions(lineCartesianLayerMarkerTarget)
-        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>())
+        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>(), any())
         verify(wiFiDetailPopup, never()).showSequence(any<List<View>>())
-    }
-
-    @Test
-    fun eventReturnsNewPointWhenPointsPresent() {
-        // Arrange
-        val expected = NO_TOUCH
-        val targetPoints = withTargetPoints()
-        doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
-        doReturn(targetPoints).whenever(lineCartesianLayerMarkerTarget).points
-        // Act
-        val actual = fixture.event(lastTouch, THRESHOLD_PX, emptyMap(), listOf(lineCartesianLayerMarkerTarget))
-        // Assert
-        assertThat(actual).isEqualTo(expected)
-        verify(this.lineCartesianLayerMarkerTarget).canvasX
-        verify(this.lineCartesianLayerMarkerTarget).points
     }
 
     @Test
@@ -115,47 +99,46 @@ class MarkerHandlerTest {
         val wiFiDetails = withWiFiDetails()
         val targetPoints = withTargetPoints()
         val pointMap = withPointMap(targetPoints, wiFiDetails)
-        val seriesData = SeriesData(graphColor = GraphColor(0xFF0000, 0x00FF00))
         doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
         doReturn(targetPoints).whenever(lineCartesianLayerMarkerTarget).points
         wiFiDetails.forEach { wiFiDetail ->
-            doReturn(seriesData).whenever(seriesCache)[wiFiDetail]
-            doReturn(view).whenever(wiFiDetailView).makeViewDetailed(wiFiDetail, 0xFF0000)
+            doReturn(view).whenever(wiFiDetailView).makeViewDetailed(wiFiDetail, context = chartView.context)
         }
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isEqualTo(NO_TOUCH)
+        assertThat(actual).isTrue()
         verify(this.lineCartesianLayerMarkerTarget).canvasX
         verify(this.lineCartesianLayerMarkerTarget).points
         wiFiDetails.forEach { wiFiDetail ->
-            verify(seriesCache)[wiFiDetail]
-            verify(wiFiDetailView).makeViewDetailed(wiFiDetail, 0xFF0000)
+            verify(wiFiDetailView).makeViewDetailed(wiFiDetail, context = chartView.context)
         }
+        verify(wiFiDetailPopup).showSequence(listOf(view, view, view))
     }
 
     @Test
-    fun eventShowsPopupWithNullColorWhenNotInCache() {
+    fun eventWithNonActivityContextChartView() {
         // Arrange
+        val nonActivityChartView = CartesianChartView(mainActivity.applicationContext)
+        val handler = MarkerHandler(nonActivityChartView, wiFiDetailView, wiFiDetailPopup)
         val wiFiDetails = withWiFiDetails()
         val targetPoints = withTargetPoints()
         val pointMap = withPointMap(targetPoints, wiFiDetails)
         doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
         doReturn(targetPoints).whenever(lineCartesianLayerMarkerTarget).points
         wiFiDetails.forEach { wiFiDetail ->
-            doReturn(null).whenever(seriesCache)[wiFiDetail]
-            doReturn(view).whenever(wiFiDetailView).makeViewDetailed(wiFiDetail, null)
+            doReturn(view).whenever(wiFiDetailView).makeViewDetailed(wiFiDetail, context = nonActivityChartView.context)
         }
         // Act
-        val actual = fixture.event(lastTouch, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
+        val actual = handler.event(lastTouch, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isEqualTo(NO_TOUCH)
+        assertThat(actual).isTrue()
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
         wiFiDetails.forEach { wiFiDetail ->
-            verify(seriesCache)[wiFiDetail]
-            verify(wiFiDetailView).makeViewDetailed(wiFiDetail, null)
+            verify(wiFiDetailView).makeViewDetailed(wiFiDetail, context = nonActivityChartView.context)
         }
+        verify(wiFiDetailPopup).showSequence(listOf(view, view, view))
     }
 
     @Test
@@ -167,17 +150,17 @@ class MarkerHandlerTest {
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, emptyMap(), listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isEqualTo(NO_TOUCH)
+        assertThat(actual).isFalse()
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
-        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>())
+        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>(), any())
         verify(wiFiDetailPopup, never()).showSequence(any<List<View>>())
     }
 
     @Test
     fun eventDoesNotShowPopupWhenTouchOutsideYThreshold() {
-        // Arrange - touch is far in Y from the target points
-        val touchFarInY = Point(CANVAS_X, CANVAS_Y + THRESHOLD_PX + 1f)
+        // Arrange - touch is far above in Y from the target points
+        val touchFarInY = Point(CANVAS_X, CANVAS_Y - THRESHOLD_PX - 1f)
         val wiFiDetails = withWiFiDetails()
         val targetPoints = withTargetPoints()
         val pointMap = withPointMap(targetPoints, wiFiDetails)
@@ -186,10 +169,10 @@ class MarkerHandlerTest {
         // Act
         val actual = fixture.event(touchFarInY, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isEqualTo(NO_TOUCH)
+        assertThat(actual).isFalse()
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
-        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>())
+        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>(), any())
         verify(wiFiDetailPopup, never()).showSequence(any<List<View>>())
     }
 

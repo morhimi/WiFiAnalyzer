@@ -26,7 +26,7 @@ import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 
 internal class FragmentItem(
-    val fragment: Fragment,
+    val fragmentProvider: () -> Fragment,
     override val registered: Boolean = true,
     override val visibility: Int = View.VISIBLE,
 ) : NavigationItem {
@@ -41,6 +41,7 @@ internal class FragmentItem(
     }
 
     private fun startFragment(fragmentManager: FragmentManager) {
+        val fragment = fragmentProvider()
         fragmentManager.commit {
             replace(R.id.main_fragment, fragment)
         }

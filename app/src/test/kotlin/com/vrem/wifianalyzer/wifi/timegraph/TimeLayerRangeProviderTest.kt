@@ -33,7 +33,6 @@ import org.mockito.kotlin.whenever
 private const val NUM_X_TIME = 21
 
 class TimeLayerRangeProviderTest {
-    private val mainActivity = MainContextHelper.INSTANCE.mainActivity
     private val settings = MainContextHelper.INSTANCE.settings
     private val extraStore: ExtraStore = mock()
     private val fixture = TimeLayerRangeProvider()
@@ -41,7 +40,7 @@ class TimeLayerRangeProviderTest {
     @After
     fun tearDown() {
         MainContextHelper.INSTANCE.restore()
-        verifyNoMoreInteractions(mainActivity, settings, extraStore)
+        verifyNoMoreInteractions(settings, extraStore)
     }
 
     @Test

@@ -17,6 +17,8 @@
  */
 package com.vrem.wifianalyzer.wifi.detailview
 
+import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -45,7 +47,9 @@ class WiFiDetailView {
                 .accessPointView()
                 .layout,
     ): View {
-        val view = convertView ?: MainContext.INSTANCE.layoutInflater.inflate(layout, parent, false)
+        val inflater =
+            parent?.let { LayoutInflater.from(it.context) } ?: LayoutInflater.from(MainContext.INSTANCE.context)
+        val view = convertView ?: inflater.inflate(layout, parent, false)
         setViewCompact(view, wiFiDetail, child)
         setViewExtra(view, wiFiDetail)
         setViewVendor(view, R.id.vendorShort, wiFiDetail.wiFiAdditional)
@@ -55,8 +59,9 @@ class WiFiDetailView {
     fun makeViewDetailed(
         wiFiDetail: WiFiDetail,
         ssidColor: Int? = null,
+        context: Context = MainContext.INSTANCE.context,
     ): View {
-        val view = MainContext.INSTANCE.layoutInflater.inflate(R.layout.wifi_detail_view_popup, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.wifi_detail_view_popup, null)
         setViewCompact(view, wiFiDetail, false, ssidColor)
         setViewExtra(view, wiFiDetail)
         setViewCapabilitiesLong(view, wiFiDetail.wiFiSecurity)
@@ -72,22 +77,22 @@ class WiFiDetailView {
         return view
     }
 
-    private fun enableTextSelection(view: View) =
-        view.findViewById<TextView>(R.id.ssid)?.let {
-            it.setTextIsSelectable(true)
-            view.findViewById<TextView>(R.id.vendorLong)?.setTextIsSelectable(true)
-            view.findViewById<TextView>(R.id.bssid)?.setTextIsSelectable(true)
-        }
+    private fun enableTextSelection(view: View) {
+        view.findViewById<TextView>(R.id.ssid).setTextIsSelectable(true)
+        view.findViewById<TextView>(R.id.vendorLong).setTextIsSelectable(true)
+        view.findViewById<TextView>(R.id.bssid).setTextIsSelectable(true)
+    }
 
     private fun setViewBSSID(
         view: View,
         wiFiIdentifier: WiFiIdentifier,
-    ) = view.findViewById<TextView>(R.id.bssid)?.let {
+    ) {
+        val bssid = view.findViewById<TextView>(R.id.bssid)
         if (wiFiIdentifier.bssid.isBlank()) {
-            it.visibility = View.GONE
+            bssid.visibility = View.GONE
         } else {
-            it.visibility = View.VISIBLE
-            it.text = wiFiIdentifier.bssid
+            bssid.visibility = View.VISIBLE
+            bssid.text = wiFiIdentifier.bssid
         }
     }
 
@@ -96,9 +101,10 @@ class WiFiDetailView {
         wiFiDetail: WiFiDetail,
         child: Boolean,
         ssidColor: Int? = null,
-    ) = view.findViewById<TextView>(R.id.ssid)?.let {
-        it.text = wiFiDetail.wiFiIdentifier.title
-        ssidColor?.let { color -> it.setTextColor(color) }
+    ) {
+        val ssid = view.findViewById<TextView>(R.id.ssid)
+        ssid.text = wiFiDetail.wiFiIdentifier.title
+        ssidColor?.let { color -> ssid.setTextColor(color) }
         val wiFiSignal = wiFiDetail.wiFiSignal
         view.findViewById<TextView>(R.id.channel).text = wiFiSignal.channelDisplay()
         view.findViewById<TextView>(R.id.primaryFrequency).text =
@@ -112,10 +118,11 @@ class WiFiDetailView {
     private fun setSecurityImage(
         view: View,
         wiFiDetail: WiFiDetail,
-    ) = view.findViewById<ImageView>(R.id.securityImage)?.let {
+    ) {
+        val securityImage = view.findViewById<ImageView>(R.id.securityImage)
         val security = wiFiDetail.wiFiSecurity.security
-        it.tag = security.imageResource
-        it.setImageResource(security.imageResource)
+        securityImage.tag = security.imageResource
+        securityImage.setImageResource(security.imageResource)
     }
 
     private fun setViewExtra(
@@ -136,33 +143,37 @@ class WiFiDetailView {
     private fun setWiFiWidth(
         view: View,
         wiFiSignal: WiFiSignal,
-    ) = view.findViewById<TextView>(R.id.width)?.let {
-        it.text = ContextCompat.getString(view.context, wiFiSignal.wiFiWidth.textResource)
+    ) {
+        view.findViewById<TextView>(R.id.width).text =
+            ContextCompat.getString(view.context, wiFiSignal.wiFiWidth.textResource)
     }
 
     private fun setWiFiStandardImage(
         view: View,
         wiFiSignal: WiFiSignal,
-    ) = view.findViewById<TextView>(R.id.wiFiStandardValue)?.let {
-        it.text = ContextCompat.getString(view.context, wiFiSignal.extra.wiFiStandard.valueResource)
+    ) {
+        view.findViewById<TextView>(R.id.wiFiStandardValue).text =
+            ContextCompat.getString(view.context, wiFiSignal.extra.wiFiStandard.valueResource)
     }
 
     private fun setLevelText(
         view: View,
         wiFiSignal: WiFiSignal,
-    ) = view.findViewById<TextView>(R.id.level)?.let {
-        it.text = "${wiFiSignal.level}dBm"
-        it.setTextColor(ContextCompat.getColor(view.context, wiFiSignal.strengthColor))
+    ) {
+        val levelView = view.findViewById<TextView>(R.id.level)
+        levelView.text = "${wiFiSignal.level}dBm"
+        levelView.setTextColor(ContextCompat.getColor(view.context, wiFiSignal.strengthColor))
     }
 
     private fun setLevelImage(
         view: View,
         wiFiSignal: WiFiSignal,
-    ) = view.findViewById<ImageView>(R.id.levelImage)?.let {
+    ) {
+        val image = view.findViewById<ImageView>(R.id.levelImage)
         val strength = wiFiSignal.strength
-        it.tag = strength.imageResource
-        it.setImageResource(strength.imageResource)
-        it.setColorFilter(ContextCompat.getColor(view.context, wiFiSignal.strengthColor))
+        image.tag = strength.imageResource
+        image.setImageResource(strength.imageResource)
+        image.setColorFilter(ContextCompat.getColor(view.context, wiFiSignal.strengthColor))
     }
 
     private fun setViewVendor(
@@ -181,39 +192,44 @@ class WiFiDetailView {
     private fun setViewCapabilitiesLong(
         view: View,
         wiFiSecurity: WiFiSecurity,
-    ) = view.findViewById<TextView>(R.id.capabilitiesLong)?.let {
-        it.text = wiFiSecurity.capabilities
+    ) {
+        view.findViewById<TextView>(R.id.capabilitiesLong).text = wiFiSecurity.capabilities
     }
 
     private fun setViewSecurityTypes(
         view: View,
         wiFiSecurity: WiFiSecurity,
-    ) = view.findViewById<TextView>(R.id.securityTypes)?.let {
-        it.text = wiFiSecurity.wiFiSecurityTypesDisplay(view.context)
+    ) {
+        view.findViewById<TextView>(R.id.securityTypes).text = wiFiSecurity.wiFiSecurityTypesDisplay(view.context)
     }
 
     private fun setViewWiFiBand(
         view: View,
         wiFiSignal: WiFiSignal,
-    ) = view.findViewById<TextView>(R.id.wiFiBand)?.setText(wiFiSignal.wiFiBand.textResource)
+    ) {
+        view.findViewById<TextView>(R.id.wiFiBand).setText(wiFiSignal.wiFiBand.textResource)
+    }
 
     private fun setViewFastRoaming(
         view: View,
         wiFiSignal: WiFiSignal,
-    ) = view.findViewById<TextView>(R.id.fastRoaming)?.let {
-        it.text = wiFiSignal.extra.fastRoamingDisplay(view.context)
+    ) {
+        view.findViewById<TextView>(R.id.fastRoaming).text = wiFiSignal.extra.fastRoamingDisplay(view.context)
     }
 
     private fun setViewWiFiStandard(
         view: View,
         wiFiSignal: WiFiSignal,
-    ) = view.findViewById<TextView>(R.id.wiFiStandardFull)?.setText(wiFiSignal.extra.wiFiStandard.fullResource)
+    ) {
+        view.findViewById<TextView>(R.id.wiFiStandardFull).setText(wiFiSignal.extra.wiFiStandard.fullResource)
+    }
 
     private fun setView80211mc(
         view: View,
         wiFiSignal: WiFiSignal,
-    ) = view.findViewById<TextView>(R.id.flag80211mc)?.let {
-        it.visibility = if (wiFiSignal.extra.is80211mc) View.VISIBLE else View.GONE
+    ) {
+        view.findViewById<TextView>(R.id.flag80211mc).visibility =
+            if (wiFiSignal.extra.is80211mc) View.VISIBLE else View.GONE
     }
 
     private fun setViewWiFiChannelPair(
@@ -222,8 +238,7 @@ class WiFiDetailView {
     ) = with(wiFiSignal) {
         view.findViewById<TextView>(R.id.channel_start).text = "${wiFiChannelStart.channel}"
         view.findViewById<TextView>(R.id.channel_end).text = "${wiFiChannelEnd.channel}"
-        view.findViewById<TextView>(R.id.channel_width)?.let {
-            it.text = ContextCompat.getString(view.context, wiFiSignal.wiFiWidth.textResource)
-        }
+        view.findViewById<TextView>(R.id.channel_width).text =
+            ContextCompat.getString(view.context, wiFiSignal.wiFiWidth.textResource)
     }
 }

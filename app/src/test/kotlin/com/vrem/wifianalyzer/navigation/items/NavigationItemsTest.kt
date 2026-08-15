@@ -38,14 +38,16 @@ import org.robolectric.annotation.Config
 class NavigationItemsTest {
     @Test
     fun fragmentItem() {
-        assertThat((navigationItemAccessPoints as FragmentItem).fragment is AccessPointsFragment).isTrue
-        assertThat((navigationItemChannelRating as FragmentItem).fragment is ChannelRatingFragment).isTrue
-        assertThat((navigationItemChannelGraph as FragmentItem).fragment is ChannelGraphFragment).isTrue
-        assertThat((navigationItemTimeGraph as FragmentItem).fragment is TimeGraphFragment).isTrue
-        assertThat((navigationItemChannelAvailable as FragmentItem).fragment is ChannelAvailableFragment).isTrue
-        assertThat((navigationItemVendors as FragmentItem).fragment is VendorFragment).isTrue
-        assertThat((navigationItemSettings as FragmentItem).fragment is SettingsFragment).isTrue
-        assertThat((navigationItemAbout as FragmentItem).fragment is AboutFragment).isTrue
+        assertThat((navigationItemAccessPoints as FragmentItem).fragmentProvider() is AccessPointsFragment).isTrue
+        assertThat((navigationItemChannelRating as FragmentItem).fragmentProvider() is ChannelRatingFragment).isTrue
+        assertThat((navigationItemChannelGraph as FragmentItem).fragmentProvider() is ChannelGraphFragment).isTrue
+        assertThat((navigationItemTimeGraph as FragmentItem).fragmentProvider() is TimeGraphFragment).isTrue
+        assertThat(
+            (navigationItemChannelAvailable as FragmentItem).fragmentProvider() is ChannelAvailableFragment,
+        ).isTrue
+        assertThat((navigationItemVendors as FragmentItem).fragmentProvider() is VendorFragment).isTrue
+        assertThat((navigationItemSettings as FragmentItem).fragmentProvider() is SettingsFragment).isTrue
+        assertThat((navigationItemAbout as FragmentItem).fragmentProvider() is AboutFragment).isTrue
     }
 
     @Test

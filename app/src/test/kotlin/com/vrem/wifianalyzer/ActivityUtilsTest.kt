@@ -46,7 +46,7 @@ class ActivityUtilsTest {
     private val toolbar: Toolbar = mock()
     private val intent: Intent = mock()
     private val intentArgumentCaptor = argumentCaptor<Intent>()
-    private val mainActivity = MainContextHelper.INSTANCE.mainActivity
+    private val mainActivity: MainActivity = mock()
     private val settings = MainContextHelper.INSTANCE.settings
 
     @After

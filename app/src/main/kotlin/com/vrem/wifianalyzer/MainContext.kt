@@ -22,7 +22,6 @@ import android.content.res.Resources
 import android.net.wifi.WifiManager
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
@@ -37,8 +36,8 @@ enum class MainContext {
     INSTANCE,
     ;
 
+    lateinit var context: Context
     lateinit var settings: Settings
-    lateinit var mainActivity: MainActivity
     lateinit var wiFiManagerWrapper: WiFiManagerWrapper
     lateinit var permissionService: PermissionService
     lateinit var scannerService: ScannerService
@@ -47,27 +46,23 @@ enum class MainContext {
     lateinit var configuration: Configuration
     lateinit var filtersAdapter: FiltersAdapter
 
-    val context: Context get() = mainActivity.applicationContext
-
     val resources: Resources get() = context.resources
-
-    val layoutInflater: LayoutInflater get() = mainActivity.layoutInflater
 
     private val wiFiManager: WifiManager get() = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
     fun initialize(
-        activity: MainActivity,
+        context: Context,
         largeScreen: Boolean,
     ) {
-        mainActivity = activity
+        this.context = context.applicationContext
         configuration = Configuration(largeScreen)
-        val repository = Repository(context)
+        val repository = Repository(this.context)
         settings = Settings(repository)
         apAliasService = ApAliasService(repository)
-        vendorService = VendorService(activity.resources)
+        vendorService = VendorService(this.context.resources)
         wiFiManagerWrapper = WiFiManagerWrapper(wiFiManager)
-        permissionService = PermissionService(activity)
-        scannerService = makeScannerService(mainActivity, wiFiManagerWrapper, Handler(Looper.getMainLooper()), settings)
+        permissionService = PermissionService(this.context)
+        scannerService = makeScannerService(this.context, wiFiManagerWrapper, Handler(Looper.getMainLooper()), settings)
         filtersAdapter = FiltersAdapter(settings)
     }
 }

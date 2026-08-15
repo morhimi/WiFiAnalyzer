@@ -21,6 +21,8 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.navigation.NavigationView
 import com.vrem.util.EMPTY
@@ -31,6 +33,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -237,6 +240,66 @@ class MainActivityTest {
         fixture.onSharedPreferenceChanged(sharedPreferences, String.EMPTY)
         // validate
         verify(scannerService).update()
+    }
+
+    @Test
+    fun onSharedPreferenceChangedWithShouldReload() {
+        // setup
+        val scannerService = MainContextHelper.INSTANCE.scannerService
+        val mainReload: MainReload = mock()
+        whenever(mainReload.shouldReload(any())).thenReturn(true)
+        fixture.mainReload = mainReload
+        val sharedPreferences: SharedPreferences = mock()
+        // execute
+        fixture.onSharedPreferenceChanged(sharedPreferences, "theme")
+        // validate
+        verify(scannerService).stop()
+    }
+
+    @Test
+    fun onRequestPermissionsResultWithGrantedTrue() {
+        // setup
+        val permissionService = MainContextHelper.INSTANCE.permissionService
+        whenever(permissionService.granted(1, intArrayOf(0))).thenReturn(true)
+        // execute
+        fixture.onRequestPermissionsResult(1, arrayOf("permission"), intArrayOf(0))
+        // validate
+        verify(permissionService).granted(1, intArrayOf(0))
+        assertThat(fixture.isFinishing).isFalse()
+    }
+
+    @Test
+    fun onRequestPermissionsResultWithGrantedFalse() {
+        // setup
+        val permissionService = MainContextHelper.INSTANCE.permissionService
+        whenever(permissionService.granted(1, intArrayOf(-1))).thenReturn(false)
+        // execute
+        fixture.onRequestPermissionsResult(1, arrayOf("permission"), intArrayOf(-1))
+        // validate
+        verify(permissionService).granted(1, intArrayOf(-1))
+        assertThat(fixture.isFinishing).isTrue()
+    }
+
+    @Test
+    fun closeDrawerWhenOpen() {
+        // setup
+        val drawerLayout: DrawerLayout = fixture.findViewById(R.id.drawer_layout)
+        drawerLayout.openDrawer(GravityCompat.START)
+        // execute
+        fixture.closeDrawer()
+        // validate
+        assertThat(drawerLayout.isDrawerOpen(GravityCompat.START)).isFalse()
+    }
+
+    @Test
+    fun closeDrawerWhenClosed() {
+        // setup
+        val drawerLayout: DrawerLayout = fixture.findViewById(R.id.drawer_layout)
+        drawerLayout.closeDrawer(GravityCompat.START)
+        // execute
+        fixture.closeDrawer()
+        // validate
+        assertThat(drawerLayout.isDrawerOpen(GravityCompat.START)).isFalse()
     }
 
     @Test

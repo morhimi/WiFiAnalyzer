@@ -21,6 +21,7 @@ import android.content.DialogInterface
 import android.os.Build
 import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.vrem.wifianalyzer.MainContextHelper.INSTANCE
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -29,8 +30,12 @@ import com.vrem.wifianalyzer.wifi.model.WiFiSecurity
 import com.vrem.wifianalyzer.wifi.model.WiFiSignal
 import com.vrem.wifianalyzer.wifi.model.WiFiWidth
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowAlertDialog
 
@@ -40,10 +45,30 @@ class WiFiDetailPopupTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val fixture = WiFiDetailPopup()
 
+    @After
+    fun tearDown() {
+        INSTANCE.restore()
+    }
+
     @Test
     fun showOpensPopup() {
         // Arrange
         val view = mainActivity.layoutInflater.inflate(R.layout.wifi_detail_view_popup, null)
+        // Act
+        val actual = fixture.show(view)
+        // Assert
+        assertThat(actual).isNotNull()
+        assertThat(actual.isShowing).isTrue
+    }
+
+    @Test
+    fun showOpensPopupWithContextWrapper() {
+        // Arrange
+        val wrapped = android.content.ContextWrapper(mainActivity)
+        val view =
+            android.view.LayoutInflater
+                .from(wrapped)
+                .inflate(R.layout.wifi_detail_view_popup, null)
         // Act
         val actual = fixture.show(view)
         // Assert
@@ -174,6 +199,104 @@ class WiFiDetailPopupTest {
         // Assert
         assertThat(row.findViewById<View>(R.id.attachPopup).performClick()).isTrue
         assertThat(row.findViewById<View>(R.id.ssid).performClick()).isTrue
+    }
+
+    @Test
+    fun showWithWiFiDetailOpensPopupWithNeutralButton() {
+        // Arrange
+        val view = mainActivity.layoutInflater.inflate(R.layout.wifi_detail_view_popup, null)
+        val wiFiDetail = withWiFiDetail()
+        // Act
+        val actual = fixture.show(view, wiFiDetail)
+        // Assert
+        assertThat(actual).isNotNull()
+        assertThat(actual.isShowing).isTrue
+        val neutralButton = actual.getButton(DialogInterface.BUTTON_NEUTRAL)
+        assertThat(neutralButton.visibility).isEqualTo(View.VISIBLE)
+    }
+
+    @Test
+    fun showWithWiFiDetailNeutralButtonClickOpensAliasDialog() {
+        // Arrange
+        val view = mainActivity.layoutInflater.inflate(R.layout.wifi_detail_view_popup, null)
+        val wiFiDetail = withWiFiDetail()
+        val alertDialog = fixture.show(view, wiFiDetail)
+        // Act
+        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).performClick()
+        RobolectricUtil.INSTANCE.clearLooper()
+        // Assert
+        val aliasDialog = ShadowAlertDialog.getLatestAlertDialog()
+        assertThat(aliasDialog).isNotNull()
+        assertThat(aliasDialog!!.isShowing).isTrue
+    }
+
+    @Test
+    fun showAliasDialogSavesAliasOnPositiveButtonClick() {
+        // Arrange
+        val apAliasService = INSTANCE.apAliasService
+        val scannerService = INSTANCE.scannerService
+        val wiFiDetail = withWiFiDetail()
+        val alertDialog = fixture.showAliasDialog(mainActivity, wiFiDetail)
+        // Act
+        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+        RobolectricUtil.INSTANCE.clearLooper()
+        // Assert
+        verify(apAliasService).saveAlias(eq("BSSID"), any())
+        verify(scannerService).update()
+        assertThat(alertDialog.isShowing).isFalse
+    }
+
+    @Test
+    fun showAliasDialogRemovesAliasOnNeutralButtonClick() {
+        // Arrange
+        val apAliasService = INSTANCE.apAliasService
+        val scannerService = INSTANCE.scannerService
+        val wiFiDetail = withWiFiDetail()
+        val alertDialog = fixture.showAliasDialog(mainActivity, wiFiDetail)
+        // Act
+        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).performClick()
+        RobolectricUtil.INSTANCE.clearLooper()
+        // Assert
+        verify(apAliasService).removeAlias("BSSID")
+        verify(scannerService).update()
+        assertThat(alertDialog.isShowing).isFalse
+    }
+
+    @Test
+    fun showAliasDialogCancelsOnNegativeButtonClick() {
+        // Arrange
+        val wiFiDetail = withWiFiDetail()
+        val alertDialog = fixture.showAliasDialog(mainActivity, wiFiDetail)
+        // Act
+        alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE).performClick()
+        RobolectricUtil.INSTANCE.clearLooper()
+        // Assert
+        assertThat(alertDialog.isShowing).isFalse
+    }
+
+    @Test
+    fun showWithNonActivityContextView() {
+        val view = View(mainActivity.applicationContext)
+        val actual = fixture.show(view)
+        assertThat(actual).isNotNull()
+        assertThat(actual.isShowing).isTrue
+    }
+
+    @Test
+    fun showSequenceWithNonActivityContextView() {
+        val view1 = View(mainActivity.applicationContext)
+        val view2 = View(mainActivity.applicationContext)
+        val actual = fixture.showSequence(listOf(view1, view2))
+        assertThat(actual).isNotNull()
+        assertThat(actual.isShowing).isTrue
+    }
+
+    @Test
+    fun attachWithNonActivityContextView() {
+        val wiFiDetail = withWiFiDetail()
+        val view = View(mainActivity.applicationContext)
+        fixture.attach(view, wiFiDetail)
+        assertThat(view.performClick()).isTrue
     }
 
     private fun withWiFiDetail(): WiFiDetail =

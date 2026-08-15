@@ -52,7 +52,7 @@ class OptionActionTest {
     @Test
     fun scannerActionShouldToggleScannerService() {
         // execute
-        scannerAction()
+        scannerAction(null)
         // validate
         verify(scannerService).toggle()
     }
@@ -60,7 +60,7 @@ class OptionActionTest {
     @Test
     fun wiFiBandAction2ShouldSwitchToGHZ2() {
         // execute
-        wiFiBandAction2()
+        wiFiBandAction2(null)
         // validate
         verify(settings).wiFiBand(WiFiBand.GHZ2)
     }
@@ -68,7 +68,7 @@ class OptionActionTest {
     @Test
     fun wiFiBandAction5ShouldSwitchToGHZ5() {
         // execute
-        wiFiBandAction5()
+        wiFiBandAction5(null)
         // validate
         verify(settings).wiFiBand(WiFiBand.GHZ5)
     }
@@ -76,14 +76,15 @@ class OptionActionTest {
     @Test
     fun wiFiBandAction6ShouldSwitchToGHZ6() {
         // execute
-        wiFiBandAction6()
+        wiFiBandAction6(null)
         // validate
         verify(settings).wiFiBand(WiFiBand.GHZ6)
     }
 
     @Test
     fun filterActionShouldBuildAndShow() {
-        filterAction()
+        filterAction(mainActivity)
+        verify(settings).selectedMenu()
     }
 
     @Test

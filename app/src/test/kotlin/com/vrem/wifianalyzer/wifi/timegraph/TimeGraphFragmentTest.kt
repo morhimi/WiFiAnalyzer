@@ -49,8 +49,8 @@ class TimeGraphFragmentTest {
         RobolectricUtil.INSTANCE.startFragment(fixture)
         // validate
         assertThat(fixture).isNotNull()
+        assertThat(fixture.wiFiScanViewModel).isNotNull()
         verify(scannerService).update()
-        verify(scannerService).register(fixture.timeGraphAdapter)
     }
 
     @Test
@@ -70,17 +70,16 @@ class TimeGraphFragmentTest {
         fixture.onResume()
         // validate
         verify(scannerService, times(2)).update()
-        verify(scannerService, times(2)).register(fixture.timeGraphAdapter)
     }
 
     @Test
-    fun onPause() {
+    fun onRefresh() {
         // setup
         RobolectricUtil.INSTANCE.startFragment(fixture)
         // execute
-        fixture.onPause()
+        fixture.onRefresh()
         // validate
-        verify(scannerService).unregister(fixture.timeGraphAdapter)
+        verify(scannerService, times(2)).update()
     }
 
     @Config(sdk = [Build.VERSION_CODES.P])
@@ -92,5 +91,13 @@ class TimeGraphFragmentTest {
         val swipeRefreshLayout: SwipeRefreshLayout = fixture.view!!.findViewById(R.id.graphRefresh)
         assertThat(swipeRefreshLayout.isRefreshing).isFalse
         assertThat(swipeRefreshLayout.isEnabled).isFalse
+    }
+
+    @Test
+    fun defaultConstructor() {
+        val timeGraph = TimeGraph(com.vrem.wifianalyzer.wifi.band.WiFiBand.GHZ2)
+        assertThat(timeGraph).isNotNull()
+        val adapter = TimeGraphAdapter()
+        assertThat(adapter).isNotNull()
     }
 }

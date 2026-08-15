@@ -42,6 +42,7 @@ import org.robolectric.annotation.Config
 class FragmentItemTest {
     private val title = "title"
     private val fragment: Fragment = mock()
+    private val fragmentProvider: () -> Fragment = { fragment }
     private val mainActivity: MainActivity = mock()
     private val fragmentManager: FragmentManager = mock()
     private val fragmentTransaction: FragmentTransaction = mock()
@@ -57,7 +58,7 @@ class FragmentItemTest {
     @Test
     fun activateWithStateSaved() {
         // setup
-        val fixture = FragmentItem(fragment, true, View.VISIBLE)
+        val fixture = FragmentItem(fragmentProvider, true, View.VISIBLE)
         val navigationMenu = NavigationMenu.ACCESS_POINTS
         whenever(mainActivity.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.isStateSaved).thenReturn(true)
@@ -74,7 +75,7 @@ class FragmentItemTest {
     @Test
     fun activateWithStateNotSaved() {
         // setup
-        val fixture = FragmentItem(fragment, true, View.VISIBLE)
+        val fixture = FragmentItem(fragmentProvider, true, View.VISIBLE)
         val navigationMenu = NavigationMenu.ACCESS_POINTS
         whenever(mainActivity.getString(navigationMenu.title)).thenReturn(title)
         whenever(mainActivity.supportFragmentManager).thenReturn(fragmentManager)
@@ -93,7 +94,7 @@ class FragmentItemTest {
     @Test
     fun registeredFalse() {
         // setup
-        val fixture = FragmentItem(fragment, false, View.VISIBLE)
+        val fixture = FragmentItem(fragmentProvider, false, View.VISIBLE)
         // execute & validate
         assertThat(fixture.registered).isFalse
     }
@@ -101,7 +102,7 @@ class FragmentItemTest {
     @Test
     fun registeredTrue() {
         // setup
-        val fixture = FragmentItem(fragment, true, View.VISIBLE)
+        val fixture = FragmentItem(fragmentProvider, true, View.VISIBLE)
         // execute & validate
         assertThat(fixture.registered).isTrue
     }
@@ -109,7 +110,7 @@ class FragmentItemTest {
     @Test
     fun visibility() {
         // setup
-        val fixture = FragmentItem(fragment, false, View.INVISIBLE)
+        val fixture = FragmentItem(fragmentProvider, false, View.INVISIBLE)
         // execute & validate
         assertThat(fixture.visibility).isEqualTo(View.INVISIBLE)
     }

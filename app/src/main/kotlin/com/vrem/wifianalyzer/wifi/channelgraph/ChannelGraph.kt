@@ -17,6 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
+import android.content.Context
 import android.view.View
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
@@ -101,6 +102,7 @@ internal fun makeGraph(
     themeStyle: ThemeStyle,
     wiFiBand: WiFiBand,
     scalable: Boolean,
+    context: Context = mainContext.context,
 ): CartesianChartView {
     val resources = mainContext.resources
     return GraphBuilder(graphMaximumY, themeStyle, FREQUENCY_SPREAD.toDouble())
@@ -108,17 +110,21 @@ internal fun makeGraph(
         .setItemPlacer(channelItemPlacer(wiFiBand))
         .setVerticalTitle(resources.getString(R.string.graph_axis_y))
         .setHorizontalTitle(resources.getString(R.string.graph_channel_axis_x))
-        .build(mainContext.context, scalable)
+        .build(context, scalable)
 }
 
-internal fun makeGraphWrapper(wiFiBand: WiFiBand): GraphWrapper {
+internal fun makeGraphWrapper(
+    wiFiBand: WiFiBand,
+    context: Context? = null,
+): GraphWrapper {
     val mainContext = MainContext.INSTANCE
     val configuration = mainContext.configuration
     val settings = mainContext.settings
     val graphMaximumY = settings.graphMaximumY()
     val themeStyle = settings.themeStyle()
     val scalable = !wiFiBand.ghz2
-    val chartView = makeGraph(mainContext, graphMaximumY, themeStyle, wiFiBand, scalable)
+    val targetContext = context ?: mainContext.context
+    val chartView = makeGraph(mainContext, graphMaximumY, themeStyle, wiFiBand, scalable, targetContext)
     val seriesLabel = SeriesLabel(::calculateLabelPosition)
     val wiFiChannels = wiFiBand.wiFiChannels.wiFiChannels()
     val minX = wiFiChannels.first().frequency
@@ -144,6 +150,12 @@ internal class ChannelGraph(
     private var dataManager: DataManager = DataManager(),
     private var graphWrapper: GraphWrapper = makeGraphWrapper(wiFiBand),
 ) : GraphNotifier {
+    constructor(wiFiBand: WiFiBand, context: Context) : this(
+        wiFiBand = wiFiBand,
+        dataManager = DataManager(),
+        graphWrapper = makeGraphWrapper(wiFiBand, context),
+    )
+
     private var wasSelected: Boolean = false
 
     override fun update(wiFiData: WiFiData) {

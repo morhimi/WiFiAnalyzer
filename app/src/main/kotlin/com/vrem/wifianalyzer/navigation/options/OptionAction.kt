@@ -17,16 +17,19 @@
  */
 package com.vrem.wifianalyzer.navigation.options
 
+import android.content.Context
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.filter.Filter
 
-typealias Action = () -> Unit
+typealias Action = (Context?) -> Unit
 
 internal val noAction: Action = { }
 
-internal val filterAction: Action = { Filter.build().show() }
+internal val filterAction: Action = { context ->
+    Filter.build(context ?: MainContext.INSTANCE.context).show()
+}
 
 internal val scannerAction: Action = { MainContext.INSTANCE.scannerService.toggle() }
 
@@ -47,6 +50,8 @@ internal enum class OptionAction(
     WIFI_BAND_5(R.id.action_wifi_band_5ghz, wiFiBandAction5),
     WIFI_BAND_6(R.id.action_wifi_band_6ghz, wiFiBandAction6),
     ;
+
+    fun execute(context: Context? = null) = action(context)
 
     companion object {
         fun findOptionAction(key: Int): OptionAction = entries.firstOrNull { it.key == key } ?: NO_ACTION

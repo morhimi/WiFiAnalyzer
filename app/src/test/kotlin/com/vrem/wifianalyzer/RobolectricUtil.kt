@@ -34,6 +34,7 @@ enum class RobolectricUtil {
             .get()
 
     fun startFragment(fragment: Fragment) {
+        activity.viewModelStore.clear()
         val fragmentManager = activity.supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.add(fragment, null)

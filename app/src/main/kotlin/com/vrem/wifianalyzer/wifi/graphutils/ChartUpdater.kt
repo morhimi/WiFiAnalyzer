@@ -30,7 +30,7 @@ class ChartUpdater(
     seriesCache: SeriesCache,
     private val lineStyleTracker: LineStyleTracker = LineStyleTracker(),
     private val lineLayerFactory: LineLayerFactory = LineLayerFactory(),
-    private val markerInteraction: MarkerInteraction = MarkerInteraction(chartView, seriesCache),
+    private val markerInteraction: MarkerInteraction = MarkerInteraction(chartView),
 ) {
     fun sync(
         entries: List<SeriesEntry>,

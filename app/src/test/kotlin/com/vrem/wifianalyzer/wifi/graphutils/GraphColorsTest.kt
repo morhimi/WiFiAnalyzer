@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.content.Context
 import android.content.res.Resources
 import com.vrem.wifianalyzer.MainContextHelper
 import com.vrem.wifianalyzer.R
@@ -32,15 +31,14 @@ import org.mockito.kotlin.whenever
 
 class GraphColorsTest {
     private val resources: Resources = mock()
-    private val context: Context = mock()
-    private val fixture = GraphColors()
+    private val context = MainContextHelper.INSTANCE.context
+    private lateinit var fixture: GraphColors
 
     @Before
     fun setUp() {
-        val mainActivity = MainContextHelper.INSTANCE.mainActivity
-        whenever(mainActivity.applicationContext).thenReturn(context)
         whenever(context.resources).thenReturn(resources)
         whenever(resources.getStringArray(R.array.graph_colors)).thenReturn(withColors())
+        fixture = GraphColors()
     }
 
     @After

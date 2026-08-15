@@ -20,7 +20,7 @@ package com.vrem.wifianalyzer.wifi.filter.adapter
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vrem.wifianalyzer.MainContextHelper
-import com.vrem.wifianalyzer.RobolectricUtil
+import com.vrem.wifianalyzer.navigation.NavigationMenu
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.model.Security
 import com.vrem.wifianalyzer.wifi.model.Strength
@@ -39,7 +39,6 @@ import java.io.Serializable
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class FiltersAdapterTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val ssids = setOf<String>()
     private val wiFiBands: Set<WiFiBand> = WiFiBand.entries.toSet()
     private val strengths: Set<Strength> = Strength.entries.toSet()
@@ -54,6 +53,7 @@ class FiltersAdapterTest {
         whenever(settings.findWiFiBands()).thenReturn(wiFiBands)
         whenever(settings.findStrengths()).thenReturn(strengths)
         whenever(settings.findSecurities()).thenReturn(securities)
+        whenever(settings.selectedMenu()).thenReturn(NavigationMenu.ACCESS_POINTS)
 
         fixture = FiltersAdapter(settings)
 
@@ -73,6 +73,7 @@ class FiltersAdapterTest {
     fun isActive() {
         // execute & validate
         assertThat(fixture.isActive()).isFalse
+        verify(settings).selectedMenu()
     }
 
     @Test
@@ -97,6 +98,7 @@ class FiltersAdapterTest {
         fixture.strengthAdapter().toggle(Strength.THREE)
         // execute & validate
         assertThat(fixture.isActive()).isTrue
+        verify(settings).selectedMenu()
     }
 
     @Test
@@ -105,6 +107,7 @@ class FiltersAdapterTest {
         fixture.wiFiBandAdapter().toggle(WiFiBand.GHZ2)
         // execute & validate
         assertThat(fixture.isActive()).isTrue
+        verify(settings).selectedMenu()
     }
 
     @Test
@@ -112,6 +115,7 @@ class FiltersAdapterTest {
         // execute
         fixture.reset()
         // validate
+        verify(settings).selectedMenu()
         verify(settings).saveSSIDs(ssids)
         verify(settings).saveWiFiBands(wiFiBands)
         verify(settings).saveStrengths(strengths)
@@ -134,6 +138,7 @@ class FiltersAdapterTest {
         // execute
         fixture.save()
         // validate
+        verify(settings).selectedMenu()
         verify(settings).saveSSIDs(ssids)
         verify(settings).saveWiFiBands(wiFiBands)
         verify(settings).saveStrengths(strengths)

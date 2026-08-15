@@ -29,7 +29,9 @@ import android.net.wifi.ScanResult
 import android.net.wifi.WifiSsid
 import android.os.Build
 import android.util.DisplayMetrics
+import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.vrem.wifianalyzer.RobolectricUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -190,5 +192,41 @@ class CompatUtilsTest {
         val actual = scanResult.ssid()
         // validate
         assertThat(actual).isEqualTo(String.EMPTY)
+    }
+
+    @Test
+    fun findActivityFromContextWrapper() {
+        val activity = RobolectricUtil.INSTANCE.activity
+        val wrapper = ContextWrapper(activity)
+        assertThat(wrapper.findActivity()).isEqualTo(activity)
+        assertThat(activity.findActivity()).isEqualTo(activity)
+    }
+
+    @Test
+    fun findActivityFromNonActivityContext() {
+        val appContext = RobolectricUtil.INSTANCE.activity.applicationContext
+        assertThat(appContext.findActivity()).isNull()
+    }
+
+    @Test
+    fun findActivityFromView() {
+        val activity = RobolectricUtil.INSTANCE.activity
+        val view = View(activity)
+        assertThat(view.findActivity()).isEqualTo(activity)
+    }
+
+    @Test
+    fun findActivityFromChildViewWithParentActivity() {
+        val activity = RobolectricUtil.INSTANCE.activity
+        val parent = android.widget.FrameLayout(activity)
+        val child = View(activity.applicationContext)
+        parent.addView(child)
+        assertThat(child.findActivity()).isEqualTo(activity)
+    }
+
+    @Test
+    fun findActivityFromOrphanViewWithNonActivityContext() {
+        val view = View(RobolectricUtil.INSTANCE.activity.applicationContext)
+        assertThat(view.findActivity()).isNull()
     }
 }

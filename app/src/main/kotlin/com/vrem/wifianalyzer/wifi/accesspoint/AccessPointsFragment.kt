@@ -22,11 +22,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.vrem.util.buildVersionP
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.databinding.AccessPointsContentBinding
+import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
+import kotlinx.coroutines.launch
 
 class AccessPointsFragment :
     Fragment(),
@@ -34,6 +39,7 @@ class AccessPointsFragment :
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var accessPointsAdapter: AccessPointsAdapter
         private set
+    internal val wiFiScanViewModel: WiFiScanViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,20 +59,28 @@ class AccessPointsFragment :
         return binding.root
     }
 
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                wiFiScanViewModel.wiFiData.collect { wiFiData ->
+                    accessPointsAdapter.update(wiFiData)
+                }
+            }
+        }
+    }
+
     override fun onRefresh() {
         swipeRefreshLayout.isRefreshing = true
-        MainContext.INSTANCE.scannerService.update()
+        wiFiScanViewModel.update()
         swipeRefreshLayout.isRefreshing = false
     }
 
     override fun onResume() {
         super.onResume()
-        MainContext.INSTANCE.scannerService.register(accessPointsAdapter)
         onRefresh()
-    }
-
-    override fun onPause() {
-        MainContext.INSTANCE.scannerService.unregister(accessPointsAdapter)
-        super.onPause()
     }
 }

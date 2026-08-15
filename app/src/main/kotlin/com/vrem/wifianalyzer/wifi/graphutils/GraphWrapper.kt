@@ -166,7 +166,7 @@ class GraphWrapper(
         runCatching {
             with(MessageDigest.getInstance("MD5")) {
                 update(
-                    MainContext.INSTANCE.mainActivity.packageName
+                    MainContext.INSTANCE.context.packageName
                         .toByteArray(),
                 )
                 val digest: ByteArray = digest()

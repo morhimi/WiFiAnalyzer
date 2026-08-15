@@ -17,6 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.timegraph
 
+import android.content.Context
 import android.graphics.Paint
 import android.view.View
 import com.patrykandpatrick.vico.views.cartesian.AutoScrollCondition
@@ -99,20 +100,22 @@ internal fun makeGraph(
     mainContext: MainContext,
     graphMaximumY: Int,
     themeStyle: ThemeStyle,
+    context: Context = mainContext.context,
 ): CartesianChartView =
     GraphBuilder(graphMaximumY, themeStyle)
         .setItemPlacer(HorizontalAxis.ItemPlacer.aligned(spacing = { 2 }, shiftExtremeLines = false))
         .setVerticalTitle(mainContext.resources.getString(R.string.graph_axis_y))
         .setHorizontalTitle(mainContext.resources.getString(R.string.graph_time_axis_x))
-        .build(mainContext.context, false)
+        .build(context, false)
 
-internal fun makeGraphWrapper(): GraphWrapper {
+internal fun makeGraphWrapper(context: Context? = null): GraphWrapper {
     val mainContext = MainContext.INSTANCE
     val settings = mainContext.settings
     val configuration = mainContext.configuration
     val themeStyle = settings.themeStyle()
     val graphMaximumY = settings.graphMaximumY()
-    val chartView = makeGraph(mainContext, graphMaximumY, themeStyle)
+    val targetContext = context ?: mainContext.context
+    val chartView = makeGraph(mainContext, graphMaximumY, themeStyle, targetContext)
     val seriesLabel = SeriesLabel(::calculateLabelPosition)
     val scrollHandler = ScrollHandler(true, Scroll.Absolute.End, Scroll.Absolute.End, AutoScrollCondition.OnModelGrowth)
     val graphViewport =
@@ -133,6 +136,12 @@ internal class TimeGraph(
     private val dataManager: DataManager = DataManager(),
     private val graphWrapper: GraphWrapper = makeGraphWrapper(),
 ) : GraphNotifier {
+    constructor(wiFiBand: WiFiBand, context: Context) : this(
+        wiFiBand = wiFiBand,
+        dataManager = DataManager(),
+        graphWrapper = makeGraphWrapper(context),
+    )
+
     private var wasSelected: Boolean = false
 
     override fun update(wiFiData: WiFiData) {

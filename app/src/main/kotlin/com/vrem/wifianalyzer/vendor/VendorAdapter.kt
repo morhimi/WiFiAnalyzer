@@ -18,12 +18,12 @@
 package com.vrem.wifianalyzer.vendor
 
 import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.databinding.VendorDetailsBinding
 import com.vrem.wifianalyzer.vendor.model.VendorService
@@ -52,7 +52,7 @@ internal class VendorAdapter(
     }
 
     private fun create(parent: ViewGroup): VendorDetailsBinding =
-        VendorDetailsBinding.inflate(MainContext.INSTANCE.layoutInflater, parent, false)
+        VendorDetailsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
     private class Binding {
         val root: View

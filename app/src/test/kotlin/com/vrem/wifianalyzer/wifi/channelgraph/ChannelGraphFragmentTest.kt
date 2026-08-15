@@ -49,8 +49,8 @@ class ChannelGraphFragmentTest {
         RobolectricUtil.INSTANCE.startFragment(fixture)
         // validate
         assertThat(fixture).isNotNull()
+        assertThat(fixture.wiFiScanViewModel).isNotNull()
         verify(scanner).update()
-        verify(scanner).register(fixture.graphAdapter)
     }
 
     @Test
@@ -70,17 +70,16 @@ class ChannelGraphFragmentTest {
         fixture.onResume()
         // validate
         verify(scanner, times(2)).update()
-        verify(scanner, times(2)).register(fixture.graphAdapter)
     }
 
     @Test
-    fun onPause() {
+    fun onRefresh() {
         // setup
         RobolectricUtil.INSTANCE.startFragment(fixture)
         // execute
-        fixture.onPause()
+        fixture.onRefresh()
         // validate
-        verify(scanner).unregister(fixture.graphAdapter)
+        verify(scanner, times(2)).update()
     }
 
     @Config(sdk = [Build.VERSION_CODES.P])
@@ -92,5 +91,11 @@ class ChannelGraphFragmentTest {
         val swipeRefreshLayout: SwipeRefreshLayout = fixture.view!!.findViewById(R.id.graphRefresh)
         assertThat(swipeRefreshLayout.isRefreshing).isFalse
         assertThat(swipeRefreshLayout.isEnabled).isFalse
+    }
+
+    @Test
+    fun defaultConstructor() {
+        val channelGraph = ChannelGraph(com.vrem.wifianalyzer.wifi.band.WiFiBand.GHZ2)
+        assertThat(channelGraph).isNotNull()
     }
 }

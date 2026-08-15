@@ -20,9 +20,11 @@ package com.vrem.wifianalyzer.wifi.graphutils
 import android.graphics.Color
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.patrykandpatrick.vico.views.cartesian.data.LineCartesianLayerModel
 import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.views.cartesian.marker.DefaultCartesianMarker
 import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
+import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.views.common.Fill
 import com.patrykandpatrick.vico.views.common.Point
 import com.patrykandpatrick.vico.views.common.component.ShapeComponent
@@ -32,6 +34,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 private const val THRESHOLD_PX = 50f
@@ -45,37 +48,27 @@ class CreateMarkerTest {
         val expected =
             DefaultCartesianMarker(
                 label = TextComponent(color = Color.TRANSPARENT, textSizeSp = 0f),
-                indicator = { color -> ShapeComponent(fill = Fill(color), shape = CorneredShape.Pill) },
+                indicator = MARKER_INDICATOR,
             )
         // Act
         val actual = createMarker()
         // Assert
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected)
-    }
-}
-
-@RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
-class MarkerVisibilityListenerWrapperTest {
-    @Test
-    fun onShownCallsCallback() {
-        // Arrange
-        var callbackTargets: List<CartesianMarker.Target>? = null
-        val listener = MarkerVisibilityListenerWrapper { targets -> callbackTargets = targets }
-        val marker: DefaultCartesianMarker = mock()
-        val expectedTargets: List<CartesianMarker.Target> = emptyList()
-        // Act
-        listener.onShown(marker, expectedTargets)
-        // Assert
-        assertThat(callbackTargets).isSameAs(expectedTargets)
+        val expectedIndicator = ShapeComponent(fill = Fill(0xFF0000), shape = CorneredShape.Pill)
+        assertThat(MARKER_INDICATOR(0xFF0000)).usingRecursiveComparison().isEqualTo(expectedIndicator)
     }
 }
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class MarkerControllerWrapperTest {
-    private var capturedPoint: Point? = null
-    private val controller = MarkerControllerWrapper(THRESHOLD_PX) { point -> capturedPoint = point }
+    private var capturedInteraction: Interaction? = null
+    private var capturedTargets: List<CartesianMarker.Target>? = null
+    private val controller =
+        MarkerControllerWrapper(THRESHOLD_PX) { interaction, targets ->
+            capturedInteraction = interaction
+            capturedTargets = targets
+        }
 
     @Test
     fun acceptsLongPress() {
@@ -113,6 +106,61 @@ class MarkerControllerWrapperTest {
         val target: CartesianMarker.Target = mock()
         // Act
         val actual = controller.shouldAcceptInteraction(Interaction.Press(Point(0f, 0f)), listOf(target))
+        // Assert
+        assertThat(actual).isFalse()
+    }
+
+    @Test
+    fun shouldAcceptInteractionPressWithinProximity() {
+        // Arrange
+        val point = Point(100f, 200f)
+        val lineTarget: LineCartesianLayerMarkerTarget = mock()
+        val entry = LineCartesianLayerModel.Entry(1, -50)
+        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, 0)
+        whenever(lineTarget.canvasX).thenReturn(100f)
+        whenever(lineTarget.points).thenReturn(listOf(markerPoint))
+
+        // Act
+        val actual = controller.shouldAcceptInteraction(Interaction.Press(point), listOf(lineTarget))
+
+        // Assert
+        assertThat(actual).isTrue()
+        assertThat(capturedInteraction).isEqualTo(Interaction.Press(point))
+        assertThat(capturedTargets).isEqualTo(listOf(lineTarget))
+    }
+
+    @Test
+    fun shouldAcceptInteractionTapWithinProximity() {
+        // Arrange
+        val point = Point(100f, 200f)
+        val lineTarget: LineCartesianLayerMarkerTarget = mock()
+        val entry = LineCartesianLayerModel.Entry(1, -50)
+        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, 0)
+        whenever(lineTarget.canvasX).thenReturn(100f)
+        whenever(lineTarget.points).thenReturn(listOf(markerPoint))
+
+        // Act
+        val actual = controller.shouldAcceptInteraction(Interaction.Tap(point), listOf(lineTarget))
+
+        // Assert
+        assertThat(actual).isTrue()
+        assertThat(capturedInteraction).isEqualTo(Interaction.Tap(point))
+        assertThat(capturedTargets).isEqualTo(listOf(lineTarget))
+    }
+
+    @Test
+    fun shouldAcceptInteractionPressOutsideProximity() {
+        // Arrange
+        val point = Point(100f, 100f)
+        val lineTarget: LineCartesianLayerMarkerTarget = mock()
+        val entry = LineCartesianLayerModel.Entry(1, -50)
+        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, 0)
+        whenever(lineTarget.canvasX).thenReturn(100f)
+        whenever(lineTarget.points).thenReturn(listOf(markerPoint))
+
+        // Act
+        val actual = controller.shouldAcceptInteraction(Interaction.Press(point), listOf(lineTarget))
+
         // Assert
         assertThat(actual).isFalse()
     }

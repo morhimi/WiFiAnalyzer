@@ -19,7 +19,7 @@ package com.vrem.wifianalyzer.navigation.availability
 
 import android.view.Menu
 import android.view.MenuItem
-import com.vrem.wifianalyzer.MainContextHelper
+import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.options.OptionMenu
 import org.junit.After
@@ -32,7 +32,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 class WiFiSwitchOffTest {
-    private val mainActivity = MainContextHelper.INSTANCE.mainActivity
+    private val mainActivity: MainActivity = mock()
     private val optionMenu: OptionMenu = mock()
     private val menu: Menu = mock()
     private val menuItem: MenuItem = mock()
@@ -43,7 +43,6 @@ class WiFiSwitchOffTest {
         verifyNoMoreInteractions(optionMenu)
         verifyNoMoreInteractions(menu)
         verifyNoMoreInteractions(menuItem)
-        MainContextHelper.INSTANCE.restore()
     }
 
     @Test

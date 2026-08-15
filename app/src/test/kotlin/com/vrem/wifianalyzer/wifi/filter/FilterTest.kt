@@ -36,6 +36,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -92,14 +93,14 @@ class FilterTest {
         fixture.show()
         val button = fixture.alertDialog!!.getButton(DialogInterface.BUTTON_POSITIVE)
         val filtersAdapter = MainContextHelper.INSTANCE.filterAdapter
-        val mainActivity = MainContextHelper.INSTANCE.mainActivity
+        val scannerService = MainContextHelper.INSTANCE.scannerService
         // execute
         button.performClick()
         // validate
         RobolectricUtil.INSTANCE.clearLooper()
         assertThat(fixture.alertDialog.isShowing).isFalse
         verify(filtersAdapter).save()
-        verify(mainActivity).update()
+        verify(scannerService).update()
     }
 
     @Test
@@ -108,14 +109,14 @@ class FilterTest {
         fixture.show()
         val button = fixture.alertDialog!!.getButton(DialogInterface.BUTTON_NEGATIVE)
         val filtersAdapter = MainContextHelper.INSTANCE.filterAdapter
-        val mainActivity = MainContextHelper.INSTANCE.mainActivity
+        val scannerService = MainContextHelper.INSTANCE.scannerService
         // execute
         button.performClick()
         // validate
         RobolectricUtil.INSTANCE.clearLooper()
         assertThat(fixture.alertDialog.isShowing).isFalse
         verify(filtersAdapter).reset()
-        verify(mainActivity).update()
+        verify(scannerService).update()
     }
 
     @Test
@@ -124,14 +125,14 @@ class FilterTest {
         fixture.show()
         val button = fixture.alertDialog!!.getButton(DialogInterface.BUTTON_NEUTRAL)
         val filtersAdapter = MainContextHelper.INSTANCE.filterAdapter
-        val mainActivity = MainContextHelper.INSTANCE.mainActivity
+        val scannerService = MainContextHelper.INSTANCE.scannerService
         // execute
         button.performClick()
         // validate
         RobolectricUtil.INSTANCE.clearLooper()
         assertThat(fixture.alertDialog.isShowing).isFalse
         verify(filtersAdapter).reload()
-        verify(mainActivity, never()).update()
+        verify(scannerService, never()).update()
     }
 
     @Test
@@ -246,12 +247,12 @@ class FilterTest {
     @Test
     fun buildReturnsNullDialogWhenActivityIsFinishing() {
         // setup
-        val mainActivity = MainContextHelper.INSTANCE.mainActivity
-        doReturn(true).whenever(mainActivity).isFinishing
+        val activity: MainActivity = mock()
+        doReturn(true).whenever(activity).isFinishing
         // execute
-        val actual = build()
+        val actual = build(activity)
         // validate
         assertThat(actual.alertDialog).isNull()
-        verify(mainActivity).isFinishing
+        verify(activity).isFinishing
     }
 }

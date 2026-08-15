@@ -17,8 +17,11 @@
  */
 package com.vrem.wifianalyzer.wifi.filter
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
+import android.view.LayoutInflater
 import android.view.View
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
@@ -49,7 +52,7 @@ class Filter(
         SSIDFilter(MainContext.INSTANCE.filtersAdapter.ssidAdapter(), alertDialog)
 
     private fun addWiFiBandFilter(alertDialog: AlertDialog): WiFiBandFilter? =
-        if (NavigationMenu.ACCESS_POINTS == MainContext.INSTANCE.mainActivity.currentNavigationMenu()) {
+        if (NavigationMenu.ACCESS_POINTS == MainContext.INSTANCE.settings.selectedMenu()) {
             WiFiBandFilter(MainContext.INSTANCE.filtersAdapter.wiFiBandAdapter(), alertDialog)
         } else {
             alertDialog.findViewById<View>(R.id.filterWiFiBand)?.visibility = View.GONE
@@ -79,7 +82,7 @@ class Filter(
         ) {
             dialog.dismiss()
             MainContext.INSTANCE.filtersAdapter.save()
-            MainContext.INSTANCE.mainActivity.update()
+            MainContext.INSTANCE.scannerService.update()
         }
     }
 
@@ -90,18 +93,18 @@ class Filter(
         ) {
             dialog.dismiss()
             MainContext.INSTANCE.filtersAdapter.reset()
-            MainContext.INSTANCE.mainActivity.update()
+            MainContext.INSTANCE.scannerService.update()
         }
     }
 
     companion object {
-        fun build(): Filter = Filter(buildAlertDialog())
+        fun build(context: Context = MainContext.INSTANCE.context): Filter = Filter(buildAlertDialog(context))
 
-        private fun buildAlertDialog(): AlertDialog? {
-            if (MainContext.INSTANCE.mainActivity.isFinishing) {
+        private fun buildAlertDialog(context: Context): AlertDialog? {
+            if ((context as? Activity)?.isFinishing == true) {
                 return null
             }
-            val view = MainContext.INSTANCE.layoutInflater.inflate(R.layout.filter_popup, null)
+            val view = LayoutInflater.from(context).inflate(R.layout.filter_popup, null)
             return AlertDialog
                 .Builder(view.context)
                 .setView(view)

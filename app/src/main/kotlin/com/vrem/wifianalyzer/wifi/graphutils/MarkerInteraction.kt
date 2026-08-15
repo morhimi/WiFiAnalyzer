@@ -21,70 +21,64 @@ import com.patrykandpatrick.vico.views.cartesian.CartesianChart
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.views.cartesian.marker.DefaultCartesianMarker
+import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
 import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.views.common.Point
+import com.vrem.util.findActivity
 import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
 import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailView
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
-internal val NO_TOUCH: Point = Point(Float.NaN, Float.NaN)
-
 class MarkerHandler(
     private val chartView: CartesianChartView,
-    private val seriesCache: SeriesCache,
     private val wiFiDetailView: WiFiDetailView = WiFiDetailView(),
     private val wiFiDetailPopup: WiFiDetailPopup = WiFiDetailPopup(),
 ) {
     fun event(
-        lastTouch: Point,
+        touch: Point,
         thresholdPx: Float,
         dataPointToDetail: Map<Long, MutableList<WiFiDetail>>,
         targets: List<CartesianMarker.Target>,
-    ): Point {
+    ): Boolean {
         val lineTarget =
             targets.firstOrNull { it is LineCartesianLayerMarkerTarget } as? LineCartesianLayerMarkerTarget
-                ?: return lastTouch
+                ?: return false
         val points = lineTarget.points
-        if (points.isEmpty()) return lastTouch
+        if (points.isEmpty()) return false
         val markerPoints = points.map { MarkerPoint(DataPoint(it.entry.x.toInt(), it.entry.y.toInt()), it.canvasY) }
-        val wiFiDetails = matchDetails(markerPoints, lineTarget.canvasX, lastTouch, thresholdPx, dataPointToDetail)
+        val wiFiDetails = matchDetails(markerPoints, lineTarget.canvasX, touch, thresholdPx, dataPointToDetail)
         if (wiFiDetails.isNotEmpty()) {
+            val targetContext = chartView.findActivity() ?: chartView.context
             val views =
                 wiFiDetails.map { detail ->
-                    val color = seriesCache[detail]?.graphColor?.primary
-                    wiFiDetailView.makeViewDetailed(detail, color)
+                    wiFiDetailView.makeViewDetailed(detail, context = targetContext)
                 }
-            chartView.post {
-                runCatching { wiFiDetailPopup.showSequence(views) }
-            }
+            runCatching { wiFiDetailPopup.showSequence(views) }
+            return true
         }
-        return NO_TOUCH
+        return false
     }
 }
 
 class MarkerInteraction(
     chartView: CartesianChartView,
-    private val seriesCache: SeriesCache,
-    private val markerHandler: MarkerHandler = MarkerHandler(chartView, seriesCache),
+    private val markerHandler: MarkerHandler = MarkerHandler(chartView),
 ) {
-    private var lastTouch: Point = NO_TOUCH
     private var dataPointToDetail: Map<Long, MutableList<WiFiDetail>> = emptyMap()
-    private val thresholdPx: Float = 20f * chartView.resources.displayMetrics.density
+    private val thresholdPx: Float = 24f * chartView.resources.displayMetrics.density
 
     internal val marker: DefaultCartesianMarker = createMarker()
 
-    internal val markerVisibilityListener: MarkerVisibilityListenerWrapper =
-        MarkerVisibilityListenerWrapper { targets ->
-            lastTouch = markerHandler.event(lastTouch, thresholdPx, dataPointToDetail, targets)
-        }
-
     internal val markerController: MarkerControllerWrapper =
-        MarkerControllerWrapper(thresholdPx) { point -> lastTouch = point }
+        MarkerControllerWrapper(thresholdPx) { interaction, targets ->
+            if (interaction is Interaction.Tap) {
+                markerHandler.event(interaction.point, thresholdPx, dataPointToDetail, targets)
+            }
+        }
 
     fun applyTo(chart: CartesianChart): CartesianChart =
         chart.copy(
             marker = marker,
-            markerVisibilityListener = markerVisibilityListener,
             markerController = markerController,
         )
 

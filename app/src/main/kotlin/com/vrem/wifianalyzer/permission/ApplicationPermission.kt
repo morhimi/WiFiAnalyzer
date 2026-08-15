@@ -19,17 +19,19 @@ package com.vrem.wifianalyzer.permission
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import com.vrem.annotation.OpenClass
 
 @OpenClass
 class ApplicationPermission(
-    private val activity: Activity,
-    private val permissionDialog: PermissionDialog = PermissionDialog(activity),
+    private val context: Context,
+    private val permissionDialog: PermissionDialog? = (context as? Activity)?.let { PermissionDialog(it) },
 ) {
     fun check() {
-        if (!granted() && !activity.isFinishing) {
-            permissionDialog.show()
+        val activity = context as? Activity
+        if (!granted() && activity?.isFinishing != true) {
+            permissionDialog?.show()
         }
     }
 
@@ -39,7 +41,7 @@ class ApplicationPermission(
     ): Boolean =
         requestCode == REQUEST_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
 
-    fun granted(): Boolean = activity.checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED
+    fun granted(): Boolean = context.checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED
 
     companion object {
         internal const val PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION

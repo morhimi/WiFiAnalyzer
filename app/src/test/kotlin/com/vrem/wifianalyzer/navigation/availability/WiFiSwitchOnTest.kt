@@ -21,6 +21,7 @@ import android.os.Build
 import android.view.Menu
 import android.view.MenuItem
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.MainContextHelper
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.options.OptionMenu
@@ -39,7 +40,7 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class WiFiSwitchOnTest {
-    private val mainActivity = MainContextHelper.INSTANCE.mainActivity
+    private val mainActivity: MainActivity = mock()
     private val settings = MainContextHelper.INSTANCE.settings
     private val optionMenu: OptionMenu = mock()
     private val menu: Menu = mock()

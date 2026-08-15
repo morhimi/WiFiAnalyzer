@@ -57,7 +57,7 @@ class MainActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val mainContext = MainContext.INSTANCE
-        mainContext.initialize(this, largeScreen)
+        mainContext.initialize(applicationContext, largeScreen)
 
         val settings = mainContext.settings
         settings.initializeDefaultValues()
@@ -108,7 +108,7 @@ class MainActivity :
         }
     }
 
-    private val largeScreen: Boolean
+    internal val largeScreen: Boolean
         get() {
             val configuration = resources.configuration
             val screenLayoutSize = configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK

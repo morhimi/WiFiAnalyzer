@@ -49,8 +49,8 @@ class AccessPointsFragmentTest {
         RobolectricUtil.INSTANCE.startFragment(fixture)
         // validate
         assertThat(fixture).isNotNull()
+        assertThat(fixture.wiFiScanViewModel).isNotNull()
         verify(scanner).update()
-        verify(scanner).register(fixture.accessPointsAdapter)
     }
 
     @Test
@@ -70,17 +70,16 @@ class AccessPointsFragmentTest {
         fixture.onResume()
         // validate
         verify(scanner, times(2)).update()
-        verify(scanner, times(2)).register(fixture.accessPointsAdapter)
     }
 
     @Test
-    fun onPause() {
+    fun onRefresh() {
         // setup
         RobolectricUtil.INSTANCE.startFragment(fixture)
         // execute
-        fixture.onPause()
+        fixture.onRefresh()
         // validate
-        verify(scanner).unregister(fixture.accessPointsAdapter)
+        verify(scanner, times(2)).update()
     }
 
     @Config(sdk = [Build.VERSION_CODES.P])

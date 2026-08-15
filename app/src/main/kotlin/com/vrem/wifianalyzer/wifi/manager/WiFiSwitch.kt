@@ -17,13 +17,14 @@
  */
 package com.vrem.wifianalyzer.wifi.manager
 
+import android.content.Intent
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.provider.Settings
 import androidx.annotation.RequiresApi
 import com.vrem.annotation.OpenClass
 import com.vrem.util.buildMinVersionQ
 import com.vrem.wifianalyzer.MainContext
-import com.vrem.wifianalyzer.startWiFiSettings
 
 @OpenClass
 class WiFiSwitch(
@@ -34,7 +35,13 @@ class WiFiSwitch(
     fun off(): Boolean = enable(false)
 
     @RequiresApi(Build.VERSION_CODES.Q)
-    fun startWiFiSettings(): Unit = MainContext.INSTANCE.mainActivity.startWiFiSettings()
+    fun startWiFiSettings() {
+        val intent =
+            Intent(Settings.Panel.ACTION_WIFI).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+        MainContext.INSTANCE.context.startActivity(intent)
+    }
 
     fun minVersionQ(): Boolean = buildMinVersionQ()
 

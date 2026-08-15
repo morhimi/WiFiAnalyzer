@@ -28,17 +28,19 @@ import com.vrem.wifianalyzer.R
 @OpenClass
 class OptionMenu {
     var menu: Menu? = null
+    var activity: Activity? = null
 
     fun create(
         activity: Activity,
         menu: Menu,
     ) {
+        this.activity = activity
         activity.menuInflater.inflate(R.menu.optionmenu, menu)
         this.menu = menu
         iconsVisible(menu)
     }
 
-    fun select(item: MenuItem): Unit = OptionAction.findOptionAction(item.itemId).action()
+    fun select(item: MenuItem): Unit = OptionAction.findOptionAction(item.itemId).execute(activity)
 
     @SuppressLint("RestrictedApi")
     private fun iconsVisible(menu: Menu): Result<Unit> =

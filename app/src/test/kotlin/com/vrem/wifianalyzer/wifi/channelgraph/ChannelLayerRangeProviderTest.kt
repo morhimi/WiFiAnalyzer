@@ -30,7 +30,6 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 class ChannelLayerRangeProviderTest {
-    private val mainActivity = MainContextHelper.INSTANCE.mainActivity
     private val settings = MainContextHelper.INSTANCE.settings
     private val extraStore: ExtraStore = mock()
     private val minX = 100.0
@@ -40,7 +39,7 @@ class ChannelLayerRangeProviderTest {
     @After
     fun tearDown() {
         MainContextHelper.INSTANCE.restore()
-        verifyNoMoreInteractions(mainActivity, settings, extraStore)
+        verifyNoMoreInteractions(settings, extraStore)
     }
 
     @Test

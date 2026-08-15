@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
 import com.vrem.annotation.OpenClass
+import com.vrem.util.findActivity
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -34,12 +35,13 @@ class WiFiDetailPopup {
         view: View,
         wiFiDetail: WiFiDetail? = null,
     ): AlertDialog {
-        val builder = AlertDialog.Builder(view.context).setView(view)
+        val targetContext = view.findActivity() ?: view.context
+        val builder = AlertDialog.Builder(targetContext).setView(view)
         wiFiDetail?.let { detail ->
             if (detail.wiFiIdentifier.bssid.isNotBlank()) {
                 builder.setNeutralButton(R.string.ap_alias_edit) { dialog, _ ->
                     dialog.dismiss()
-                    showAliasDialog(view.context, detail)
+                    showAliasDialog(targetContext, detail)
                 }
             }
         }
@@ -106,9 +108,10 @@ class WiFiDetailPopup {
     ): AlertDialog {
         val view = views[index]
         val isLast = index == views.size - 1
+        val targetContext = view.findActivity() ?: view.context
         val builder =
             AlertDialog
-                .Builder(view.context)
+                .Builder(targetContext)
                 .setView(view)
                 .setNegativeButton(R.string.filter_close) { dialog, _ -> dialog.cancel() }
         if (!isLast) {
@@ -127,7 +130,8 @@ class WiFiDetailPopup {
         wiFiDetail: WiFiDetail,
     ) {
         view.setOnClickListener {
-            runCatching { show(WiFiDetailView().makeViewDetailed(wiFiDetail), wiFiDetail) }
+            val targetContext = it.findActivity() ?: it.context
+            runCatching { show(WiFiDetailView().makeViewDetailed(wiFiDetail, context = targetContext), wiFiDetail) }
         }
     }
 

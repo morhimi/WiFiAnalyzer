@@ -19,13 +19,16 @@ package com.vrem.wifianalyzer.wifi.detailview
 
 import android.graphics.Color
 import android.os.Build
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vrem.util.EMPTY
+import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.MainContextHelper.INSTANCE
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.RobolectricUtil
@@ -78,6 +81,17 @@ class WiFiDetailViewTest {
         val wiFiDetail = withWiFiDetail()
         // Act
         val actual = fixture.makeView(null, null, wiFiDetail)
+        // Assert
+        assertThat(actual).isNotNull
+    }
+
+    @Test
+    fun makeViewWithParentUsesParentContextInflater() {
+        // Arrange
+        val wiFiDetail = withWiFiDetail()
+        val parent = FrameLayout(mainActivity)
+        // Act
+        val actual = fixture.makeView(null, parent, wiFiDetail)
         // Assert
         assertThat(actual).isNotNull
     }
@@ -382,7 +396,8 @@ class WiFiDetailViewTest {
         // Arrange
         val wiFiDetail = withWiFiDetail()
         val defaultColor =
-            mainActivity.layoutInflater
+            LayoutInflater
+                .from(MainContext.INSTANCE.context)
                 .inflate(R.layout.wifi_detail_view_popup, null)
                 .findViewById<TextView>(R.id.ssid)
                 .currentTextColor
@@ -390,6 +405,16 @@ class WiFiDetailViewTest {
         val actual = fixture.makeViewDetailed(wiFiDetail)
         // Assert
         assertThat(actual.findViewById<TextView>(R.id.ssid).currentTextColor).isEqualTo(defaultColor)
+    }
+
+    @Test
+    fun makeViewDetailedWithCustomContext() {
+        // Arrange
+        val wiFiDetail = withWiFiDetail()
+        // Act
+        val actual = fixture.makeViewDetailed(wiFiDetail, context = mainActivity)
+        // Assert
+        assertThat(actual.context).isEqualTo(mainActivity)
     }
 
     @Test

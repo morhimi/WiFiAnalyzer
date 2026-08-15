@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.permission
 
-import android.app.Activity
+import android.content.Context
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -27,14 +27,14 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 class PermissionServiceTest {
-    private val activity: Activity = mock()
+    private val context: Context = mock()
     private val locationPermission: LocationPermission = mock()
     private val applicationPermission: ApplicationPermission = mock()
-    private val fixture = PermissionService(activity, locationPermission, applicationPermission)
+    private val fixture = PermissionService(context, locationPermission, applicationPermission)
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(activity)
+        verifyNoMoreInteractions(context)
         verifyNoMoreInteractions(applicationPermission)
         verifyNoMoreInteractions(locationPermission)
     }

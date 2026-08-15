@@ -18,9 +18,14 @@
 package com.vrem.wifianalyzer.wifi.manager
 
 import android.net.wifi.WifiManager
+import android.os.Build
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.vrem.wifianalyzer.MainContextHelper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -28,7 +33,10 @@ import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
+import org.robolectric.annotation.Config
 
+@RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class WiFiSwitchTest {
     private val wifiManager: WifiManager = mock()
     private val fixture = spy(WiFiSwitch(wifiManager))
@@ -41,23 +49,27 @@ class WiFiSwitchTest {
     @Test
     fun on() {
         // setup
+        doReturn(false).whenever(fixture).minVersionQ()
         whenever(wifiManager.setWifiEnabled(true)).thenReturn(true)
         // execute
         val actual = fixture.on()
         // validate
         assertThat(actual).isTrue
         verify(wifiManager).isWifiEnabled = true
+        verify(fixture).minVersionQ()
     }
 
     @Test
     fun off() {
         // setup
+        doReturn(false).whenever(fixture).minVersionQ()
         whenever(wifiManager.setWifiEnabled(false)).thenReturn(true)
         // execute
         val actual = fixture.off()
         // validate
         assertThat(actual).isTrue
         verify(wifiManager).isWifiEnabled = false
+        verify(fixture).minVersionQ()
     }
 
     @Test
@@ -71,5 +83,16 @@ class WiFiSwitchTest {
         assertThat(actual).isTrue
         verify(fixture).startWiFiSettings()
         verify(fixture).minVersionQ()
+    }
+
+    @Test
+    fun startWiFiSettings() {
+        // setup
+        val context = MainContextHelper.INSTANCE.context
+        // execute
+        fixture.startWiFiSettings()
+        // validate
+        verify(context).startActivity(any())
+        MainContextHelper.INSTANCE.restore()
     }
 }

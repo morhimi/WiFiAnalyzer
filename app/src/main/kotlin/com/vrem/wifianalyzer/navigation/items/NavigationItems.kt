@@ -28,12 +28,12 @@ import com.vrem.wifianalyzer.wifi.channelgraph.ChannelGraphFragment
 import com.vrem.wifianalyzer.wifi.channelrating.ChannelRatingFragment
 import com.vrem.wifianalyzer.wifi.timegraph.TimeGraphFragment
 
-val navigationItemAccessPoints: NavigationItem = FragmentItem(AccessPointsFragment())
-val navigationItemChannelRating: NavigationItem = FragmentItem(ChannelRatingFragment())
-val navigationItemChannelGraph: NavigationItem = FragmentItem(ChannelGraphFragment())
-val navigationItemTimeGraph: NavigationItem = FragmentItem(TimeGraphFragment())
+val navigationItemAccessPoints: NavigationItem = FragmentItem(::AccessPointsFragment)
+val navigationItemChannelRating: NavigationItem = FragmentItem(::ChannelRatingFragment)
+val navigationItemChannelGraph: NavigationItem = FragmentItem(::ChannelGraphFragment)
+val navigationItemTimeGraph: NavigationItem = FragmentItem(::TimeGraphFragment)
 val navigationItemExport: NavigationItem = ExportItem(Export())
-val navigationItemChannelAvailable: NavigationItem = FragmentItem(ChannelAvailableFragment(), false)
-val navigationItemVendors: NavigationItem = FragmentItem(VendorFragment(), false, View.GONE)
-val navigationItemSettings: NavigationItem = FragmentItem(SettingsFragment(), false, View.GONE)
-val navigationItemAbout: NavigationItem = FragmentItem(AboutFragment(), false, View.GONE)
+val navigationItemChannelAvailable: NavigationItem = FragmentItem(::ChannelAvailableFragment, false)
+val navigationItemVendors: NavigationItem = FragmentItem(::VendorFragment, false, View.GONE)
+val navigationItemSettings: NavigationItem = FragmentItem(::SettingsFragment, false, View.GONE)
+val navigationItemAbout: NavigationItem = FragmentItem(::AboutFragment, false, View.GONE)

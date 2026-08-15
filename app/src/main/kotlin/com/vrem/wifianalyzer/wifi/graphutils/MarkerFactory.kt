@@ -20,36 +20,27 @@ package com.vrem.wifianalyzer.wifi.graphutils
 import android.graphics.Color
 import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarkerController
-import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarkerVisibilityListener
 import com.patrykandpatrick.vico.views.cartesian.marker.DefaultCartesianMarker
 import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
 import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.views.common.Fill
-import com.patrykandpatrick.vico.views.common.Point
 import com.patrykandpatrick.vico.views.common.component.ShapeComponent
 import com.patrykandpatrick.vico.views.common.component.TextComponent
 import com.patrykandpatrick.vico.views.common.shape.CorneredShape
 
+internal val MARKER_INDICATOR: (Int) -> ShapeComponent = { color ->
+    ShapeComponent(fill = Fill(color), shape = CorneredShape.Pill)
+}
+
 internal fun createMarker(): DefaultCartesianMarker =
     DefaultCartesianMarker(
         label = TextComponent(color = Color.TRANSPARENT, textSizeSp = 0f),
-        indicator = { color -> ShapeComponent(fill = Fill(color), shape = CorneredShape.Pill) },
+        indicator = MARKER_INDICATOR,
     )
-
-class MarkerVisibilityListenerWrapper(
-    private val onMarkerShown: (List<CartesianMarker.Target>) -> Unit,
-) : CartesianMarkerVisibilityListener {
-    override fun onShown(
-        marker: CartesianMarker,
-        targets: List<CartesianMarker.Target>,
-    ) {
-        onMarkerShown(targets)
-    }
-}
 
 class MarkerControllerWrapper(
     private val thresholdPx: Float,
-    private val onAccepted: (Point) -> Unit,
+    private val onAccepted: (Interaction, List<CartesianMarker.Target>) -> Unit,
 ) : CartesianMarkerController {
     override val acceptsLongPress: Boolean get() = false
 
@@ -58,7 +49,7 @@ class MarkerControllerWrapper(
         targets: List<CartesianMarker.Target>,
     ): Boolean {
         if (interaction is Interaction.Release) return true
-        if (interaction !is Interaction.Press) return false
+        if (interaction !is Interaction.Press && interaction !is Interaction.Tap) return false
         val accepted =
             targets
                 .filterIsInstance<LineCartesianLayerMarkerTarget>()
@@ -68,7 +59,7 @@ class MarkerControllerWrapper(
                     }
                 }
         if (accepted) {
-            onAccepted(interaction.point)
+            onAccepted(interaction, targets)
         }
         return accepted
     }

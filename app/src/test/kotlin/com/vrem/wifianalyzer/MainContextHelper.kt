@@ -17,6 +17,7 @@
  */
 package com.vrem.wifianalyzer
 
+import android.content.Context
 import com.vrem.util.EMPTY
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
@@ -35,6 +36,13 @@ enum class MainContextHelper {
 
     private val saved: MutableMap<Class<*>, Any> = mutableMapOf()
     private val mainContext: MainContext = MainContext.INSTANCE
+
+    val context: Context
+        get() {
+            runCatching { saved[Context::class.java] = mainContext.context }
+            mainContext.context = mock()
+            return mainContext.context
+        }
 
     val settings: Settings
         get() {
@@ -73,13 +81,6 @@ enum class MainContextHelper {
             return mainContext.scannerService
         }
 
-    val mainActivity: MainActivity
-        get() {
-            runCatching { saved[MainActivity::class.java] = mainContext.mainActivity }
-            mainContext.mainActivity = mock()
-            return mainContext.mainActivity
-        }
-
     val configuration: Configuration
         get() {
             runCatching { saved[Configuration::class.java] = mainContext.configuration }
@@ -104,16 +105,21 @@ enum class MainContextHelper {
     fun restore() {
         saved.entries.forEach {
             when (it.key) {
+                Context::class.java -> mainContext.context = it.value as Context
                 Settings::class.java -> mainContext.settings = it.value as Settings
                 VendorService::class.java -> mainContext.vendorService = it.value as VendorService
                 ApAliasService::class.java -> mainContext.apAliasService = it.value as ApAliasService
                 ScannerService::class.java -> mainContext.scannerService = it.value as ScannerService
-                MainActivity::class.java -> mainContext.mainActivity = it.value as MainActivity
                 Configuration::class.java -> mainContext.configuration = it.value as Configuration
                 FiltersAdapter::class.java -> mainContext.filtersAdapter = it.value as FiltersAdapter
                 WiFiManagerWrapper::class.java -> mainContext.wiFiManagerWrapper = it.value as WiFiManagerWrapper
             }
         }
         saved.clear()
+        runCatching {
+            val activity = RobolectricUtil.INSTANCE.activity
+            activity.viewModelStore.clear()
+            mainContext.initialize(activity.applicationContext, activity.largeScreen)
+        }
     }
 }

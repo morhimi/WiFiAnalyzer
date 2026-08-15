@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.wifi.filter.adapter
 
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 import com.vrem.wifianalyzer.settings.Settings
 import java.io.Serializable
@@ -64,6 +63,5 @@ class FiltersAdapter(
             listOf(ssidAdapter, strengthAdapter, securityAdapter)
         }
 
-    private fun isAccessPoints(): Boolean =
-        NavigationMenu.ACCESS_POINTS == MainContext.INSTANCE.mainActivity.currentNavigationMenu()
+    private fun isAccessPoints(): Boolean = NavigationMenu.ACCESS_POINTS == settings.selectedMenu()
 }

@@ -19,6 +19,7 @@ package com.vrem.wifianalyzer.wifi.channelrating
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -157,5 +158,5 @@ class ChannelRatingAdapter(
         }
 
     private fun create(parent: ViewGroup): ChannelRatingDetailsBinding =
-        ChannelRatingDetailsBinding.inflate(MainContext.INSTANCE.layoutInflater, parent, false)
+        ChannelRatingDetailsBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 }
