@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.wifi.graphutils
 
 import android.os.Build
-import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.patrykandpatrick.vico.views.cartesian.data.LineCartesianLayerModel
@@ -27,7 +26,6 @@ import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarker
 import com.patrykandpatrick.vico.views.common.Point
 import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
-import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailView
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import org.assertj.core.api.Assertions.assertThat
@@ -35,9 +33,7 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.doReturn
-import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -52,17 +48,14 @@ private const val CANVAS_Y = 200f
 class MarkerHandlerTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val chartView: CartesianChartView = CartesianChartView(mainActivity)
-    private val wiFiDetailView: WiFiDetailView = mock()
-    private val wiFiDetailPopup: WiFiDetailPopup = mock()
     private val lineCartesianLayerMarkerTarget: LineCartesianLayerMarkerTarget = mock()
-    private val view: View = mock()
     private val lastTouch = Point(CANVAS_X, CANVAS_Y)
 
-    private val fixture = MarkerHandler(chartView, wiFiDetailView, wiFiDetailPopup)
+    private val fixture = MarkerHandler(chartView)
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(wiFiDetailView, wiFiDetailPopup, lineCartesianLayerMarkerTarget, view)
+        verifyNoMoreInteractions(lineCartesianLayerMarkerTarget)
     }
 
     @Test
@@ -73,8 +66,6 @@ class MarkerHandlerTest {
         val actual = fixture.event(lastTouch, THRESHOLD_PX, emptyMap(), targets)
         // Assert
         assertThat(actual).isFalse()
-        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>(), any())
-        verify(wiFiDetailPopup, never()).showSequence(any<List<View>>())
     }
 
     @Test
@@ -88,9 +79,6 @@ class MarkerHandlerTest {
         // Assert
         assertThat(actual).isFalse()
         verify(lineCartesianLayerMarkerTarget).points
-        verifyNoMoreInteractions(lineCartesianLayerMarkerTarget)
-        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>(), any())
-        verify(wiFiDetailPopup, never()).showSequence(any<List<View>>())
     }
 
     @Test
@@ -101,44 +89,36 @@ class MarkerHandlerTest {
         val pointMap = withPointMap(targetPoints, wiFiDetails)
         doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
         doReturn(targetPoints).whenever(lineCartesianLayerMarkerTarget).points
-        wiFiDetails.forEach { wiFiDetail ->
-            doReturn(view).whenever(wiFiDetailView).makeViewDetailed(wiFiDetail, context = chartView.context)
-        }
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
         // Assert
         assertThat(actual).isTrue()
         verify(this.lineCartesianLayerMarkerTarget).canvasX
         verify(this.lineCartesianLayerMarkerTarget).points
-        wiFiDetails.forEach { wiFiDetail ->
-            verify(wiFiDetailView).makeViewDetailed(wiFiDetail, context = chartView.context)
-        }
-        verify(wiFiDetailPopup).showSequence(listOf(view, view, view))
+        val fragment = mainActivity.supportFragmentManager.findFragmentByTag("WiFiDetailPopup")
+        assertThat(fragment).isNotNull
+        assertThat(fragment).isInstanceOf(WiFiDetailPopup::class.java)
     }
 
     @Test
     fun eventWithNonActivityContextChartView() {
         // Arrange
         val nonActivityChartView = CartesianChartView(mainActivity.applicationContext)
-        val handler = MarkerHandler(nonActivityChartView, wiFiDetailView, wiFiDetailPopup)
+        val handler = MarkerHandler(nonActivityChartView)
         val wiFiDetails = withWiFiDetails()
         val targetPoints = withTargetPoints()
         val pointMap = withPointMap(targetPoints, wiFiDetails)
         doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
         doReturn(targetPoints).whenever(lineCartesianLayerMarkerTarget).points
-        wiFiDetails.forEach { wiFiDetail ->
-            doReturn(view).whenever(wiFiDetailView).makeViewDetailed(wiFiDetail, context = nonActivityChartView.context)
-        }
         // Act
         val actual = handler.event(lastTouch, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
         // Assert
         assertThat(actual).isTrue()
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
-        wiFiDetails.forEach { wiFiDetail ->
-            verify(wiFiDetailView).makeViewDetailed(wiFiDetail, context = nonActivityChartView.context)
-        }
-        verify(wiFiDetailPopup).showSequence(listOf(view, view, view))
+        // Should not show popup because context is not an activity
+        val fragment = mainActivity.supportFragmentManager.findFragmentByTag("WiFiDetailPopup")
+        assertThat(fragment).isNull()
     }
 
     @Test
@@ -153,8 +133,6 @@ class MarkerHandlerTest {
         assertThat(actual).isFalse()
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
-        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>(), any())
-        verify(wiFiDetailPopup, never()).showSequence(any<List<View>>())
     }
 
     @Test
@@ -172,8 +150,6 @@ class MarkerHandlerTest {
         assertThat(actual).isFalse()
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
-        verify(wiFiDetailView, never()).makeViewDetailed(any<WiFiDetail>(), any<Int>(), any())
-        verify(wiFiDetailPopup, never()).showSequence(any<List<View>>())
     }
 
     private fun withWiFiDetails(): List<WiFiDetail> =

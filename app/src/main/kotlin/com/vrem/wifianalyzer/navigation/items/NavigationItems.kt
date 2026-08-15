@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.navigation.items
 
-import android.view.View
 import com.vrem.wifianalyzer.about.AboutFragment
 import com.vrem.wifianalyzer.export.Export
 import com.vrem.wifianalyzer.settings.SettingsFragment
@@ -34,6 +33,6 @@ val navigationItemChannelGraph: NavigationItem = FragmentItem(::ChannelGraphFrag
 val navigationItemTimeGraph: NavigationItem = FragmentItem(::TimeGraphFragment)
 val navigationItemExport: NavigationItem = ExportItem(Export())
 val navigationItemChannelAvailable: NavigationItem = FragmentItem(::ChannelAvailableFragment, false)
-val navigationItemVendors: NavigationItem = FragmentItem(::VendorFragment, false, View.GONE)
-val navigationItemSettings: NavigationItem = FragmentItem(::SettingsFragment, false, View.GONE)
-val navigationItemAbout: NavigationItem = FragmentItem(::AboutFragment, false, View.GONE)
+val navigationItemVendors: NavigationItem = FragmentItem(::VendorFragment, false)
+val navigationItemSettings: NavigationItem = FragmentItem(::SettingsFragment, false)
+val navigationItemAbout: NavigationItem = FragmentItem(::AboutFragment, false)

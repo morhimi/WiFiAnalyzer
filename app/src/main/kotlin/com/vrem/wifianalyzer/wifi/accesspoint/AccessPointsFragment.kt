@@ -21,24 +21,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import com.vrem.util.buildVersionP
-import com.vrem.wifianalyzer.databinding.AccessPointsContentBinding
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vrem.wifianalyzer.MainContext
+import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.settings.ThemeStyle
+import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
+import com.vrem.wifianalyzer.wifi.predicate.makeAccessPointsPredicate
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class AccessPointsFragment :
-    Fragment(),
-    OnRefreshListener {
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    lateinit var accessPointsAdapter: AccessPointsAdapter
-        private set
+class AccessPointsFragment : Fragment() {
     internal val wiFiScanViewModel: WiFiScanViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -46,41 +49,48 @@ class AccessPointsFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val binding = AccessPointsContentBinding.inflate(inflater, container, false)
-        swipeRefreshLayout = binding.accessPointsRefresh
-        swipeRefreshLayout.setOnRefreshListener(this)
-        if (buildVersionP()) {
-            swipeRefreshLayout.isRefreshing = false
-            swipeRefreshLayout.isEnabled = false
-        }
-        accessPointsAdapter = AccessPointsAdapter()
-        binding.accessPointsView.setAdapter(accessPointsAdapter)
-        accessPointsAdapter.expandableListView = binding.accessPointsView
-        return binding.root
-    }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                val settings = MainContext.INSTANCE.settings
+                val isDark = when (settings.themeStyle()) {
+                    ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                    ThemeStyle.LIGHT -> false
+                    ThemeStyle.SYSTEM -> isSystemInDarkTheme()
+                }
+                val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
+                val wiFiBand = settings.wiFiBand()
+                var isRefreshing by remember { mutableStateOf(false) }
+                val scope = rememberCoroutineScope()
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                wiFiScanViewModel.wiFiData.collect { wiFiData ->
-                    accessPointsAdapter.update(wiFiData)
+                WiFiAnalyzerTheme(darkTheme = isDark) {
+                    AccessPointsScreen(
+                        wiFiData = wiFiData,
+                        wiFiDetails = wiFiData.wiFiDetails(
+                            makeAccessPointsPredicate(settings),
+                            settings.sortBy(),
+                            settings.groupBy(),
+                        ),
+                        viewType = settings.accessPointView(),
+                        wiFiBandAvailable = wiFiBand.available(),
+                        wiFiBandName = getString(wiFiBand.textResource),
+                        scanThrottleEnabled = MainContext.INSTANCE.wiFiManagerWrapper.isScanThrottleEnabled(),
+                        permissionEnabled = MainContext.INSTANCE.permissionService.enabled(),
+                        isScanning = MainContext.INSTANCE.scannerService.running(),
+                        isRefreshing = isRefreshing,
+                        onRefresh = {
+                            scope.launch {
+                                isRefreshing = true
+                                wiFiScanViewModel.update()
+                                delay(1.seconds) // Visual feedback
+                                isRefreshing = false
+                            }
+                        },
+                        onDetailClick = { detail ->
+                            WiFiDetailPopup.show(parentFragmentManager, detail)
+                        },
+                    )
                 }
             }
         }
-    }
-
-    override fun onRefresh() {
-        swipeRefreshLayout.isRefreshing = true
-        wiFiScanViewModel.update()
-        swipeRefreshLayout.isRefreshing = false
-    }
-
-    override fun onResume() {
-        super.onResume()
-        onRefresh()
     }
 }

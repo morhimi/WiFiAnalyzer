@@ -17,6 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
+import androidx.fragment.app.FragmentActivity
 import com.patrykandpatrick.vico.views.cartesian.CartesianChart
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
@@ -26,13 +27,11 @@ import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarker
 import com.patrykandpatrick.vico.views.common.Point
 import com.vrem.util.findActivity
 import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
-import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailView
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
+@com.vrem.annotation.OpenClass
 class MarkerHandler(
     private val chartView: CartesianChartView,
-    private val wiFiDetailView: WiFiDetailView = WiFiDetailView(),
-    private val wiFiDetailPopup: WiFiDetailPopup = WiFiDetailPopup(),
 ) {
     fun event(
         touch: Point,
@@ -48,12 +47,10 @@ class MarkerHandler(
         val markerPoints = points.map { MarkerPoint(DataPoint(it.entry.x.toInt(), it.entry.y.toInt()), it.canvasY) }
         val wiFiDetails = matchDetails(markerPoints, lineTarget.canvasX, touch, thresholdPx, dataPointToDetail)
         if (wiFiDetails.isNotEmpty()) {
-            val targetContext = chartView.findActivity() ?: chartView.context
-            val views =
-                wiFiDetails.map { detail ->
-                    wiFiDetailView.makeViewDetailed(detail, context = targetContext)
-                }
-            runCatching { wiFiDetailPopup.showSequence(views) }
+            val fragmentActivity = chartView.findActivity() as? FragmentActivity
+            fragmentActivity?.let {
+                runCatching { WiFiDetailPopup.showSequence(it.supportFragmentManager, wiFiDetails) }
+            }
             return true
         }
         return false

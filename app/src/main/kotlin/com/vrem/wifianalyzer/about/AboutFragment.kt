@@ -27,6 +27,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
@@ -38,6 +39,7 @@ import com.vrem.util.readFile
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.settings.ThemeStyle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -52,7 +54,13 @@ class AboutFragment : Fragment() {
         val wiFiManagerWrapper = MainContext.INSTANCE.wiFiManagerWrapper
         return ComposeView(requireContext()).apply {
             setContent {
-                WiFiAnalyzerTheme {
+                val settings = MainContext.INSTANCE.settings
+                val isDark = when (settings.themeStyle()) {
+                    ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                    ThemeStyle.LIGHT -> false
+                    ThemeStyle.SYSTEM -> isSystemInDarkTheme()
+                }
+                WiFiAnalyzerTheme(darkTheme = isDark) {
                     AboutScreen(
                         applicationName = getString(R.string.app_full_name),
                         packageName = activity.packageName,

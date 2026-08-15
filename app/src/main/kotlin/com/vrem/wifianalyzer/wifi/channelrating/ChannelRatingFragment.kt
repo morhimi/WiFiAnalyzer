@@ -22,23 +22,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ListView
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import com.vrem.util.buildVersionP
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
-import com.vrem.wifianalyzer.databinding.ChannelRatingContentBinding
+import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.settings.ThemeStyle
+import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class ChannelRatingFragment :
-    Fragment(),
-    OnRefreshListener {
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+class ChannelRatingFragment : Fragment() {
     lateinit var channelRatingAdapter: ChannelRatingAdapter
         private set
     internal val wiFiScanViewModel: WiFiScanViewModel by activityViewModels()
@@ -48,41 +52,52 @@ class ChannelRatingFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val binding: ChannelRatingContentBinding = ChannelRatingContentBinding.inflate(inflater, container, false)
-        swipeRefreshLayout = binding.channelRatingRefresh
-        swipeRefreshLayout.setOnRefreshListener(this)
-        if (buildVersionP()) {
-            swipeRefreshLayout.isRefreshing = false
-            swipeRefreshLayout.isEnabled = false
-        }
-        channelRatingAdapter = ChannelRatingAdapter(requireActivity(), binding.channelRatingBest)
-        val listView: ListView = binding.channelRatingRefresh.findViewById(R.id.channelRatingView)
-        listView.adapter = channelRatingAdapter
-        return binding.root
-    }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                val settings = MainContext.INSTANCE.settings
+                val isDark = when (settings.themeStyle()) {
+                    ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                    ThemeStyle.LIGHT -> false
+                    ThemeStyle.SYSTEM -> isSystemInDarkTheme()
+                }
+                val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
+                val wiFiBand = settings.wiFiBand()
+                var isRefreshing by remember { mutableStateOf(false) }
+                val scope = rememberCoroutineScope()
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                wiFiScanViewModel.wiFiData.collect { wiFiData ->
-                    channelRatingAdapter.update(wiFiData)
+                WiFiAnalyzerTheme(darkTheme = isDark) {
+                    ChannelRatingScreen(
+                        wiFiData = wiFiData,
+                        wiFiBandAvailable = wiFiBand.available(),
+                        wiFiBandName = getString(wiFiBand.textResource),
+                        scanThrottleEnabled = MainContext.INSTANCE.wiFiManagerWrapper.isScanThrottleEnabled(),
+                        permissionEnabled = MainContext.INSTANCE.permissionService.enabled(),
+                        isScanning = MainContext.INSTANCE.scannerService.running(),
+                        isRefreshing = isRefreshing,
+                        onRefresh = {
+                            scope.launch {
+                                isRefreshing = true
+                                wiFiScanViewModel.update()
+                                delay(1.seconds)
+                                isRefreshing = false
+                            }
+                        },
+                        onBind = { binding ->
+                            channelRatingAdapter = ChannelRatingAdapter(requireActivity(), binding.channelRatingBest)
+                            val listView = binding.channelRatingRefresh.findViewById<android.widget.ListView>(R.id.channelRatingView)
+                            listView.adapter = channelRatingAdapter
+                        },
+                        onUpdate = {
+                            if (::channelRatingAdapter.isInitialized) {
+                                channelRatingAdapter.update(wiFiData)
+                            }
+                        },
+                        onDetailClick = { detail ->
+                            WiFiDetailPopup.show(parentFragmentManager, detail)
+                        }
+                    )
                 }
             }
         }
-    }
-
-    override fun onRefresh() {
-        swipeRefreshLayout.isRefreshing = true
-        wiFiScanViewModel.update()
-        swipeRefreshLayout.isRefreshing = false
-    }
-
-    override fun onResume() {
-        super.onResume()
-        onRefresh()
     }
 }

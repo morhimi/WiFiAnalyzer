@@ -21,27 +21,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
-import com.vrem.util.buildVersionP
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vrem.wifianalyzer.MainContext
-import com.vrem.wifianalyzer.databinding.GraphContentBinding
+import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
+import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
 import com.vrem.wifianalyzer.wifi.graphutils.GraphAdapter
+import com.vrem.wifianalyzer.wifi.graphutils.WiFiGraphScreen
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class ChannelGraphFragment :
-    Fragment(),
-    OnRefreshListener {
-    private var _binding: GraphContentBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+class ChannelGraphFragment : Fragment() {
     lateinit var graphAdapter: GraphAdapter
         private set
     internal val wiFiScanViewModel: WiFiScanViewModel by activityViewModels()
@@ -51,48 +53,52 @@ class ChannelGraphFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        _binding = GraphContentBinding.inflate(inflater, container, false)
-        swipeRefreshLayout = binding.graphRefresh
-        swipeRefreshLayout.setOnRefreshListener(this)
-        if (buildVersionP()) {
-            swipeRefreshLayout.isRefreshing = false
-            swipeRefreshLayout.isEnabled = false
-        }
         val channelGraphs = WiFiBand.entries.map { wiFiBand -> ChannelGraph(wiFiBand, context = inflater.context) }
         graphAdapter = GraphAdapter(channelGraphs)
-        graphAdapter.graphs().forEach { binding.graphFlipper.addView(it) }
-        return binding.root
-    }
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?,
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                wiFiScanViewModel.wiFiData.collect { wiFiData ->
-                    graphAdapter.update(wiFiData)
-                    binding.graphFlipper.displayedChild = MainContext.INSTANCE.settings.wiFiBand().ordinal
+        return ComposeView(requireContext()).apply {
+            setContent {
+                val settings = MainContext.INSTANCE.settings
+                val isDark = when (settings.themeStyle()) {
+                    ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                    ThemeStyle.LIGHT -> false
+                    ThemeStyle.SYSTEM -> isSystemInDarkTheme()
+                }
+                val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
+                val wiFiBand = settings.wiFiBand()
+                var isRefreshing by remember { mutableStateOf(false) }
+                val scope = rememberCoroutineScope()
+
+                WiFiAnalyzerTheme(darkTheme = isDark) {
+                    WiFiGraphScreen(
+                        wiFiData = wiFiData,
+                        graphAdapter = graphAdapter,
+                        displayedChild = wiFiBand.ordinal,
+                        wiFiBandAvailable = wiFiBand.available(),
+                        wiFiBandName = getString(wiFiBand.textResource),
+                        scanThrottleEnabled = MainContext.INSTANCE.wiFiManagerWrapper.isScanThrottleEnabled(),
+                        permissionEnabled = MainContext.INSTANCE.permissionService.enabled(),
+                        isScanning = MainContext.INSTANCE.scannerService.running(),
+                        isRefreshing = isRefreshing,
+                        onRefresh = {
+                            scope.launch {
+                                isRefreshing = true
+                                wiFiScanViewModel.update()
+                                delay(1.seconds)
+                                isRefreshing = false
+                            }
+                        },
+                        onDetailClick = { detail ->
+                            WiFiDetailPopup.show(parentFragmentManager, detail)
+                        }
+                    )
                 }
             }
         }
     }
 
-    override fun onRefresh() {
-        swipeRefreshLayout.isRefreshing = true
-        wiFiScanViewModel.update()
-        swipeRefreshLayout.isRefreshing = false
-    }
-
-    override fun onResume() {
-        super.onResume()
-        onRefresh()
-    }
-
     override fun onDestroyView() {
         graphAdapter.destroy()
-        _binding = null
         super.onDestroyView()
     }
 }

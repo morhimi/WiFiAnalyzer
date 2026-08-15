@@ -17,44 +17,96 @@
  */
 package com.vrem.wifianalyzer.wifi.detailview
 
-import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
-import android.view.View
+import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
+import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 import com.vrem.annotation.OpenClass
-import com.vrem.util.findActivity
 import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
+import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 @OpenClass
-class WiFiDetailPopup {
-    fun show(
-        view: View,
-        wiFiDetail: WiFiDetail? = null,
-    ): AlertDialog {
-        val targetContext = view.findActivity() ?: view.context
-        val builder = AlertDialog.Builder(targetContext).setView(view)
-        wiFiDetail?.let { detail ->
-            if (detail.wiFiIdentifier.bssid.isNotBlank()) {
-                builder.setNeutralButton(R.string.ap_alias_edit) { dialog, _ ->
-                    dialog.dismiss()
-                    showAliasDialog(targetContext, detail)
-                }
-            }
+class WiFiDetailPopup : DialogFragment() {
+
+    companion object {
+        private var wiFiDetailsList: List<WiFiDetail> = emptyList()
+        private var currentIndex: Int = 0
+
+        fun show(
+            fragmentManager: FragmentManager,
+            wiFiDetail: WiFiDetail,
+        ) {
+            wiFiDetailsList = listOf(wiFiDetail)
+            currentIndex = 0
+            WiFiDetailPopup().show(fragmentManager, "WiFiDetailPopup")
         }
-        val alertDialog: AlertDialog =
-            builder
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    dialog.cancel()
-                }.create()
-        alertDialog.show()
-        return alertDialog
+
+        fun showSequence(
+            fragmentManager: FragmentManager,
+            wiFiDetails: List<WiFiDetail>,
+        ) {
+            wiFiDetailsList = wiFiDetails
+            currentIndex = 0
+            WiFiDetailPopup().show(fragmentManager, "WiFiDetailPopup")
+        }
     }
 
-    fun showAliasDialog(
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val detail = wiFiDetailsList.getOrNull(currentIndex) ?: return super.onCreateDialog(savedInstanceState)
+
+        val composeView =
+            ComposeView(requireContext()).apply {
+                setContent {
+                    val settings = MainContext.INSTANCE.settings
+                    val isDark = when (settings.themeStyle()) {
+                        ThemeStyle.DARK, ThemeStyle.BLACK -> true
+                        ThemeStyle.LIGHT -> false
+                        ThemeStyle.SYSTEM -> isSystemInDarkTheme()
+                    }
+                    WiFiAnalyzerTheme(darkTheme = isDark) {
+                        WiFiDetailContent(wiFiDetail = detail)
+                    }
+                }
+            }
+
+        val builder = AlertDialog.Builder(requireContext()).setView(composeView)
+
+        val isSequence = wiFiDetailsList.size > 1
+        val isLast = currentIndex == (wiFiDetailsList.size - 1)
+
+        if (isSequence) {
+            builder.setNegativeButton(R.string.filter_close) { _, _ -> dismiss() }
+            builder.setPositiveButton(android.R.string.ok) { _, _ ->
+                dismiss()
+                if (!isLast) {
+                    currentIndex++
+                    WiFiDetailPopup().show(parentFragmentManager, "WiFiDetailPopup")
+                }
+            }
+        } else {
+            if (detail.wiFiIdentifier.bssid.isNotBlank()) {
+                builder.setNeutralButton(R.string.ap_alias_edit) { _, _ ->
+                    dismiss()
+                    showAliasDialog(requireContext(), detail)
+                }
+            }
+            builder.setPositiveButton(android.R.string.ok) { _, _ -> dismiss() }
+        }
+
+        return builder.create()
+    }
+
+    private fun showAliasDialog(
         context: Context,
         wiFiDetail: WiFiDetail,
     ): AlertDialog {
@@ -95,53 +147,5 @@ class WiFiDetailPopup {
         val alertDialog = builder.create()
         alertDialog.show()
         return alertDialog
-    }
-
-    fun showSequence(views: List<View>): AlertDialog {
-        if (views.size <= 1) return show(views.first())
-        return showAtIndex(views, 0)
-    }
-
-    private fun showAtIndex(
-        views: List<View>,
-        index: Int,
-    ): AlertDialog {
-        val view = views[index]
-        val isLast = index == views.size - 1
-        val targetContext = view.findActivity() ?: view.context
-        val builder =
-            AlertDialog
-                .Builder(targetContext)
-                .setView(view)
-                .setNegativeButton(R.string.filter_close) { dialog, _ -> dialog.cancel() }
-        if (!isLast) {
-            builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-                showAtIndex(views, index + 1)
-            }
-        }
-        val alertDialog = builder.create()
-        alertDialog.show()
-        return alertDialog
-    }
-
-    fun attach(
-        view: View,
-        wiFiDetail: WiFiDetail,
-    ) {
-        view.setOnClickListener {
-            val targetContext = it.findActivity() ?: it.context
-            runCatching { show(WiFiDetailView().makeViewDetailed(wiFiDetail, context = targetContext), wiFiDetail) }
-        }
-    }
-
-    fun attachToRow(
-        row: View,
-        wiFiDetail: WiFiDetail,
-    ) {
-        row.findViewById<View>(R.id.attachPopup)?.let {
-            attach(it, wiFiDetail)
-            attach(row.findViewById(R.id.ssid), wiFiDetail)
-        }
     }
 }

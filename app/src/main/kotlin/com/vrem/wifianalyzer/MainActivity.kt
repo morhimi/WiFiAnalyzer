@@ -24,7 +24,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.GravityCompat
@@ -38,7 +37,6 @@ import com.vrem.wifianalyzer.navigation.NavigationMenuController
 import com.vrem.wifianalyzer.navigation.options.OptionMenu
 import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
-import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionView
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 
 @OpenClass
@@ -50,7 +48,6 @@ class MainActivity :
     internal lateinit var mainReload: MainReload
     internal lateinit var navigationMenuController: NavigationMenuController
     internal lateinit var optionMenu: OptionMenu
-    internal lateinit var connectionView: ConnectionView
 
     override fun attachBaseContext(newBase: Context) =
         super.attachBaseContext(newBase.createContext(Settings(Repository(newBase)).languageLocale()))
@@ -81,8 +78,6 @@ class MainActivity :
         navigationMenuController = NavigationMenuController(this)
         navigationMenuController.currentNavigationMenu(settings.selectedMenu())
         onNavigationItemSelected(currentMenuItem())
-
-        connectionView = ConnectionView(this)
 
         onBackPressedDispatcher.addCallback(this, MainActivityBackPressed(this))
     }
@@ -154,7 +149,6 @@ class MainActivity :
     public override fun onPause() {
         val scannerService: ScannerService = MainContext.INSTANCE.scannerService
         scannerService.pause()
-        scannerService.unregister(connectionView)
         updateActionBar()
         super.onPause()
     }
@@ -171,7 +165,6 @@ class MainActivity :
             scannerService.pause()
         }
         updateActionBar()
-        scannerService.register(connectionView)
     }
 
     public override fun onStop() {
@@ -217,8 +210,4 @@ class MainActivity :
     }
 
     override fun navigationView(): NavigationView = navigationMenuController.drawerNavigationView
-
-    fun mainConnectionVisibility(visibility: Int) {
-        findViewById<View>(R.id.main_connection).visibility = visibility
-    }
 }

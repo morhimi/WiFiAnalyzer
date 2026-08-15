@@ -28,5 +28,4 @@ interface NavigationItem {
     )
 
     val registered: Boolean get() = false
-    val visibility: Int get() = View.GONE
 }
