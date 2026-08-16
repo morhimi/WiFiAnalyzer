@@ -32,22 +32,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.vrem.wifianalyzer.R
-import com.vrem.wifianalyzer.vendor.model.VendorService
+import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 
 @Composable
-fun VendorsScreen(vendorService: VendorService) {
-    var searchQuery by remember { mutableStateOf("") }
-    val vendors = remember(searchQuery) { vendorService.findVendors(searchQuery) }
-
+fun VendorsScreen(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    vendors: List<String>,
+    findMacAddresses: (String) -> List<String>,
+) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
@@ -55,7 +54,7 @@ fun VendorsScreen(vendorService: VendorService) {
         Column(modifier = Modifier.fillMaxSize()) {
             TextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = onSearchQueryChange,
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -69,7 +68,7 @@ fun VendorsScreen(vendorService: VendorService) {
                 items(vendors) { vendor ->
                     VendorItem(
                         name = vendor,
-                        macs = vendorService.findMacAddresses(vendor),
+                        macs = findMacAddresses(vendor),
                     )
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 }
@@ -99,6 +98,19 @@ private fun VendorItem(
             text = macs.joinToString(", "),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun VendorsScreenPreview() {
+    WiFiAnalyzerTheme {
+        VendorsScreen(
+            searchQuery = "",
+            onSearchQueryChange = {},
+            vendors = listOf("Apple", "Google", "Cisco"),
+            findMacAddresses = { listOf("00:11:22", "33:44:55") },
         )
     }
 }

@@ -17,6 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.scanner
 
+import com.vrem.wifianalyzer.permission.PermissionService
+import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.SettingsData
+import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.assertj.core.api.Assertions.assertThat
@@ -30,22 +34,37 @@ import org.mockito.kotlin.whenever
 
 class WiFiScanViewModelTest {
     private val scannerService: ScannerService = mock()
+    private val settings: Settings = mock()
+    private val wiFiManagerWrapper: WiFiManagerWrapper = mock()
+    private val permissionService: PermissionService = mock()
     private val wiFiDataFlow = MutableStateFlow(WiFiData.EMPTY)
     private val runningFlow = MutableStateFlow(false)
+    private val settingsDataFlow = MutableStateFlow(SettingsData())
     private lateinit var fixture: WiFiScanViewModel
 
     @Before
     fun setUp() {
         whenever(scannerService.wiFiDataFlow).thenReturn(wiFiDataFlow)
         whenever(scannerService.runningFlow).thenReturn(runningFlow)
-        fixture = WiFiScanViewModel(scannerService)
+        whenever(settings.settingsData).thenReturn(settingsDataFlow)
+        fixture =
+            WiFiScanViewModel(
+                scannerService = scannerService,
+                settings = settings,
+                wiFiManagerWrapper = wiFiManagerWrapper,
+                permissionService = permissionService,
+            )
     }
 
     @After
     fun tearDown() {
         verify(scannerService).wiFiDataFlow
         verify(scannerService).runningFlow
+        verify(settings).settingsData
         verifyNoMoreInteractions(scannerService)
+        verifyNoMoreInteractions(settings)
+        verifyNoMoreInteractions(wiFiManagerWrapper)
+        verifyNoMoreInteractions(permissionService)
     }
 
     @Test
@@ -56,6 +75,19 @@ class WiFiScanViewModelTest {
     @Test
     fun isScanningExposesScannerServiceFlow() {
         assertThat(fixture.isScanning).isEqualTo(runningFlow)
+    }
+
+    @Test
+    fun settingsDataExposesSettingsFlow() {
+        assertThat(fixture.settingsData).isEqualTo(settingsDataFlow)
+    }
+
+    @Test
+    fun exposesInjectedDependencies() {
+        assertThat(fixture.wiFiManagerWrapper).isEqualTo(wiFiManagerWrapper)
+        assertThat(fixture.permissionService).isEqualTo(permissionService)
+        assertThat(fixture.scannerService).isEqualTo(scannerService)
+        assertThat(fixture.settings).isEqualTo(settings)
     }
 
     @Test

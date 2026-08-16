@@ -23,7 +23,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
@@ -40,18 +39,12 @@ import com.vrem.wifianalyzer.permission.ApplicationPermission
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
-import com.vrem.wifianalyzer.vendor.model.VendorService
-import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
-import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
-import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
-import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -59,27 +52,10 @@ class MainActivity : AppCompatActivity() {
     lateinit var settings: Settings
 
     @Inject
-    lateinit var wiFiManagerWrapper: WiFiManagerWrapper
-
-    @Inject
     lateinit var permissionService: PermissionService
 
     @Inject
     lateinit var scannerService: ScannerService
-
-    @Inject
-    lateinit var configuration: WiFiConfiguration
-
-    @Inject
-    lateinit var vendorService: VendorService
-
-    @Inject
-    lateinit var apAliasService: ApAliasService
-
-    @Inject
-    lateinit var filtersAdapter: FiltersAdapter
-
-    private val wiFiScanViewModel: WiFiScanViewModel by viewModels()
 
     internal lateinit var mainReload: MainReload
     internal lateinit var navController: NavHostController
@@ -124,18 +100,7 @@ class MainActivity : AppCompatActivity() {
                 val controller = rememberNavController()
                 navController = controller
 
-                WiFiAnalyzerApp(
-                    navController = controller,
-                    wiFiScanViewModel = wiFiScanViewModel,
-                    settings = settings,
-                    wiFiManagerWrapper = wiFiManagerWrapper,
-                    permissionService = permissionService,
-                    scannerService = scannerService,
-                    vendorService = vendorService,
-                    apAliasService = apAliasService,
-                    filtersAdapter = filtersAdapter,
-                    configuration = configuration,
-                )
+                WiFiAnalyzerApp(navController = controller)
             }
         }
 

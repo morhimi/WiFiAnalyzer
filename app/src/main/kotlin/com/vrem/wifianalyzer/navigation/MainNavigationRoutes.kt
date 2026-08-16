@@ -19,7 +19,6 @@ package com.vrem.wifianalyzer.navigation
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,18 +39,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
-import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.vrem.util.packageInfo
 import com.vrem.util.readFile
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.about.AboutScreen
-import com.vrem.wifianalyzer.permission.PermissionService
-import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.about.AboutViewModel
+import com.vrem.wifianalyzer.compose.MainViewModel
 import com.vrem.wifianalyzer.settings.SettingsScreen
 import com.vrem.wifianalyzer.vendor.VendorsScreen
-import com.vrem.wifianalyzer.vendor.model.VendorService
+import com.vrem.wifianalyzer.vendor.VendorsViewModel
 import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointsScreen
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.channelavailable.ChannelAvailableScreen
@@ -59,34 +57,27 @@ import com.vrem.wifianalyzer.wifi.channelgraph.ChannelGraph
 import com.vrem.wifianalyzer.wifi.channelrating.ChannelRatingScreen
 import com.vrem.wifianalyzer.wifi.graphutils.GraphAdapter
 import com.vrem.wifianalyzer.wifi.graphutils.WiFiGraphScreen
-import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.ChannelRating
 import com.vrem.wifianalyzer.wifi.model.SortBy
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.predicate.makeAccessPointsPredicate
 import com.vrem.wifianalyzer.wifi.predicate.predicate
-import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import com.vrem.wifianalyzer.wifi.timegraph.TimeGraph
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
-import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 
 @Composable
 fun AccessPointsRoute(
-    wiFiScanViewModel: WiFiScanViewModel,
-    settings: Settings,
-    wiFiManagerWrapper: WiFiManagerWrapper,
-    permissionService: PermissionService,
-    scannerService: ScannerService,
     onDetailClick: (WiFiDetail) -> Unit,
+    wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+    val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
+    val wiFiManagerWrapper = wiFiScanViewModel.wiFiManagerWrapper
+    val permissionService = wiFiScanViewModel.permissionService
+    val scannerService = wiFiScanViewModel.scannerService
 
     val wiFiDetails =
         remember(wiFiData, settingsData) {
@@ -125,15 +116,14 @@ fun AccessPointsRoute(
 
 @Composable
 fun ChannelRatingRoute(
-    wiFiScanViewModel: WiFiScanViewModel,
-    settings: Settings,
-    wiFiManagerWrapper: WiFiManagerWrapper,
-    permissionService: PermissionService,
-    scannerService: ScannerService,
     onDetailClick: (WiFiDetail) -> Unit,
+    wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+    val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
+    val wiFiManagerWrapper = wiFiScanViewModel.wiFiManagerWrapper
+    val permissionService = wiFiScanViewModel.permissionService
+    val scannerService = wiFiScanViewModel.scannerService
 
     val wiFiBand = settingsData.wiFiBand
     val countryCode = settingsData.countryCode
@@ -187,12 +177,8 @@ fun ChannelRatingRoute(
 
 @Composable
 fun ChannelGraphRoute(
-    wiFiScanViewModel: WiFiScanViewModel,
-    settings: Settings,
-    wiFiManagerWrapper: WiFiManagerWrapper,
-    permissionService: PermissionService,
-    scannerService: ScannerService,
     onDetailClick: (WiFiDetail) -> Unit,
+    wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
 
@@ -209,8 +195,11 @@ fun ChannelGraphRoute(
     }
 
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+    val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
     val wiFiBand = settingsData.wiFiBand
+    val wiFiManagerWrapper = wiFiScanViewModel.wiFiManagerWrapper
+    val permissionService = wiFiScanViewModel.permissionService
+    val scannerService = wiFiScanViewModel.scannerService
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -239,12 +228,8 @@ fun ChannelGraphRoute(
 
 @Composable
 fun TimeGraphRoute(
-    wiFiScanViewModel: WiFiScanViewModel,
-    settings: Settings,
-    wiFiManagerWrapper: WiFiManagerWrapper,
-    permissionService: PermissionService,
-    scannerService: ScannerService,
     onDetailClick: (WiFiDetail) -> Unit,
+    wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
 
@@ -261,8 +246,11 @@ fun TimeGraphRoute(
     }
 
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+    val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
     val wiFiBand = settingsData.wiFiBand
+    val wiFiManagerWrapper = wiFiScanViewModel.wiFiManagerWrapper
+    val permissionService = wiFiScanViewModel.permissionService
+    val scannerService = wiFiScanViewModel.scannerService
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -290,13 +278,20 @@ fun TimeGraphRoute(
 }
 
 @Composable
-fun VendorsRoute(vendorService: VendorService) {
-    VendorsScreen(vendorService = vendorService)
+fun VendorsRoute(viewModel: VendorsViewModel = hiltViewModel()) {
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val vendors by viewModel.vendors.collectAsStateWithLifecycle()
+    VendorsScreen(
+        searchQuery = searchQuery,
+        onSearchQueryChange = viewModel::onSearchQueryChange,
+        vendors = vendors,
+        findMacAddresses = viewModel::findMacAddresses,
+    )
 }
 
 @Composable
-fun ChannelAvailableRoute(settings: Settings) {
-    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
+fun ChannelAvailableRoute(viewModel: MainViewModel = hiltViewModel()) {
+    val settingsData by viewModel.settingsData.collectAsStateWithLifecycle()
     ChannelAvailableScreen(
         countryCode = settingsData.countryCode,
         languageLocale = settingsData.languageLocale,
@@ -304,8 +299,8 @@ fun ChannelAvailableRoute(settings: Settings) {
 }
 
 @Composable
-fun SettingsRoute(settings: Settings) {
-    SettingsScreen(settings = settings)
+fun SettingsRoute(viewModel: MainViewModel = hiltViewModel()) {
+    SettingsScreen(settings = viewModel.settings)
 }
 
 private data class LicenseDialogData(
@@ -315,10 +310,7 @@ private data class LicenseDialogData(
 )
 
 @Composable
-fun AboutRoute(
-    wiFiManagerWrapper: WiFiManagerWrapper,
-    configuration: WiFiConfiguration,
-) {
+fun AboutRoute(viewModel: AboutViewModel = hiltViewModel()) {
     val context = LocalContext.current
     var licenseData by remember { mutableStateOf<LicenseDialogData?>(null) }
 
@@ -353,15 +345,16 @@ fun AboutRoute(
         )
     }
 
+    val uiState = viewModel.uiState
     AboutScreen(
         applicationName = stringResource(R.string.app_full_name),
-        packageName = context.packageName,
-        versionInfo = version(context, configuration),
-        copyright = copyright(context),
-        device = device(),
-        isScanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
-        is5GHzBandSupported = wiFiManagerWrapper.is5GHzBandSupported(),
-        is6GHzBandSupported = wiFiManagerWrapper.is6GHzBandSupported(),
+        packageName = uiState.packageName,
+        versionInfo = uiState.versionInfo,
+        copyright = uiState.copyright,
+        device = uiState.device,
+        isScanThrottleEnabled = uiState.isScanThrottleEnabled,
+        is5GHzBandSupported = uiState.is5GHzBandSupported,
+        is6GHzBandSupported = uiState.is6GHzBandSupported,
         onWriteReview = { onWriteReview(context) },
         onShowLicense = { titleId, resourceId, isSmallFont ->
             licenseData = LicenseDialogData(titleId, resourceId, isSmallFont)
@@ -381,24 +374,3 @@ private fun onWriteReview(context: Context) {
         Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
     }
 }
-
-private fun device(): String = Build.MANUFACTURER + " - " + Build.BRAND + " - " + Build.MODEL
-
-private fun copyright(context: Context): String =
-    context.resources.getString(R.string.app_copyright) +
-        SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
-
-private fun version(
-    context: Context,
-    configuration: WiFiConfiguration,
-): String =
-    applicationVersion(context) +
-        (if (configuration.sizeAvailable) "S" else "") +
-        (if (configuration.largeScreen) "L" else "") +
-        " (" + Build.VERSION.RELEASE + "-" + Build.VERSION.SDK_INT + ")"
-
-private fun applicationVersion(context: Context): String =
-    runCatching {
-        val packageInfo = context.packageInfo()
-        packageInfo.versionName + " - " + PackageInfoCompat.getLongVersionCode(packageInfo)
-    }.getOrDefault("")

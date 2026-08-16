@@ -62,49 +62,35 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.MAIN_NAVIGATION
 import com.vrem.wifianalyzer.navigation.MainNavigationGraph
 import com.vrem.wifianalyzer.navigation.NavigationMenu
-import com.vrem.wifianalyzer.permission.PermissionService
-import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsData
-import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.detailview.ApAliasDialog
 import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailDialog
 import com.vrem.wifianalyzer.wifi.filter.FilterDialog
-import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
-import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
-import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
-import com.vrem.wifianalyzer.wifi.scanner.ScannerService
-import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun WiFiAnalyzerApp(
     navController: NavHostController,
-    wiFiScanViewModel: WiFiScanViewModel,
-    settings: Settings,
-    wiFiManagerWrapper: WiFiManagerWrapper,
-    permissionService: PermissionService,
-    scannerService: ScannerService,
-    vendorService: VendorService,
-    apAliasService: ApAliasService,
-    filtersAdapter: FiltersAdapter,
-    configuration: Configuration,
+    mainViewModel: MainViewModel = hiltViewModel(),
 ) {
-    val settingsData by settings.settingsData.collectAsStateWithLifecycle()
-    val isScanning by wiFiScanViewModel.isScanning.collectAsStateWithLifecycle()
+    val settingsData by mainViewModel.settingsData.collectAsStateWithLifecycle()
+    val isScanning by mainViewModel.isScanning.collectAsStateWithLifecycle()
+    val settings = mainViewModel.settings
+    val filtersAdapter = mainViewModel.filtersAdapter
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -133,10 +119,10 @@ fun WiFiAnalyzerApp(
             settings = settings,
             onApply = {
                 showFilterDialog = false
-                scannerService.update()
+                mainViewModel.updateScan()
             },
             onReset = {
-                scannerService.update()
+                mainViewModel.updateScan()
             },
             onDismiss = {
                 showFilterDialog = false
@@ -159,13 +145,11 @@ fun WiFiAnalyzerApp(
         ApAliasDialog(
             wiFiDetail = detail,
             onSave = { alias ->
-                apAliasService.saveAlias(detail.wiFiIdentifier.bssid, alias)
-                scannerService.update()
+                mainViewModel.saveAlias(detail.wiFiIdentifier.bssid, alias)
                 aliasEditDetail = null
             },
             onClear = {
-                apAliasService.removeAlias(detail.wiFiIdentifier.bssid)
-                scannerService.update()
+                mainViewModel.removeAlias(detail.wiFiIdentifier.bssid)
                 aliasEditDetail = null
             },
             onDismiss = {
@@ -206,7 +190,7 @@ fun WiFiAnalyzerApp(
                     currentMenu = currentMenu,
                     settingsData = settingsData,
                     isScanning = isScanning,
-                    onToggleScanner = { scannerService.toggle() },
+                    onToggleScanner = { mainViewModel.toggleScanning() },
                     onOpenDrawer = { scope.launch { drawerState.open() } },
                     onBandSelected = { band -> settings.wiFiBand(band) },
                     onFilterClick = { showFilterDialog = true },
@@ -229,13 +213,6 @@ fun WiFiAnalyzerApp(
         ) { innerPadding ->
             MainNavigationGraph(
                 navController = navController,
-                wiFiScanViewModel = wiFiScanViewModel,
-                settings = settings,
-                wiFiManagerWrapper = wiFiManagerWrapper,
-                permissionService = permissionService,
-                scannerService = scannerService,
-                vendorService = vendorService,
-                configuration = configuration,
                 onDetailClick = { detail -> activeDetailList = listOf(detail) },
                 modifier = Modifier.padding(innerPadding),
             )

@@ -15,34 +15,50 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.vrem.wifianalyzer.wifi.scanner
+package com.vrem.wifianalyzer.compose
 
 import androidx.lifecycle.ViewModel
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsData
-import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
-import com.vrem.wifianalyzer.wifi.model.WiFiData
+import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
+import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 @OpenClass
-class WiFiScanViewModel
+class MainViewModel
     @Inject
     constructor(
-        val scannerService: ScannerService,
         val settings: Settings,
-        val wiFiManagerWrapper: WiFiManagerWrapper,
-        val permissionService: PermissionService,
+        val scannerService: ScannerService,
+        val apAliasService: ApAliasService,
+        val filtersAdapter: FiltersAdapter,
     ) : ViewModel() {
-        val wiFiData: StateFlow<WiFiData> = scannerService.wiFiDataFlow
-        val isScanning: StateFlow<Boolean> = scannerService.runningFlow
         val settingsData: StateFlow<SettingsData> = settings.settingsData
+        val isScanning: StateFlow<Boolean> = scannerService.runningFlow
 
-        fun update() {
+        fun toggleScanning() {
+            scannerService.toggle()
+        }
+
+        fun updateScan() {
+            scannerService.update()
+        }
+
+        fun saveAlias(
+            bssid: String,
+            alias: String,
+        ) {
+            apAliasService.saveAlias(bssid, alias)
+            scannerService.update()
+        }
+
+        fun removeAlias(bssid: String) {
+            apAliasService.removeAlias(bssid)
             scannerService.update()
         }
     }

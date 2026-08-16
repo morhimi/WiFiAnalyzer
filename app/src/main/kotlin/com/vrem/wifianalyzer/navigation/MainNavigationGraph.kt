@@ -22,25 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.vrem.wifianalyzer.permission.PermissionService
-import com.vrem.wifianalyzer.settings.Settings
-import com.vrem.wifianalyzer.vendor.model.VendorService
-import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
-import com.vrem.wifianalyzer.wifi.scanner.ScannerService
-import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
-import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 
 @Composable
 fun MainNavigationGraph(
     navController: NavHostController,
-    wiFiScanViewModel: WiFiScanViewModel,
-    settings: Settings,
-    wiFiManagerWrapper: WiFiManagerWrapper,
-    permissionService: PermissionService,
-    scannerService: ScannerService,
-    vendorService: VendorService,
-    configuration: WiFiConfiguration,
     onDetailClick: (WiFiDetail) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -50,59 +36,28 @@ fun MainNavigationGraph(
         modifier = modifier,
     ) {
         composable(NavigationMenu.ACCESS_POINTS.route) {
-            AccessPointsRoute(
-                wiFiScanViewModel = wiFiScanViewModel,
-                settings = settings,
-                wiFiManagerWrapper = wiFiManagerWrapper,
-                permissionService = permissionService,
-                scannerService = scannerService,
-                onDetailClick = onDetailClick,
-            )
+            AccessPointsRoute(onDetailClick = onDetailClick)
         }
         composable(NavigationMenu.CHANNEL_RATING.route) {
-            ChannelRatingRoute(
-                wiFiScanViewModel = wiFiScanViewModel,
-                settings = settings,
-                wiFiManagerWrapper = wiFiManagerWrapper,
-                permissionService = permissionService,
-                scannerService = scannerService,
-                onDetailClick = onDetailClick,
-            )
+            ChannelRatingRoute(onDetailClick = onDetailClick)
         }
         composable(NavigationMenu.CHANNEL_GRAPH.route) {
-            ChannelGraphRoute(
-                wiFiScanViewModel = wiFiScanViewModel,
-                settings = settings,
-                wiFiManagerWrapper = wiFiManagerWrapper,
-                permissionService = permissionService,
-                scannerService = scannerService,
-                onDetailClick = onDetailClick,
-            )
+            ChannelGraphRoute(onDetailClick = onDetailClick)
         }
         composable(NavigationMenu.TIME_GRAPH.route) {
-            TimeGraphRoute(
-                wiFiScanViewModel = wiFiScanViewModel,
-                settings = settings,
-                wiFiManagerWrapper = wiFiManagerWrapper,
-                permissionService = permissionService,
-                scannerService = scannerService,
-                onDetailClick = onDetailClick,
-            )
+            TimeGraphRoute(onDetailClick = onDetailClick)
         }
         composable(NavigationMenu.ABOUT.route) {
-            AboutRoute(
-                wiFiManagerWrapper = wiFiManagerWrapper,
-                configuration = configuration,
-            )
+            AboutRoute()
         }
         composable(NavigationMenu.VENDORS.route) {
-            VendorsRoute(vendorService = vendorService)
+            VendorsRoute()
         }
         composable(NavigationMenu.CHANNEL_AVAILABLE.route) {
-            ChannelAvailableRoute(settings = settings)
+            ChannelAvailableRoute()
         }
         composable(NavigationMenu.SETTINGS.route) {
-            SettingsRoute(settings = settings)
+            SettingsRoute()
         }
     }
 }
