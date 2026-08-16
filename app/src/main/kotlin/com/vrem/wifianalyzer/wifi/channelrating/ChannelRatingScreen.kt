@@ -30,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionHeader
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.band.WiFiChannel
@@ -56,50 +55,48 @@ fun ChannelRatingScreen(
     onRefresh: () -> Unit,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
-    WiFiAnalyzerTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+    ) {
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
         ) {
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    ConnectionHeader(
-                        wiFiData = wiFiData,
-                        wiFiBandAvailable = wiFiBandAvailable,
-                        wiFiBandName = wiFiBandName,
-                        scanThrottleEnabled = scanThrottleEnabled,
-                        permissionEnabled = permissionEnabled,
-                        isScanning = isScanning,
-                        onDetailClick = onDetailClick,
-                    )
+            Column(modifier = Modifier.fillMaxSize()) {
+                ConnectionHeader(
+                    wiFiData = wiFiData,
+                    wiFiBandAvailable = wiFiBandAvailable,
+                    wiFiBandName = wiFiBandName,
+                    scanThrottleEnabled = scanThrottleEnabled,
+                    permissionEnabled = permissionEnabled,
+                    isScanning = isScanning,
+                    onDetailClick = onDetailClick,
+                )
 
-                    LazyColumn(
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .padding(horizontal = 16.dp),
-                    ) {
-                        item {
-                            ChannelRatingBest(
-                                wiFiBand = wiFiBand,
-                                bestChannels = bestChannels,
-                            )
-                        }
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(horizontal = 16.dp),
+                ) {
+                    item {
+                        ChannelRatingBest(
+                            wiFiBand = wiFiBand,
+                            bestChannels = bestChannels,
+                        )
+                    }
 
-                        items(wiFiChannels) { channel ->
-                            ChannelRatingItem(
-                                wiFiChannel = channel,
-                                wiFiWidthName =
-                                    stringResource(
-                                        id = wiFiBand.wiFiChannels.wiFiWidthByChannel(channel.channel).textResource,
-                                    ),
-                                apCount = channelRating.count(channel),
-                                strength = channelRating.strength(channel),
-                            )
-                        }
+                    items(wiFiChannels) { channel ->
+                        ChannelRatingItem(
+                            wiFiChannel = channel,
+                            wiFiWidthName =
+                                stringResource(
+                                    id = wiFiBand.wiFiChannels.wiFiWidthByChannel(channel.channel).textResource,
+                                ),
+                            apCount = channelRating.count(channel),
+                            strength = channelRating.strength(channel),
+                        )
                     }
                 }
             }

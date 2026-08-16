@@ -53,7 +53,7 @@ class Repository(
     fun stringAsInteger(
         key: Int,
         defaultValue: Int,
-    ): Int = string(key, defaultValue.toString()).toInt()
+    ): Int = string(key, defaultValue.toString()).toIntOrNull() ?: defaultValue
 
     fun string(
         key: Int,

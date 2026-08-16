@@ -24,6 +24,7 @@ import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.R.string.wifi_off_on_exit_key
 import com.vrem.wifianalyzer.RobolectricUtil
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -31,8 +32,13 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class SettingsFragmentTest {
-    val fixture = SettingsFragment()
-    val fragment = RobolectricUtil.INSTANCE.startFragment(fixture)
+    private lateinit var fixture: SettingsFragment
+
+    @Before
+    fun setUp() {
+        fixture = SettingsFragment()
+        RobolectricUtil.INSTANCE.startFragment(fixture)
+    }
 
     @Test
     fun onCreate() {

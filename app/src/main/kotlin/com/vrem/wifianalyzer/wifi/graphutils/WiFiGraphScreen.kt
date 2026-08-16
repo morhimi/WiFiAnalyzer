@@ -27,7 +27,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionHeader
 import com.vrem.wifianalyzer.wifi.model.WiFiData
@@ -49,38 +48,36 @@ fun WiFiGraphScreen(
     onRefresh: () -> Unit,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
-    WiFiAnalyzerTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background,
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+    ) {
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
         ) {
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    ConnectionHeader(
-                        wiFiData = wiFiData,
-                        wiFiBandAvailable = wiFiBandAvailable,
-                        wiFiBandName = wiFiBandName,
-                        scanThrottleEnabled = scanThrottleEnabled,
-                        permissionEnabled = permissionEnabled,
-                        isScanning = isScanning,
-                        onDetailClick = onDetailClick,
-                    )
-                    AndroidView(
-                        modifier = Modifier.weight(1f),
-                        factory = { context ->
-                            ViewFlipper(context).apply {
-                                graphAdapter.graphNotifiers.forEach { addView(it.graph()) }
-                            }
-                        },
-                        update = { flipper ->
-                            flipper.displayedChild = displayedChild
-                            graphAdapter.update(wiFiData, settingsData)
-                        },
-                    )
-                }
+            Column(modifier = Modifier.fillMaxSize()) {
+                ConnectionHeader(
+                    wiFiData = wiFiData,
+                    wiFiBandAvailable = wiFiBandAvailable,
+                    wiFiBandName = wiFiBandName,
+                    scanThrottleEnabled = scanThrottleEnabled,
+                    permissionEnabled = permissionEnabled,
+                    isScanning = isScanning,
+                    onDetailClick = onDetailClick,
+                )
+                AndroidView(
+                    modifier = Modifier.weight(1f),
+                    factory = { context ->
+                        ViewFlipper(context).apply {
+                            graphAdapter.graphNotifiers.forEach { addView(it.graph()) }
+                        }
+                    },
+                    update = { flipper ->
+                        flipper.displayedChild = displayedChild
+                        graphAdapter.update(wiFiData, settingsData)
+                    },
+                )
             }
         }
     }

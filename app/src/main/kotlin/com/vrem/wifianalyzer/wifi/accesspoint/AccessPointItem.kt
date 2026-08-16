@@ -83,7 +83,12 @@ fun AccessPointItem(
                     )
                 }
                 Text(
-                    text = wiFiDetail.wiFiIdentifier.title,
+                    text =
+                        if (!isChild && wiFiDetail.children.isNotEmpty()) {
+                            "${wiFiDetail.wiFiIdentifier.title} (${wiFiDetail.children.size + 1})"
+                        } else {
+                            wiFiDetail.wiFiIdentifier.title
+                        },
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge,
                 )

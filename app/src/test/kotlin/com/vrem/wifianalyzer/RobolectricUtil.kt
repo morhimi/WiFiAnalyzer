@@ -26,16 +26,18 @@ enum class RobolectricUtil {
     INSTANCE,
     ;
 
-    val activity: MainActivity =
-        Robolectric
-            .buildActivity(MainActivity::class.java)
-            .create()
-            .resume()
-            .get()
+    val activity: MainActivity
+        get() =
+            Robolectric
+                .buildActivity(MainActivity::class.java)
+                .create()
+                .resume()
+                .get()
 
     fun startFragment(fragment: Fragment) {
-        activity.viewModelStore.clear()
-        val fragmentManager = activity.supportFragmentManager
+        val currentActivity = activity
+        currentActivity.viewModelStore.clear()
+        val fragmentManager = currentActivity.supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.add(fragment, null)
         fragmentTransaction.commit()

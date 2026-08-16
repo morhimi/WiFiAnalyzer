@@ -26,7 +26,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
-import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 
 @Composable
 fun AccessPointsList(
@@ -35,14 +34,20 @@ fun AccessPointsList(
     onDetailClick: (WiFiDetail) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val expandedStates = remember { mutableStateMapOf<WiFiIdentifier, Boolean>() }
+    val expandedStates = remember { mutableStateMapOf<String, Boolean>() }
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(
             items = wiFiDetails,
             key = { it.wiFiIdentifier.bssid + "-" + it.wiFiIdentifier.ssid + "-" + it.children.size },
         ) { detail ->
-            val isExpanded = expandedStates[detail.wiFiIdentifier] ?: false
+            val groupKey =
+                if (detail.children.isNotEmpty()) {
+                    detail.wiFiIdentifier.ssid + "-" + detail.wiFiSignal.primaryFrequency
+                } else {
+                    detail.wiFiIdentifier.bssid
+                }
+            val isExpanded = expandedStates[groupKey] ?: false
             AccessPointItem(
                 wiFiDetail = detail,
                 viewType = viewType,
@@ -50,7 +55,7 @@ fun AccessPointsList(
                 modifier =
                     Modifier.clickable {
                         if (detail.children.isNotEmpty()) {
-                            expandedStates[detail.wiFiIdentifier] = !isExpanded
+                            expandedStates[groupKey] = !isExpanded
                         } else {
                             onDetailClick(detail)
                         }
