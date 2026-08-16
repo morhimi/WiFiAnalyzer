@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.permission
 
-import android.app.Activity
 import android.content.DialogInterface
 import android.os.Build
 import android.view.View
@@ -64,32 +63,28 @@ class PermissionDialogTest {
     @Test
     fun okClick() {
         // setup
-        val activity: Activity = mock()
+        var okCalled = false
         val dialog: DialogInterface = mock()
-        val fixture = OkClick(activity)
+        val fixture = OkClick { okCalled = true }
         // execute
         fixture.onClick(dialog, 0)
         // validate
-        verify(
-            activity,
-        ).requestPermissions(arrayOf(ApplicationPermission.PERMISSION), ApplicationPermission.REQUEST_CODE)
+        assertThat(okCalled).isTrue()
         verify(dialog).dismiss()
-        verifyNoMoreInteractions(activity)
         verifyNoMoreInteractions(dialog)
     }
 
     @Test
     fun cancelClick() {
         // setup
-        val activity: Activity = mock()
+        var cancelCalled = false
         val dialog: DialogInterface = mock()
-        val fixture = CancelClick(activity)
+        val fixture = CancelClick { cancelCalled = true }
         // execute
         fixture.onClick(dialog, 0)
         // validate
-        verify(activity).finish()
+        assertThat(cancelCalled).isTrue()
         verify(dialog).dismiss()
-        verifyNoMoreInteractions(activity)
         verifyNoMoreInteractions(dialog)
     }
 }

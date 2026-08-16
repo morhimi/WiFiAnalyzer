@@ -27,25 +27,26 @@ import com.vrem.util.findActivity
 class ApplicationPermission(
     private val context: Context,
 ) {
-    fun check(targetContext: Context = context) {
+    fun check(
+        targetContext: Context = context,
+        onOk: () -> Unit = {},
+        onCancel: () -> Unit = {},
+    ) {
         if (!granted()) {
             val activity = targetContext.findActivity()
             if (activity != null && !activity.isFinishing) {
-                PermissionDialog(activity).show()
+                PermissionDialog(
+                    activity = activity,
+                    onOk = onOk,
+                    onCancel = onCancel,
+                ).show()
             }
         }
     }
-
-    fun granted(
-        requestCode: Int,
-        grantResults: IntArray,
-    ): Boolean =
-        requestCode == REQUEST_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
 
     fun granted(): Boolean = context.checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED
 
     companion object {
         internal const val PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
-        internal const val REQUEST_CODE = 0x123450
     }
 }

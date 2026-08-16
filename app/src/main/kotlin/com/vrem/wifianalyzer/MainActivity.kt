@@ -23,6 +23,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -41,6 +42,7 @@ import com.vrem.util.findByLanguageTag
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerApp
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 import com.vrem.wifianalyzer.di.settingsDataStore
+import com.vrem.wifianalyzer.permission.ApplicationPermission
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
@@ -90,6 +92,19 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var mainReload: MainReload
     internal lateinit var navController: NavHostController
     internal var showWiFiDetailsCallback: ((List<WiFiDetail>) -> Unit)? = null
+
+    internal val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                if (!permissionService.locationEnabled()) {
+                    startLocationSettings()
+                }
+                scannerService.resume()
+                update()
+            } else {
+                finish()
+            }
+        }
 
     fun showWiFiDetails(details: List<WiFiDetail>) {
         showWiFiDetailsCallback?.invoke(details)
@@ -161,17 +176,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray,
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (!permissionService.granted(requestCode, grantResults)) {
-            finish()
-        }
-    }
-
     internal val largeScreen: Boolean
         get() {
             val configuration = resources.configuration
@@ -214,7 +218,11 @@ class MainActivity : AppCompatActivity() {
             }
             scannerService.resume()
         } else {
-            permissionService.check(this)
+            permissionService.check(
+                context = this,
+                onOk = { permissionLauncher.launch(ApplicationPermission.PERMISSION) },
+                onCancel = { finish() },
+            )
         }
     }
 }

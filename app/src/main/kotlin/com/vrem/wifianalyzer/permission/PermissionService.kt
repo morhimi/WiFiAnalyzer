@@ -30,12 +30,16 @@ class PermissionService(
 
     fun locationEnabled(): Boolean = locationPermission.enabled()
 
-    fun check(context: Context? = null): Unit = applicationPermission.check(context ?: this.context)
-
-    fun granted(
-        requestCode: Int,
-        grantResults: IntArray,
-    ): Boolean = applicationPermission.granted(requestCode, grantResults)
+    fun check(
+        context: Context? = null,
+        onOk: () -> Unit = {},
+        onCancel: () -> Unit = {},
+    ): Unit =
+        applicationPermission.check(
+            targetContext = context ?: this.context,
+            onOk = onOk,
+            onCancel = onCancel,
+        )
 
     fun permissionGranted(): Boolean = applicationPermission.granted()
 }

@@ -22,8 +22,6 @@ import android.os.Build
 import android.provider.Settings
 import android.view.Window
 import android.view.WindowManager
-import androidx.appcompat.app.ActionBar
-import androidx.appcompat.widget.Toolbar
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
@@ -41,8 +39,6 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class ActivityUtilsTest {
     private val window: Window = mock()
-    private val actionBar: ActionBar = mock()
-    private val toolbar: Toolbar = mock()
     private val intent: Intent = mock()
     private val intentArgumentCaptor = argumentCaptor<Intent>()
     private val mainActivity: MainActivity = mock()
@@ -51,30 +47,10 @@ class ActivityUtilsTest {
     @After
     fun tearDown() {
         verifyNoMoreInteractions(mainActivity)
-        verifyNoMoreInteractions(toolbar)
-        verifyNoMoreInteractions(actionBar)
         verifyNoMoreInteractions(window)
         verifyNoMoreInteractions(settings)
         verifyNoMoreInteractions(intent)
     }
-
-/*
-    @Test
-    fun setupToolbar() {
-        // setup
-        doReturn(toolbar).whenever(mainActivity).findViewById<View>(R.id.toolbar)
-        doReturn(actionBar).whenever(mainActivity).supportActionBar
-        // execute
-        val actual = mainActivity.setupToolbar()
-        // validate
-        assertThat(actual).isEqualTo(toolbar)
-        verify(mainActivity).findViewById<View>(R.id.toolbar)
-        verify(mainActivity).supportActionBar
-        verify(mainActivity).setSupportActionBar(toolbar)
-        verify(actionBar).setHomeButtonEnabled(true)
-        verify(actionBar).setDisplayHomeAsUpEnabled(true)
-    }
-*/
 
     @Test
     fun keepScreenOnSwitchOn() {

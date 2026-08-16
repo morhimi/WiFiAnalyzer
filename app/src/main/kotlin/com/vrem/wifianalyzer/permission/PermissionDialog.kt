@@ -28,6 +28,8 @@ import com.vrem.wifianalyzer.R
 @OpenClass
 class PermissionDialog(
     private val activity: Activity,
+    private val onOk: () -> Unit = {},
+    private val onCancel: () -> Unit = { activity.finish() },
 ) {
     fun show(): View? {
         val view = activity.layoutInflater.inflate(R.layout.info_permission, null)
@@ -38,34 +40,34 @@ class PermissionDialog(
             .setView(view)
             .setTitle(R.string.app_full_name)
             .setIcon(R.drawable.ic_app)
-            .setPositiveButton(android.R.string.ok, OkClick(activity))
-            .setNegativeButton(android.R.string.cancel, CancelClick(activity))
+            .setPositiveButton(android.R.string.ok, OkClick(onOk))
+            .setNegativeButton(android.R.string.cancel, CancelClick(onCancel))
             .create()
             .show()
         return view
     }
 
     internal class OkClick(
-        private val activity: Activity,
+        private val onOk: () -> Unit,
     ) : DialogInterface.OnClickListener {
         override fun onClick(
             alertDialog: DialogInterface,
             which: Int,
         ) {
             alertDialog.dismiss()
-            activity.requestPermissions(arrayOf(ApplicationPermission.PERMISSION), ApplicationPermission.REQUEST_CODE)
+            onOk()
         }
     }
 
     internal class CancelClick(
-        private val activity: Activity,
+        private val onCancel: () -> Unit,
     ) : DialogInterface.OnClickListener {
         override fun onClick(
             alertDialog: DialogInterface,
             which: Int,
         ) {
             alertDialog.dismiss()
-            activity.finish()
+            onCancel()
         }
     }
 }
