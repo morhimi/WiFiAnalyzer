@@ -26,7 +26,6 @@ import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.views.common.Point
 import com.vrem.wifianalyzer.RobolectricUtil
-import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import org.assertj.core.api.Assertions.assertThat
@@ -56,6 +55,7 @@ class MarkerHandlerTest {
 
     @After
     fun tearDown() {
+        mainActivity.showWiFiDetailsCallback = null
         verifyNoMoreInteractions(lineCartesianLayerMarkerTarget)
     }
 
@@ -85,6 +85,8 @@ class MarkerHandlerTest {
     @Test
     fun eventShowsPopupWhenDetailsMatch() {
         // Arrange
+        var capturedDetails: List<WiFiDetail>? = null
+        mainActivity.showWiFiDetailsCallback = { capturedDetails = it }
         val wiFiDetails = withWiFiDetails()
         val targetPoints = withTargetPoints()
         val pointMap = withPointMap(targetPoints, wiFiDetails)
@@ -96,9 +98,7 @@ class MarkerHandlerTest {
         assertThat(actual).isTrue()
         verify(this.lineCartesianLayerMarkerTarget).canvasX
         verify(this.lineCartesianLayerMarkerTarget).points
-        val fragment = mainActivity.supportFragmentManager.findFragmentByTag("WiFiDetailPopup")
-        assertThat(fragment).isNotNull
-        assertThat(fragment).isInstanceOf(WiFiDetailPopup::class.java)
+        assertThat(capturedDetails).isEqualTo(wiFiDetails)
     }
 
     @Test

@@ -45,10 +45,10 @@ import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.vendor.model.VendorService
-import com.vrem.wifianalyzer.wifi.filter.Filter
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.ApAliasService
+import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -65,16 +65,16 @@ class MainActivity : AppCompatActivity() {
     lateinit var settings: Settings
 
     @Inject
-    lateinit var scannerService: ScannerService
+    lateinit var wiFiManagerWrapper: WiFiManagerWrapper
 
     @Inject
     lateinit var permissionService: PermissionService
 
     @Inject
-    lateinit var configuration: WiFiConfiguration
+    lateinit var scannerService: ScannerService
 
     @Inject
-    lateinit var wiFiManagerWrapper: WiFiManagerWrapper
+    lateinit var configuration: WiFiConfiguration
 
     @Inject
     lateinit var vendorService: VendorService
@@ -89,6 +89,11 @@ class MainActivity : AppCompatActivity() {
 
     internal lateinit var mainReload: MainReload
     internal lateinit var navController: NavHostController
+    internal var showWiFiDetailsCallback: ((List<WiFiDetail>) -> Unit)? = null
+
+    fun showWiFiDetails(details: List<WiFiDetail>) {
+        showWiFiDetailsCallback?.invoke(details)
+    }
 
     override fun attachBaseContext(newBase: Context) {
         val defaultLanguageTag = defaultLanguageTag()
@@ -133,8 +138,9 @@ class MainActivity : AppCompatActivity() {
                     permissionService = permissionService,
                     scannerService = scannerService,
                     vendorService = vendorService,
+                    apAliasService = apAliasService,
+                    filtersAdapter = filtersAdapter,
                     configuration = configuration,
-                    onFilterClick = { Filter.build(this, filtersAdapter, settings, scannerService).show() },
                 )
             }
         }

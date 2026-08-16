@@ -46,6 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,7 +79,13 @@ import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
+import com.vrem.wifianalyzer.wifi.detailview.ApAliasDialog
+import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailDialog
+import com.vrem.wifianalyzer.wifi.filter.FilterDialog
+import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
+import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import kotlinx.coroutines.launch
@@ -92,8 +99,9 @@ fun WiFiAnalyzerApp(
     permissionService: PermissionService,
     scannerService: ScannerService,
     vendorService: VendorService,
+    apAliasService: ApAliasService,
+    filtersAdapter: FiltersAdapter,
     configuration: Configuration,
-    onFilterClick: () -> Unit,
 ) {
     val settingsData by settings.settingsData.collectAsStateWithLifecycle()
     val isScanning by wiFiScanViewModel.isScanning.collectAsStateWithLifecycle()
@@ -105,6 +113,66 @@ fun WiFiAnalyzerApp(
     val currentMenu = NavigationMenu.findByRoute(currentRoute)
     val context = LocalContext.current
     val mainActivity = context as? MainActivity
+
+    var showFilterDialog by remember { mutableStateOf(false) }
+    var activeDetailList by remember { mutableStateOf<List<WiFiDetail>?>(null) }
+    var aliasEditDetail by remember { mutableStateOf<WiFiDetail?>(null) }
+
+    DisposableEffect(mainActivity) {
+        mainActivity?.showWiFiDetailsCallback = { details ->
+            activeDetailList = details
+        }
+        onDispose {
+            mainActivity?.showWiFiDetailsCallback = null
+        }
+    }
+
+    if (showFilterDialog) {
+        FilterDialog(
+            filtersAdapter = filtersAdapter,
+            settings = settings,
+            onApply = {
+                showFilterDialog = false
+                scannerService.update()
+            },
+            onReset = {
+                scannerService.update()
+            },
+            onDismiss = {
+                showFilterDialog = false
+            },
+        )
+    }
+
+    activeDetailList?.let { details ->
+        WiFiDetailDialog(
+            wiFiDetails = details,
+            onDismiss = { activeDetailList = null },
+            onEditAlias = { detail ->
+                activeDetailList = null
+                aliasEditDetail = detail
+            },
+        )
+    }
+
+    aliasEditDetail?.let { detail ->
+        ApAliasDialog(
+            wiFiDetail = detail,
+            onSave = { alias ->
+                apAliasService.saveAlias(detail.wiFiIdentifier.bssid, alias)
+                scannerService.update()
+                aliasEditDetail = null
+            },
+            onClear = {
+                apAliasService.removeAlias(detail.wiFiIdentifier.bssid)
+                scannerService.update()
+                aliasEditDetail = null
+            },
+            onDismiss = {
+                aliasEditDetail = null
+            },
+        )
+    }
 
     BackHandler(enabled = drawerState.isOpen) {
         scope.launch { drawerState.close() }
@@ -141,7 +209,7 @@ fun WiFiAnalyzerApp(
                     onToggleScanner = { scannerService.toggle() },
                     onOpenDrawer = { scope.launch { drawerState.open() } },
                     onBandSelected = { band -> settings.wiFiBand(band) },
-                    onFilterClick = onFilterClick,
+                    onFilterClick = { showFilterDialog = true },
                 )
             },
             bottomBar = {
@@ -168,6 +236,7 @@ fun WiFiAnalyzerApp(
                 scannerService = scannerService,
                 vendorService = vendorService,
                 configuration = configuration,
+                onDetailClick = { detail -> activeDetailList = listOf(detail) },
                 modifier = Modifier.padding(innerPadding),
             )
         }

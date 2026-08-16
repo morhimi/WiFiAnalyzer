@@ -26,6 +26,7 @@ import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
+import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
@@ -40,6 +41,7 @@ fun MainNavigationGraph(
     scannerService: ScannerService,
     vendorService: VendorService,
     configuration: WiFiConfiguration,
+    onDetailClick: (WiFiDetail) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -54,6 +56,7 @@ fun MainNavigationGraph(
                 wiFiManagerWrapper = wiFiManagerWrapper,
                 permissionService = permissionService,
                 scannerService = scannerService,
+                onDetailClick = onDetailClick,
             )
         }
         composable(NavigationMenu.CHANNEL_RATING.route) {
@@ -63,6 +66,7 @@ fun MainNavigationGraph(
                 wiFiManagerWrapper = wiFiManagerWrapper,
                 permissionService = permissionService,
                 scannerService = scannerService,
+                onDetailClick = onDetailClick,
             )
         }
         composable(NavigationMenu.CHANNEL_GRAPH.route) {
@@ -72,6 +76,7 @@ fun MainNavigationGraph(
                 wiFiManagerWrapper = wiFiManagerWrapper,
                 permissionService = permissionService,
                 scannerService = scannerService,
+                onDetailClick = onDetailClick,
             )
         }
         composable(NavigationMenu.TIME_GRAPH.route) {
@@ -81,6 +86,7 @@ fun MainNavigationGraph(
                 wiFiManagerWrapper = wiFiManagerWrapper,
                 permissionService = permissionService,
                 scannerService = scannerService,
+                onDetailClick = onDetailClick,
             )
         }
         composable(NavigationMenu.ABOUT.route) {

@@ -17,11 +17,18 @@
  */
 package com.vrem.wifianalyzer.navigation
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -29,11 +36,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vrem.util.packageInfo
 import com.vrem.util.readFile
@@ -49,12 +57,12 @@ import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.channelavailable.ChannelAvailableScreen
 import com.vrem.wifianalyzer.wifi.channelgraph.ChannelGraph
 import com.vrem.wifianalyzer.wifi.channelrating.ChannelRatingScreen
-import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
 import com.vrem.wifianalyzer.wifi.graphutils.GraphAdapter
 import com.vrem.wifianalyzer.wifi.graphutils.WiFiGraphScreen
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.ChannelRating
 import com.vrem.wifianalyzer.wifi.model.SortBy
+import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.predicate.makeAccessPointsPredicate
 import com.vrem.wifianalyzer.wifi.predicate.predicate
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
@@ -75,6 +83,7 @@ fun AccessPointsRoute(
     wiFiManagerWrapper: WiFiManagerWrapper,
     permissionService: PermissionService,
     scannerService: ScannerService,
+    onDetailClick: (WiFiDetail) -> Unit,
 ) {
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
     val settingsData by settings.settingsData.collectAsStateWithLifecycle()
@@ -91,8 +100,6 @@ fun AccessPointsRoute(
     val wiFiBand = settingsData.wiFiBand
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val fragmentActivity = context as? FragmentActivity
 
     AccessPointsScreen(
         wiFiData = wiFiData,
@@ -112,11 +119,7 @@ fun AccessPointsRoute(
                 isRefreshing = false
             }
         },
-        onDetailClick = { detail ->
-            fragmentActivity?.supportFragmentManager?.let {
-                WiFiDetailPopup.show(it, detail)
-            }
-        },
+        onDetailClick = onDetailClick,
     )
 }
 
@@ -127,6 +130,7 @@ fun ChannelRatingRoute(
     wiFiManagerWrapper: WiFiManagerWrapper,
     permissionService: PermissionService,
     scannerService: ScannerService,
+    onDetailClick: (WiFiDetail) -> Unit,
 ) {
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
     val settingsData by settings.settingsData.collectAsStateWithLifecycle()
@@ -134,8 +138,6 @@ fun ChannelRatingRoute(
     val wiFiBand = settingsData.wiFiBand
     val countryCode = settingsData.countryCode
     val channelRating = remember { ChannelRating() }
-    val context = LocalContext.current
-    val fragmentActivity = context as? FragmentActivity
 
     val wiFiChannels =
         remember(wiFiBand, countryCode) {
@@ -143,10 +145,17 @@ fun ChannelRatingRoute(
         }
 
     val bestChannels =
-        remember(wiFiData, settingsData, wiFiChannels) {
-            val wiFiDetails = wiFiData.wiFiDetails(wiFiBand.predicate(), SortBy.STRENGTH)
-            channelRating.wiFiDetails(wiFiDetails)
-            channelRating.bestChannels(wiFiBand, wiFiChannels)
+        remember(wiFiData, wiFiBand, wiFiChannels, channelRating) {
+            channelRating.wiFiDetails(
+                wiFiData.wiFiDetails(
+                    wiFiBand.predicate(),
+                    SortBy.STRENGTH,
+                ),
+            )
+            channelRating.bestChannels(
+                wiFiBand,
+                wiFiChannels,
+            )
         }
 
     var isRefreshing by remember { mutableStateOf(false) }
@@ -172,11 +181,7 @@ fun ChannelRatingRoute(
                 isRefreshing = false
             }
         },
-        onDetailClick = { detail ->
-            fragmentActivity?.supportFragmentManager?.let {
-                WiFiDetailPopup.show(it, detail)
-            }
-        },
+        onDetailClick = onDetailClick,
     )
 }
 
@@ -187,9 +192,9 @@ fun ChannelGraphRoute(
     wiFiManagerWrapper: WiFiManagerWrapper,
     permissionService: PermissionService,
     scannerService: ScannerService,
+    onDetailClick: (WiFiDetail) -> Unit,
 ) {
     val context = LocalContext.current
-    val fragmentActivity = context as? FragmentActivity
 
     val graphAdapter =
         remember {
@@ -228,11 +233,7 @@ fun ChannelGraphRoute(
                 isRefreshing = false
             }
         },
-        onDetailClick = { detail ->
-            fragmentActivity?.supportFragmentManager?.let {
-                WiFiDetailPopup.show(it, detail)
-            }
-        },
+        onDetailClick = onDetailClick,
     )
 }
 
@@ -243,9 +244,9 @@ fun TimeGraphRoute(
     wiFiManagerWrapper: WiFiManagerWrapper,
     permissionService: PermissionService,
     scannerService: ScannerService,
+    onDetailClick: (WiFiDetail) -> Unit,
 ) {
     val context = LocalContext.current
-    val fragmentActivity = context as? FragmentActivity
 
     val graphAdapter =
         remember {
@@ -284,11 +285,7 @@ fun TimeGraphRoute(
                 isRefreshing = false
             }
         },
-        onDetailClick = { detail ->
-            fragmentActivity?.supportFragmentManager?.let {
-                WiFiDetailPopup.show(it, detail)
-            }
-        },
+        onDetailClick = onDetailClick,
     )
 }
 
@@ -311,78 +308,97 @@ fun SettingsRoute(settings: Settings) {
     SettingsScreen(settings = settings)
 }
 
+private data class LicenseDialogData(
+    val titleId: Int,
+    val resourceId: Int,
+    val isSmallFont: Boolean,
+)
+
 @Composable
 fun AboutRoute(
     wiFiManagerWrapper: WiFiManagerWrapper,
     configuration: WiFiConfiguration,
 ) {
     val context = LocalContext.current
-    val activity = context as FragmentActivity
+    var licenseData by remember { mutableStateOf<LicenseDialogData?>(null) }
+
+    licenseData?.let { data ->
+        val text = readFile(context.resources, data.resourceId)
+        AlertDialog(
+            onDismissRequest = { licenseData = null },
+            title = { Text(stringResource(data.titleId)) },
+            text = {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
+                ) {
+                    Text(
+                        text = text,
+                        style =
+                            if (data.isSmallFont) {
+                                MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp)
+                            } else {
+                                MaterialTheme.typography.bodyMedium
+                            },
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = { licenseData = null }) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+        )
+    }
 
     AboutScreen(
         applicationName = stringResource(R.string.app_full_name),
-        packageName = activity.packageName,
-        versionInfo = version(activity, configuration),
-        copyright = copyright(activity),
+        packageName = context.packageName,
+        versionInfo = version(context, configuration),
+        copyright = copyright(context),
         device = device(),
         isScanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
         is5GHzBandSupported = wiFiManagerWrapper.is5GHzBandSupported(),
         is6GHzBandSupported = wiFiManagerWrapper.is6GHzBandSupported(),
-        onWriteReview = { onWriteReview(activity) },
+        onWriteReview = { onWriteReview(context) },
         onShowLicense = { titleId, resourceId, isSmallFont ->
-            showLicense(activity, titleId, resourceId, isSmallFont)
+            licenseData = LicenseDialogData(titleId, resourceId, isSmallFont)
         },
     )
 }
 
-private fun onWriteReview(activity: FragmentActivity) {
-    val url = "market://details?id=" + activity.applicationContext.packageName
-    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-    runCatching {
-        activity.startActivity(intent)
-    }.getOrElse {
-        Toast.makeText(activity, it.localizedMessage, Toast.LENGTH_LONG).show()
-    }
-}
-
-private fun showLicense(
-    activity: FragmentActivity,
-    titleId: Int,
-    resourceId: Int,
-    isSmallFont: Boolean,
-) {
-    if (!activity.isFinishing) {
-        val text = readFile(activity.resources, resourceId)
-        val alertDialog: AlertDialog =
-            AlertDialog
-                .Builder(activity)
-                .setTitle(titleId)
-                .setMessage(text)
-                .setNeutralButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
-                .create()
-        alertDialog.show()
-        if (isSmallFont) {
-            alertDialog.findViewById<TextView>(android.R.id.message)?.textSize = 8f
+private fun onWriteReview(context: Context) {
+    val url = "market://details?id=" + context.applicationContext.packageName
+    val intent =
+        Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+    runCatching {
+        context.startActivity(intent)
+    }.getOrElse {
+        Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
     }
 }
 
 private fun device(): String = Build.MANUFACTURER + " - " + Build.BRAND + " - " + Build.MODEL
 
-private fun copyright(activity: FragmentActivity): String =
-    activity.resources.getString(R.string.app_copyright) + SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
+private fun copyright(context: Context): String =
+    context.resources.getString(R.string.app_copyright) +
+        SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
 
 private fun version(
-    activity: FragmentActivity,
+    context: Context,
     configuration: WiFiConfiguration,
 ): String =
-    applicationVersion(activity) +
+    applicationVersion(context) +
         (if (configuration.sizeAvailable) "S" else "") +
         (if (configuration.largeScreen) "L" else "") +
         " (" + Build.VERSION.RELEASE + "-" + Build.VERSION.SDK_INT + ")"
 
-private fun applicationVersion(activity: FragmentActivity): String =
+private fun applicationVersion(context: Context): String =
     runCatching {
-        val packageInfo = activity.packageInfo()
+        val packageInfo = context.packageInfo()
         packageInfo.versionName + " - " + PackageInfoCompat.getLongVersionCode(packageInfo)
     }.getOrDefault("")

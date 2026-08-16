@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import androidx.fragment.app.FragmentActivity
 import com.patrykandpatrick.vico.views.cartesian.CartesianChart
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
@@ -26,7 +25,7 @@ import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
 import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.views.common.Point
 import com.vrem.util.findActivity
-import com.vrem.wifianalyzer.wifi.detailview.WiFiDetailPopup
+import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 @com.vrem.annotation.OpenClass
@@ -47,10 +46,8 @@ class MarkerHandler(
         val markerPoints = points.map { MarkerPoint(DataPoint(it.entry.x.toInt(), it.entry.y.toInt()), it.canvasY) }
         val wiFiDetails = matchDetails(markerPoints, lineTarget.canvasX, touch, thresholdPx, dataPointToDetail)
         if (wiFiDetails.isNotEmpty()) {
-            val fragmentActivity = chartView.findActivity() as? FragmentActivity
-            fragmentActivity?.let {
-                runCatching { WiFiDetailPopup.showSequence(it.supportFragmentManager, wiFiDetails) }
-            }
+            val mainActivity = chartView.findActivity() as? MainActivity
+            mainActivity?.showWiFiDetails(wiFiDetails)
             return true
         }
         return false
