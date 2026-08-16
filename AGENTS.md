@@ -29,7 +29,7 @@ clearAdditional repository-specific versions and toolchain (source-of-truth file
  - Note: the top-level `build.gradle.kts` also adds `gradlePluginPortal()` to repositories and includes additional classpath entries used by the build:
    - `org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion`
    - `org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion`
-- Gradle wrapper: 9.5.0 (`gradle/wrapper/gradle-wrapper.properties` distributionUrl)
+- Gradle wrapper: 9.7.0 (`gradle/wrapper/gradle-wrapper.properties` distributionUrl)
 - JDK: 21 is used in CI and repository setup (`.github/actions/common-setup/action.yml` and `.github/workflows/*` use setup-java with `java-version: 21`). Note: project `compileOptions` and `kotlinOptions.jvmTarget` are set to Java 17 in `app/build.gradle.kts`.
 - Android compile/target SDK: compileSdk = 37, minSdk = 24 (see `app/build.gradle.kts`).
 

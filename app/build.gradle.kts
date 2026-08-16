@@ -26,75 +26,72 @@ import java.io.File
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    id("kotlin-allopen")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.allopen)
     id("jacoco")
-    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("com.google.dagger.hilt.android")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
 }
-
-val kotlinVersion: String by rootProject.extra
 
 // dependencies -------------------------------------------------
 dependencies {
     // Compile Build Dependencies
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("androidx.annotation:annotation:1.10.0")
-    implementation("androidx.appcompat:appcompat:1.8.0")
-    implementation("androidx.collection:collection-ktx:1.6.0")
-    implementation("androidx.core:core-ktx:1.19.0")
-    implementation("androidx.core:core-splashscreen:1.2.0")
-    implementation("androidx.fragment:fragment-ktx:1.8.6")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0")
-    implementation("androidx.media:media:1.8.0")
-    implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
-    implementation("com.google.android.material:material:1.14.0")
-    implementation("com.patrykandpatrick.vico:views:3.2.3")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation(libs.androidx.annotation)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.collection.ktx)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.media)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.google.material)
+    implementation(libs.vico.views)
+    implementation(libs.kotlin.stdlib)
     // Hilt Dependencies
-    implementation("com.google.dagger:hilt-android:2.60.1")
-    ksp("com.google.dagger:hilt-compiler:2.60.1")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
     // Compose Dependencies
-    val composeBom = "2026.08.00"
-    implementation(platform("androidx.compose:compose-bom:$composeBom"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.activity:activity-compose:1.13.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
-    implementation("androidx.savedstate:savedstate-ktx:1.5.0")
-    implementation("androidx.navigation:navigation-compose:2.9.8")
-    implementation("androidx.hilt:hilt-navigation-compose:1.4.0")
-    implementation("androidx.datastore:datastore-preferences:1.2.1")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.activity)
+    implementation(libs.compose.lifecycle.runtime)
+    implementation(libs.compose.lifecycle.viewmodel)
+    implementation(libs.compose.savedstate.ktx)
+    implementation(libs.compose.navigation)
+    implementation(libs.compose.hilt.navigation)
+    implementation(libs.compose.datastore.preferences)
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
     // Unit Test Dependencies
-    testImplementation("androidx.test.ext:junit:1.3.0")
-    testImplementation("com.googlecode.junit-toolbox:junit-toolbox:2.4")
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.assertj:assertj-core:3.27.7")
-    testImplementation("org.hamcrest:hamcrest:3.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
-    testImplementation("org.mockito:mockito-core:5.23.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.3.0")
-    testImplementation("org.robolectric:robolectric:4.16.1")
-    testImplementation("org.slf4j:slf4j-simple:2.0.18")
+    testImplementation(libs.test.androidx.ext.junit)
+    testImplementation(libs.test.junit.toolbox)
+    testImplementation(libs.test.junit)
+    testImplementation(libs.test.assertj.core)
+    testImplementation(libs.test.hamcrest)
+    testImplementation(libs.test.kotlin)
+    testImplementation(libs.test.kotlin.junit)
+    testImplementation(libs.test.kotlinx.coroutines)
+    testImplementation(libs.test.mockito.core)
+    testImplementation(libs.test.mockito.kotlin)
+    testImplementation(libs.test.robolectric)
+    testImplementation(libs.test.slf4j.simple)
     // Android Test Dependencies
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.7.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
-    androidTestImplementation("androidx.test.ext:junit-ktx:1.3.0")
-    androidTestImplementation("androidx.test:rules:1.7.0")
-    androidTestImplementation("org.assertj:assertj-core:3.27.7")
-    androidTestImplementation("org.hamcrest:hamcrest:3.0")
+    androidTestImplementation(libs.androidTest.espresso.contrib)
+    androidTestImplementation(libs.androidTest.espresso.core)
+    androidTestImplementation(libs.androidTest.androidx.ext.junit.ktx)
+    androidTestImplementation(libs.androidTest.androidx.rules)
+    androidTestImplementation(libs.androidTest.assertj.core)
+    androidTestImplementation(libs.androidTest.hamcrest)
 }
 
 configure<ApplicationExtension> {
@@ -173,7 +170,7 @@ allOpen {
 
 // jacoco ---------------------------------------------------
 configure<JacocoPluginExtension> {
-    toolVersion = "0.8.14"
+    toolVersion = libs.versions.jacoco.get()
 }
 
 val executionPath = "outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"

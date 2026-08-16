@@ -18,29 +18,19 @@
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-buildscript {
-    val kotlinVersion by extra("2.3.20")
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:9.3.1")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        classpath("org.jetbrains.kotlin:compose-compiler-gradle-plugin:$kotlinVersion")
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.60.1")
-        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.11")
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.allopen) apply false
+    alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.ktlint) apply false
 }
 
 allprojects {
     repositories {
         google()
-        maven {
-            url = uri("https://maven.google.com")
-        }
         mavenCentral()
     }
     tasks.withType<JavaCompile>().configureEach {
