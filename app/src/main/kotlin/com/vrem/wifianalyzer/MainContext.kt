@@ -25,7 +25,6 @@ import android.os.Looper
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.vrem.wifianalyzer.permission.PermissionService
-import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsRepository
 import com.vrem.wifianalyzer.vendor.model.VendorService
@@ -84,7 +83,6 @@ enum class MainContext {
         // In a Hilt-enabled app, we should use the other initialize method.
         this.context = context.applicationContext
         configuration = Configuration(largeScreen)
-        val repository = Repository(this.context)
         val settingsRepo =
             SettingsRepository(
                 PreferenceDataStoreFactory.create(
@@ -92,7 +90,7 @@ enum class MainContext {
                 ),
                 this.context,
             )
-        settings = Settings(repository, settingsRepo)
+        settings = Settings(settingsRepo)
         apAliasService = ApAliasService(settingsRepo)
         vendorService = VendorService(this.context.resources)
         wiFiManagerWrapper = WiFiManagerWrapper(wiFiManager)

@@ -41,6 +41,7 @@ import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.about.AboutScreen
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.SettingsScreen
 import com.vrem.wifianalyzer.vendor.VendorsScreen
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointsScreen
@@ -303,6 +304,11 @@ fun ChannelAvailableRoute(settings: Settings) {
         countryCode = settingsData.countryCode,
         languageLocale = settingsData.languageLocale,
     )
+}
+
+@Composable
+fun SettingsRoute(settings: Settings) {
+    SettingsScreen(settings = settings)
 }
 
 @Composable

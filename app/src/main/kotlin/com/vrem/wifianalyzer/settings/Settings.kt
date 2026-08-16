@@ -17,16 +17,9 @@
  */
 package com.vrem.wifianalyzer.settings
 
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import com.vrem.annotation.OpenClass
-import com.vrem.util.buildMinVersionQ
-import com.vrem.util.defaultCountryCode
-import com.vrem.util.defaultLanguageTag
 import com.vrem.util.findByLanguageTag
-import com.vrem.util.findOne
-import com.vrem.util.findSet
 import com.vrem.util.ordinals
-import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.MAIN_NAVIGATION
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointViewType
@@ -42,313 +35,176 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.Locale
-import kotlin.enums.EnumEntries
 
 @OpenClass
 class Settings(
-    private val repository: Repository,
-    private val settingsRepository: SettingsRepository? = null,
+    private val settingsRepository: SettingsRepository,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
 ) {
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    private val _settingsData = MutableStateFlow(SettingsData())
+    private val dataFlow = settingsRepository.settingsData
+    private val _settingsData =
+        MutableStateFlow(
+            runCatching {
+                runBlocking(Dispatchers.IO) {
+                    dataFlow.first()
+                }
+            }.getOrDefault(SettingsData()),
+        )
     val settingsData: StateFlow<SettingsData> = _settingsData.asStateFlow()
 
-    private val sharedPreferenceChangeListener =
-        OnSharedPreferenceChangeListener { _, key ->
-            val currentSettings = transformSync()
-            _settingsData.update { currentSettings }
-
-            key?.let { k ->
-                scope.launch {
-                    when (k) {
-                        repository.contextString(
-                            R.string.scan_speed_key,
-                        ),
-                        -> settingsRepository?.updateScanSpeed(currentSettings.scanSpeed.toString())
-                        repository.contextString(
-                            R.string.cache_off_key,
-                        ),
-                        -> settingsRepository?.updateCacheOff(currentSettings.cacheOff)
-                        repository.contextString(R.string.graph_maximum_y_key) ->
-                            settingsRepository?.updateGraphMaximumY(
-                                (
-                                    currentSettings.graphMaximumY /
-                                        -10
-                                ).toString(),
-                            )
-                        repository.contextString(
-                            R.string.wifi_band_key,
-                        ),
-                        -> settingsRepository?.updateWiFiBand(currentSettings.wiFiBand.ordinal)
-                        repository.contextString(
-                            R.string.country_code_key,
-                        ),
-                        -> settingsRepository?.updateCountryCode(currentSettings.countryCode)
-                        repository.contextString(
-                            R.string.language_key,
-                        ),
-                        -> settingsRepository?.updateLanguage(currentSettings.languageLocale.toLanguageTag())
-                        repository.contextString(
-                            R.string.sort_by_key,
-                        ),
-                        -> settingsRepository?.updateSortBy(currentSettings.sortBy.ordinal)
-                        repository.contextString(
-                            R.string.group_by_key,
-                        ),
-                        -> settingsRepository?.updateGroupBy(currentSettings.groupBy.ordinal)
-                        repository.contextString(
-                            R.string.ap_view_key,
-                        ),
-                        -> settingsRepository?.updateApView(currentSettings.accessPointView.ordinal)
-                        repository.contextString(
-                            R.string.connection_view_key,
-                        ),
-                        -> settingsRepository?.updateConnectionView(currentSettings.connectionViewType.ordinal)
-                        repository.contextString(
-                            R.string.wifi_off_on_exit_key,
-                        ),
-                        -> settingsRepository?.updateWiFiOffOnExit(currentSettings.wiFiOffOnExit)
-                        repository.contextString(
-                            R.string.keep_screen_on_key,
-                        ),
-                        -> settingsRepository?.updateKeepScreenOn(currentSettings.keepScreenOn)
-                        repository.contextString(
-                            R.string.theme_key,
-                        ),
-                        -> settingsRepository?.updateTheme(currentSettings.themeStyle.ordinal)
-                        repository.contextString(
-                            R.string.selected_menu_key,
-                        ),
-                        -> settingsRepository?.updateSelectedMenu(currentSettings.selectedMenu.ordinal)
-                        repository.contextString(
-                            R.string.filter_ssid_key,
-                        ),
-                        -> settingsRepository?.updateFilterSsids(currentSettings.filterSsids)
-                        repository.contextString(
-                            R.string.filter_wifi_band_key,
-                        ),
-                        -> settingsRepository?.updateFilterWiFiBands(ordinals(currentSettings.filterWiFiBands))
-                        repository.contextString(
-                            R.string.filter_strength_key,
-                        ),
-                        -> settingsRepository?.updateFilterStrengths(ordinals(currentSettings.filterStrengths))
-                        repository.contextString(
-                            R.string.filter_security_key,
-                        ),
-                        -> settingsRepository?.updateFilterSecurities(ordinals(currentSettings.filterSecurities))
-                    }
-                }
+    init {
+        scope.launch {
+            dataFlow.collectLatest { data ->
+                _settingsData.value = data
             }
         }
-
-    init {
-        settingsRepository?.let {
-            _settingsData.value = transformSync()
-            repository.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
-        }
     }
 
-    private fun transformSync(): SettingsData =
-        SettingsData(
-            scanSpeed = scanSpeedSync(),
-            cacheOff = cacheOffSync(),
-            graphMaximumY = graphMaximumYSync(),
-            wiFiBand = wiFiBandSync(),
-            countryCode = countryCodeSync(),
-            languageLocale = languageLocaleSync(),
-            sortBy = sortBySync(),
-            groupBy = groupBySync(),
-            accessPointView = accessPointViewSync(),
-            connectionViewType = connectionViewTypeSync(),
-            wiFiOffOnExit = wiFiOffOnExitSync(),
-            keepScreenOn = keepScreenOnSync(),
-            themeStyle = themeStyleSync(),
-            selectedMenu = selectedMenuSync(),
-            filterSsids = findSSIDsSync(),
-            filterWiFiBands = findWiFiBandsSync(),
-            filterStrengths = findStrengthsSync(),
-            filterSecurities = findSecuritiesSync(),
-        )
+    // Reactive / Synchronous snapshot accessors
+    fun scanSpeed(): Int = settingsData.value.scanSpeed
 
-    fun initializeDefaultValues() {
-        repository.initializeDefaultValues()
-    }
+    fun cacheOff(): Boolean = settingsData.value.cacheOff
 
-    fun registerOnSharedPreferenceChangeListener(
-        onSharedPreferenceChangeListener: OnSharedPreferenceChangeListener,
-    ): Unit = repository.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
+    fun graphMaximumY(): Int = settingsData.value.graphMaximumY
 
-    // Reactive methods
-    fun scanSpeed(): Int = scanSpeedSync()
+    fun countryCode(): String = settingsData.value.countryCode
 
-    fun cacheOff(): Boolean = cacheOffSync()
+    fun languageLocale(): Locale = settingsData.value.languageLocale
 
-    fun graphMaximumY(): Int = graphMaximumYSync()
+    fun sortBy(): SortBy = settingsData.value.sortBy
 
-    fun countryCode(): String = countryCodeSync()
+    fun groupBy(): GroupBy = settingsData.value.groupBy
 
-    fun languageLocale(): Locale = languageLocaleSync()
+    fun accessPointView(): AccessPointViewType = settingsData.value.accessPointView
 
-    fun sortBy(): SortBy = sortBySync()
+    fun connectionViewType(): ConnectionViewType = settingsData.value.connectionViewType
 
-    fun groupBy(): GroupBy = groupBySync()
+    fun wiFiBand(): WiFiBand = settingsData.value.wiFiBand
 
-    fun accessPointView(): AccessPointViewType = accessPointViewSync()
+    fun wiFiOffOnExit(): Boolean = settingsData.value.wiFiOffOnExit
 
-    fun connectionViewType(): ConnectionViewType = connectionViewTypeSync()
+    fun keepScreenOn(): Boolean = settingsData.value.keepScreenOn
 
-    fun wiFiBand(): WiFiBand = wiFiBandSync()
+    fun themeStyle(): ThemeStyle = settingsData.value.themeStyle
 
-    fun wiFiOffOnExit(): Boolean = wiFiOffOnExitSync()
+    fun selectedMenu(): NavigationMenu = settingsData.value.selectedMenu
 
-    fun keepScreenOn(): Boolean = keepScreenOnSync()
+    fun findSSIDs(): Set<String> = settingsData.value.filterSsids
 
-    fun themeStyle(): ThemeStyle = themeStyleSync()
+    fun findWiFiBands(): Set<WiFiBand> = settingsData.value.filterWiFiBands
 
-    fun selectedMenu(): NavigationMenu = selectedMenuSync()
+    fun findStrengths(): Set<Strength> = settingsData.value.filterStrengths
 
-    fun findSSIDs(): Set<String> = findSSIDsSync()
+    fun findSecurities(): Set<Security> = settingsData.value.filterSecurities
 
-    fun findWiFiBands(): Set<WiFiBand> = findWiFiBandsSync()
-
-    fun findStrengths(): Set<Strength> = findStrengthsSync()
-
-    fun findSecurities(): Set<Security> = findSecuritiesSync()
-
-    // Sync methods (internal/private)
-    private fun scanSpeedSync(): Int =
-        repository.stringAsInteger(
-            R.string.scan_speed_key,
-            repository.stringAsInteger(R.string.scan_speed_default, SCAN_SPEED_DEFAULT),
-        )
-
-    private fun cacheOffSync(): Boolean =
-        repository.boolean(R.string.cache_off_key, repository.resourceBoolean(R.bool.cache_off_default))
-
-    private fun graphMaximumYSync(): Int {
-        val defaultValue = repository.stringAsInteger(R.string.graph_maximum_y_default, GRAPH_Y_DEFAULT)
-        val result = repository.stringAsInteger(R.string.graph_maximum_y_key, defaultValue)
-        return result * GRAPH_Y_MULTIPLIER
-    }
-
-    private fun wiFiBandSync(): WiFiBand = settingsFind(WiFiBand.entries, R.string.wifi_band_key, WiFiBand.GHZ2)
-
-    private fun countryCodeSync(): String = repository.string(R.string.country_code_key, defaultCountryCode())
-
-    private fun languageLocaleSync(): Locale {
-        val defaultLanguageTag = defaultLanguageTag()
-        val languageTag = repository.string(R.string.language_key, defaultLanguageTag)
-        return findByLanguageTag(languageTag)
-    }
-
-    private fun sortBySync(): SortBy = settingsFind(SortBy.entries, R.string.sort_by_key, SortBy.STRENGTH)
-
-    private fun groupBySync(): GroupBy = settingsFind(GroupBy.entries, R.string.group_by_key, GroupBy.NONE)
-
-    private fun accessPointViewSync(): AccessPointViewType =
-        settingsFind(AccessPointViewType.entries, R.string.ap_view_key, AccessPointViewType.COMPLETE)
-
-    private fun connectionViewTypeSync(): ConnectionViewType =
-        settingsFind(ConnectionViewType.entries, R.string.connection_view_key, ConnectionViewType.COMPACT)
-
-    private fun wiFiOffOnExitSync(): Boolean =
-        if (buildMinVersionQ()) {
-            false
-        } else {
-            repository.boolean(
-                R.string.wifi_off_on_exit_key,
-                repository.resourceBoolean(R.bool.wifi_off_on_exit_default),
-            )
-        }
-
-    private fun keepScreenOnSync(): Boolean =
-        repository.boolean(R.string.keep_screen_on_key, repository.resourceBoolean(R.bool.keep_screen_on_default))
-
-    private fun themeStyleSync(): ThemeStyle = settingsFind(ThemeStyle.entries, R.string.theme_key, ThemeStyle.DARK)
-
-    private fun selectedMenuSync(): NavigationMenu =
-        settingsFind(NavigationMenu.entries, R.string.selected_menu_key, NavigationMenu.ACCESS_POINTS)
-
-    private fun findSSIDsSync(): Set<String> = repository.stringSet(R.string.filter_ssid_key, setOf())
-
-    private fun findWiFiBandsSync(): Set<WiFiBand> =
-        settingsFindSet(WiFiBand.entries, R.string.filter_wifi_band_key, WiFiBand.GHZ2)
-
-    private fun findStrengthsSync(): Set<Strength> =
-        settingsFindSet(Strength.entries, R.string.filter_strength_key, Strength.FOUR)
-
-    private fun findSecuritiesSync(): Set<Security> =
-        settingsFindSet(Security.entries, R.string.filter_security_key, Security.NONE)
-
-    // Save methods
+    // Update / Save methods
     fun wiFiBand(wiFiBand: WiFiBand) {
         _settingsData.update { it.copy(wiFiBand = wiFiBand) }
-        repository.save(R.string.wifi_band_key, wiFiBand.ordinal)
-        scope.launch { settingsRepository?.updateWiFiBand(wiFiBand.ordinal) }
+        scope.launch { settingsRepository.updateWiFiBand(wiFiBand.ordinal) }
     }
 
     fun saveSelectedMenu(navigationMenu: NavigationMenu) {
         if (MAIN_NAVIGATION.contains(navigationMenu)) {
             _settingsData.update { it.copy(selectedMenu = navigationMenu) }
-            repository.save(R.string.selected_menu_key, navigationMenu.ordinal)
-            scope.launch { settingsRepository?.updateSelectedMenu(navigationMenu.ordinal) }
+            scope.launch { settingsRepository.updateSelectedMenu(navigationMenu.ordinal) }
         }
     }
 
     fun saveSSIDs(values: Set<String>) {
         _settingsData.update { it.copy(filterSsids = values) }
-        repository.saveStringSet(R.string.filter_ssid_key, values)
-        scope.launch { settingsRepository?.updateFilterSsids(values) }
+        scope.launch { settingsRepository.updateFilterSsids(values) }
     }
 
     fun saveWiFiBands(values: Set<WiFiBand>) {
         _settingsData.update { it.copy(filterWiFiBands = values) }
-        settingsSaveSet(R.string.filter_wifi_band_key, values)
-        scope.launch { settingsRepository?.updateFilterWiFiBands(ordinals(values)) }
+        scope.launch { settingsRepository.updateFilterWiFiBands(ordinals(values)) }
     }
 
     fun saveStrengths(values: Set<Strength>) {
         _settingsData.update { it.copy(filterStrengths = values) }
-        settingsSaveSet(R.string.filter_strength_key, values)
-        scope.launch { settingsRepository?.updateFilterStrengths(ordinals(values)) }
+        scope.launch { settingsRepository.updateFilterStrengths(ordinals(values)) }
     }
 
     fun saveSecurities(values: Set<Security>) {
         _settingsData.update { it.copy(filterSecurities = values) }
-        settingsSaveSet(R.string.filter_security_key, values)
-        scope.launch { settingsRepository?.updateFilterSecurities(ordinals(values)) }
+        scope.launch { settingsRepository.updateFilterSecurities(ordinals(values)) }
     }
 
-    private fun <T : Enum<T>> settingsFind(
-        values: EnumEntries<T>,
-        key: Int,
-        defaultValue: T,
-    ): T {
-        val value = repository.stringAsInteger(key, defaultValue.ordinal)
-        return findOne(values, value, defaultValue)
+    fun updateScanSpeed(scanSpeed: Int) {
+        _settingsData.update { it.copy(scanSpeed = scanSpeed) }
+        scope.launch { settingsRepository.updateScanSpeed(scanSpeed.toString()) }
     }
 
-    private fun <T : Enum<T>> settingsFindSet(
-        values: EnumEntries<T>,
-        key: Int,
-        defaultValue: T,
-    ): Set<T> {
-        val ordinalDefault = ordinals(values)
-        val ordinalSaved = repository.stringSet(key, ordinalDefault)
-        return findSet(values, ordinalSaved, defaultValue)
+    fun updateCacheOff(cacheOff: Boolean) {
+        _settingsData.update { it.copy(cacheOff = cacheOff) }
+        scope.launch { settingsRepository.updateCacheOff(cacheOff) }
     }
 
-    private fun <T : Enum<T>> settingsSaveSet(
-        key: Int,
-        values: Set<T>,
-    ): Unit = repository.saveStringSet(key, ordinals(values))
+    fun updateGraphMaximumY(graphMaximumY: Int) {
+        _settingsData.update { it.copy(graphMaximumY = graphMaximumY) }
+        scope.launch { settingsRepository.updateGraphMaximumY((graphMaximumY / GRAPH_Y_MULTIPLIER).toString()) }
+    }
+
+    fun updateCountryCode(countryCode: String) {
+        _settingsData.update { it.copy(countryCode = countryCode) }
+        scope.launch { settingsRepository.updateCountryCode(countryCode) }
+    }
+
+    fun updateLanguage(languageTag: String) {
+        _settingsData.update { it.copy(languageLocale = findByLanguageTag(languageTag)) }
+        scope.launch { settingsRepository.updateLanguage(languageTag) }
+    }
+
+    fun updateSortBy(sortBy: SortBy) {
+        _settingsData.update { it.copy(sortBy = sortBy) }
+        scope.launch { settingsRepository.updateSortBy(sortBy.ordinal) }
+    }
+
+    fun updateGroupBy(groupBy: GroupBy) {
+        _settingsData.update { it.copy(groupBy = groupBy) }
+        scope.launch { settingsRepository.updateGroupBy(groupBy.ordinal) }
+    }
+
+    fun updateAccessPointView(accessPointView: AccessPointViewType) {
+        _settingsData.update { it.copy(accessPointView = accessPointView) }
+        scope.launch { settingsRepository.updateApView(accessPointView.ordinal) }
+    }
+
+    fun updateConnectionView(connectionViewType: ConnectionViewType) {
+        _settingsData.update { it.copy(connectionViewType = connectionViewType) }
+        scope.launch { settingsRepository.updateConnectionView(connectionViewType.ordinal) }
+    }
+
+    fun updateWiFiOffOnExit(wiFiOffOnExit: Boolean) {
+        _settingsData.update { it.copy(wiFiOffOnExit = wiFiOffOnExit) }
+        scope.launch { settingsRepository.updateWiFiOffOnExit(wiFiOffOnExit) }
+    }
+
+    fun updateKeepScreenOn(keepScreenOn: Boolean) {
+        _settingsData.update { it.copy(keepScreenOn = keepScreenOn) }
+        scope.launch { settingsRepository.updateKeepScreenOn(keepScreenOn) }
+    }
+
+    fun updateTheme(themeStyle: ThemeStyle) {
+        _settingsData.update { it.copy(themeStyle = themeStyle) }
+        scope.launch { settingsRepository.updateTheme(themeStyle.ordinal) }
+    }
+
+    fun reset() {
+        scope.launch { settingsRepository.resetToDefaults() }
+    }
+
+    fun initializeDefaultValues() {
+        // No-op with DataStore defaults
+    }
 
     companion object {
-        private const val SCAN_SPEED_DEFAULT = 5
         private const val GRAPH_Y_MULTIPLIER = -10
-        private const val GRAPH_Y_DEFAULT = 2
     }
 }

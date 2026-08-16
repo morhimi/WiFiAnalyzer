@@ -47,7 +47,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.media)
-    implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.google.material)
     implementation(libs.vico.views)
@@ -84,6 +83,8 @@ dependencies {
     testImplementation(libs.test.mockito.kotlin)
     testImplementation(libs.test.robolectric)
     testImplementation(libs.test.slf4j.simple)
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.compose.ui.test.manifest)
     // Android Test Dependencies
     androidTestImplementation(libs.androidTest.espresso.contrib)
     androidTestImplementation(libs.androidTest.espresso.core)
@@ -221,10 +222,22 @@ val fileFilter =
         "**/*\$DefaultImpls.class",
         "**/Hilt_*.*",
         "**/Dagger*.*",
+        "**/hilt_aggregated_deps/**",
+        "**/dagger/hilt/**",
         "**/*_HiltComponents*.*",
         "**/*_GeneratedInjector*.*",
         "**/*_MembersInjector*.*",
         "**/*_Factory*.*",
+        "**/*ComposableSingletons*.*",
+        "**/*ScreenKt*.*",
+        "**/*ThemeKt*.*",
+        "**/*Navigation*Kt*.*",
+        "**/*Graph*Kt*.*",
+        "**/*View*Kt*.*",
+        "**/*Composable*.*",
+        "**/*Preview*.*",
+        "**/*Activity*.*",
+        "**/*Application*.*",
     )
 
 val classKotlinDir = layout.buildDirectory.dir("intermediates/classes/debug/transformDebugClassesWithAsm/dirs")

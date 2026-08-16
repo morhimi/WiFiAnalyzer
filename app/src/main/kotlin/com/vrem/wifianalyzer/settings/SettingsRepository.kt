@@ -84,6 +84,8 @@ class SettingsRepository
                     }
                 }
 
+        val settingsData: Flow<SettingsData> = preferencesFlow.map { toSettingsData(it) }
+
         fun toSettingsData(preferences: Preferences): SettingsData {
             val scanSpeed = preferences[scanSpeedKey]?.toIntOrNull() ?: 5
             val cacheOff = preferences[cacheOffKey] ?: false
@@ -252,5 +254,11 @@ class SettingsRepository
         suspend fun getAliasSync(bssid: String): String {
             val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
             return dataStore.data.first()[key] ?: ""
+        }
+
+        suspend fun resetToDefaults() {
+            dataStore.edit { preferences ->
+                preferences.clear()
+            }
         }
     }

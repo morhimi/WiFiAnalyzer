@@ -23,11 +23,10 @@ import android.net.wifi.WifiManager
 import android.os.Handler
 import android.os.Looper
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.datastore.preferences.preferencesDataStore
 import com.vrem.wifianalyzer.permission.PermissionService
-import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsRepository
 import com.vrem.wifianalyzer.vendor.model.VendorService
@@ -44,6 +43,13 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 
+val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "settings",
+    produceMigrations = { context ->
+        listOf(SharedPreferencesMigration(context, "${context.packageName}_preferences"))
+    },
+)
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -51,17 +57,11 @@ object AppModule {
     @Singleton
     fun provideDataStore(
         @ApplicationContext context: Context,
-    ): DataStore<Preferences> =
-        PreferenceDataStoreFactory.create(
-            produceFile = { context.preferencesDataStoreFile("settings") },
-        )
+    ): DataStore<Preferences> = context.settingsDataStore
 
     @Provides
     @Singleton
-    fun provideSettings(
-        @ApplicationContext context: Context,
-        settingsRepository: SettingsRepository,
-    ): Settings = Settings(Repository(context), settingsRepository)
+    fun provideSettings(settingsRepository: SettingsRepository): Settings = Settings(settingsRepository)
 
     @Provides
     @Singleton

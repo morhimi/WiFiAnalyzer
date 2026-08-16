@@ -96,7 +96,7 @@ fun MainNavigationGraph(
             ChannelAvailableRoute(settings = settings)
         }
         composable(NavigationMenu.SETTINGS.route) {
-            SettingsRoute()
+            SettingsRoute(settings = settings)
         }
     }
 }

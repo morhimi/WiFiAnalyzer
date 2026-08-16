@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -39,8 +40,8 @@ import com.vrem.util.defaultLanguageTag
 import com.vrem.util.findByLanguageTag
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerApp
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
+import com.vrem.wifianalyzer.di.settingsDataStore
 import com.vrem.wifianalyzer.permission.PermissionService
-import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.vendor.model.VendorService
@@ -52,7 +53,9 @@ import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 
@@ -88,9 +91,14 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var navController: NavHostController
 
     override fun attachBaseContext(newBase: Context) {
-        val repository = Repository(newBase)
         val defaultLanguageTag = defaultLanguageTag()
-        val languageTag = repository.string(R.string.language_key, defaultLanguageTag)
+        val languageKey = stringPreferencesKey(newBase.getString(R.string.language_key))
+        val languageTag =
+            runCatching {
+                runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+                    newBase.settingsDataStore.data.first()[languageKey]
+                } ?: defaultLanguageTag
+            }.getOrDefault(defaultLanguageTag)
         val locale = findByLanguageTag(languageTag)
         super.attachBaseContext(newBase.createContext(locale))
     }
