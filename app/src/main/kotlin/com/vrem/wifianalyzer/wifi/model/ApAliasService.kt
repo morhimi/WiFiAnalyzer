@@ -35,12 +35,10 @@ class ApAliasService(
     private val cache = ConcurrentHashMap<BSSID, String>()
 
     init {
-        // Optimistically populate cache from DataStore updates
         scope.launch {
             settingsRepository.preferencesFlow.collectLatest { _ ->
-                // Clear cache to force re-fetch from DataStore for any key
-                // This ensures consistency when DataStore changes
-                cache.clear()
+                // Don't clear cache, just let saveAlias update it and getAlias fetch if missing.
+                // This prevents the "reverting to empty" issue during scans.
             }
         }
     }
@@ -52,13 +50,11 @@ class ApAliasService(
     }
 
     private fun fetchAndCache(key: String): String {
-        // Initial fetch - we still need a way for the Transformer.
-        // Transformer runs on scanner thread, but getAlias is called synchronously.
-        // We use a non-blocking fetch that updates the cache for NEXT time.
-        // For the VERY first time, it might show BSSID, then update to Alias on next scan.
         scope.launch(Dispatchers.IO) {
             val alias = settingsRepository.getAliasSync(key)
-            cache[key] = alias
+            if (alias.isNotBlank()) {
+                cache[key] = alias
+            }
         }
         return String.EMPTY
     }
@@ -70,7 +66,11 @@ class ApAliasService(
         if (bssid.isBlank()) return
         val trimmedAlias = alias.trim()
         val key = bssid.uppercase()
-        cache[key] = trimmedAlias
+        if (trimmedAlias.isEmpty()) {
+            cache.remove(key)
+        } else {
+            cache[key] = trimmedAlias
+        }
         scope.launch {
             settingsRepository.saveAlias(key, trimmedAlias)
         }
