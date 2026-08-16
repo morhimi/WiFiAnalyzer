@@ -32,6 +32,7 @@ import com.vrem.wifianalyzer.settings.SettingsRepository
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
+import com.vrem.wifianalyzer.wifi.manager.WiFiSwitch
 import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.makeScannerService
@@ -71,7 +72,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideWiFiManagerWrapper(wifiManager: WifiManager): WiFiManagerWrapper = WiFiManagerWrapper(wifiManager)
+    fun provideWiFiSwitch(
+        @ApplicationContext context: Context,
+        wifiManager: WifiManager,
+    ): WiFiSwitch = WiFiSwitch(wifiManager, context)
+
+    @Provides
+    @Singleton
+    fun provideWiFiManagerWrapper(
+        wifiManager: WifiManager,
+        wiFiSwitch: WiFiSwitch,
+    ): WiFiManagerWrapper = WiFiManagerWrapper(wifiManager, wiFiSwitch)
 
     @Provides
     @Singleton
@@ -110,6 +121,9 @@ object AppModule {
         wiFiManagerWrapper: WiFiManagerWrapper,
         permissionService: PermissionService,
         settings: Settings,
+        apAliasService: ApAliasService,
+        vendorService: VendorService,
+        configuration: WiFiConfiguration,
     ): ScannerService =
         makeScannerService(
             context,
@@ -117,6 +131,9 @@ object AppModule {
             permissionService,
             Handler(Looper.getMainLooper()),
             settings,
+            apAliasService,
+            vendorService,
+            configuration,
         )
 
     @Provides

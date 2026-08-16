@@ -30,7 +30,7 @@ import org.mockito.kotlin.whenever
 import java.util.Locale
 
 class MainReloadTest {
-    private val settings = MainContextHelper.INSTANCE.settings
+    private val settings: com.vrem.wifianalyzer.settings.Settings = org.mockito.kotlin.mock()
     private lateinit var fixture: MainReload
 
     @Before
@@ -47,7 +47,6 @@ class MainReloadTest {
         verify(settings, atLeastOnce()).connectionViewType()
         verify(settings, atLeastOnce()).languageLocale()
         verifyNoMoreInteractions(settings)
-        MainContextHelper.INSTANCE.restore()
     }
 
     @Test

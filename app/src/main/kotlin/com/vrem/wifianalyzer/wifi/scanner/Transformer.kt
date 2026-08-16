@@ -21,7 +21,8 @@ import android.net.wifi.WifiInfo
 import com.vrem.annotation.OpenClass
 import com.vrem.util.nullToEmpty
 import com.vrem.util.ssid
-import com.vrem.wifianalyzer.MainContext
+import com.vrem.wifianalyzer.vendor.model.VendorService
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.model.FastRoaming
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
 import com.vrem.wifianalyzer.wifi.model.WiFiData
@@ -41,6 +42,8 @@ fun WifiInfo.ipV4Address(): Int = ipAddress
 @OpenClass
 internal class Transformer(
     private val cache: Cache,
+    private val apAliasService: ApAliasService,
+    private val vendorService: VendorService,
 ) {
     internal fun transformWifiInfo(): WiFiConnection {
         val wifiInfo: WifiInfo? = cache.wifiInfo
@@ -49,7 +52,7 @@ internal class Transformer(
         } else {
             val ssid = convertSSID(String.nullToEmpty(wifiInfo.ssid))
             val bssid = String.nullToEmpty(wifiInfo.bssid)
-            val alias = MainContext.INSTANCE.apAliasService.getAlias(bssid)
+            val alias = apAliasService.getAlias(bssid)
             val wiFiIdentifier = WiFiIdentifier(ssid, bssid, alias)
             WiFiConnection(wiFiIdentifier, convertIpV4Address(wifiInfo.ipV4Address()), wifiInfo.linkSpeed)
         }
@@ -57,13 +60,13 @@ internal class Transformer(
 
     internal fun transformCacheResults(): List<WiFiDetail> = cache.scanResults().map { transform(it) }
 
-    internal fun transformToWiFiData(): WiFiData = WiFiData(transformCacheResults(), transformWifiInfo())
+    internal fun transformToWiFiData(): WiFiData = WiFiData(transformCacheResults(), transformWifiInfo(), vendorService)
 
     private fun transform(cacheResult: CacheResult): WiFiDetail {
         val scanResult = cacheResult.scanResult
         val wiFiWidth = WiFiWidth.findOne(scanResult.channelWidth)
         val bssid = String.nullToEmpty(scanResult.BSSID)
-        val alias = MainContext.INSTANCE.apAliasService.getAlias(bssid)
+        val alias = apAliasService.getAlias(bssid)
         return WiFiDetail(
             WiFiIdentifier(scanResult.ssid(), bssid, alias),
             WiFiSecurity(String.nullToEmpty(scanResult.capabilities), WiFiSecurityType.find(scanResult)),

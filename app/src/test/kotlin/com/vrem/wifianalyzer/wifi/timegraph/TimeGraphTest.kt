@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -19,19 +18,14 @@
 package com.vrem.wifianalyzer.wifi.timegraph
 
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.vrem.wifianalyzer.MainContextHelper
-import com.vrem.wifianalyzer.settings.ThemeStyle
+import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
 import com.vrem.wifianalyzer.wifi.graphutils.MAX_Y
-import com.vrem.wifianalyzer.wifi.model.Security
 import com.vrem.wifianalyzer.wifi.model.SortBy
-import com.vrem.wifianalyzer.wifi.model.Strength
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
-import com.vrem.wifianalyzer.wifi.predicate.Predicate
-import com.vrem.wifianalyzer.wifi.predicate.truePredicate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -52,97 +46,70 @@ class TimeGraphTest {
     fun tearDown() {
         verifyNoMoreInteractions(dataManager)
         verifyNoMoreInteractions(graphWrapper)
-        MainContextHelper.INSTANCE.restore()
     }
 
     @Test
     fun update() {
         // Arrange
-        val settings = MainContextHelper.INSTANCE.settings
         val wiFiDetails: List<WiFiDetail> = listOf()
         val newSeries: Set<WiFiDetail> = setOf()
         val wiFiData = WiFiData(wiFiDetails, WiFiConnection.EMPTY)
-        val predicate: Predicate = truePredicate
-        doReturn(predicate).whenever(fixture).predicate(settings)
+        val settingsData = SettingsData(wiFiBand = WiFiBand.GHZ2, graphMaximumY = MAX_Y, sortBy = SortBy.SSID)
         doReturn(newSeries).whenever(dataManager).addSeriesData(graphWrapper, wiFiDetails, MAX_Y)
-        doReturn(SortBy.SSID).whenever(settings).sortBy()
-        doReturn(WiFiBand.GHZ2).whenever(settings).wiFiBand()
-        doReturn(MAX_Y).whenever(settings).graphMaximumY()
-        doReturn(ThemeStyle.DARK).whenever(settings).themeStyle()
+
         // Act
-        fixture.update(wiFiData)
+        fixture.update(wiFiData, settingsData)
+
         // Assert
-        verify(fixture).predicate(settings)
         verify(dataManager).reset(graphWrapper)
         verify(dataManager).addSeriesData(graphWrapper, wiFiDetails, MAX_Y)
         verify(graphWrapper).removeSeries(newSeries)
         verify(graphWrapper).show()
-        verify(settings).sortBy()
-        verify(settings).graphMaximumY()
-        verify(settings).wiFiBand()
-        verifyNoMoreInteractions(settings)
     }
 
     @Test
     fun updateDoesNotResetWhenBandNotChanged() {
         // Arrange
-        val settings = MainContextHelper.INSTANCE.settings
         val wiFiDetails: List<WiFiDetail> = listOf()
         val newSeries: Set<WiFiDetail> = setOf()
         val wiFiData = WiFiData(wiFiDetails, WiFiConnection.EMPTY)
-        val predicate: Predicate = truePredicate
-        doReturn(predicate).whenever(fixture).predicate(settings)
+        val settingsData = SettingsData(wiFiBand = WiFiBand.GHZ2, graphMaximumY = MAX_Y, sortBy = SortBy.SSID)
         doReturn(newSeries).whenever(dataManager).addSeriesData(graphWrapper, wiFiDetails, MAX_Y)
-        doReturn(SortBy.SSID).whenever(settings).sortBy()
-        doReturn(WiFiBand.GHZ2).whenever(settings).wiFiBand()
-        doReturn(MAX_Y).whenever(settings).graphMaximumY()
-        doReturn(ThemeStyle.DARK).whenever(settings).themeStyle()
-        fixture.update(wiFiData)
+
+        fixture.update(wiFiData, settingsData)
         // Act
-        fixture.update(wiFiData)
+        fixture.update(wiFiData, settingsData)
+
         // Assert
         verify(dataManager).reset(graphWrapper)
         verify(dataManager, times(2)).addSeriesData(graphWrapper, wiFiDetails, MAX_Y)
         verify(graphWrapper, times(2)).removeSeries(newSeries)
         verify(graphWrapper, times(2)).show()
-        verify(fixture, times(2)).predicate(settings)
-        verify(settings, times(2)).sortBy()
-        verify(settings, times(2)).graphMaximumY()
-        verify(settings, times(2)).wiFiBand()
     }
 
     @Test
     fun updateResetsWhenBandSwitchedBack() {
         // Arrange
-        val settings = MainContextHelper.INSTANCE.settings
         val wiFiDetails: List<WiFiDetail> = listOf()
         val newSeries: Set<WiFiDetail> = setOf()
         val wiFiData = WiFiData(wiFiDetails, WiFiConnection.EMPTY)
-        val predicate: Predicate = truePredicate
-        doReturn(predicate).whenever(fixture).predicate(settings)
+        val settingsDataGhz2 = SettingsData(wiFiBand = WiFiBand.GHZ2, graphMaximumY = MAX_Y, sortBy = SortBy.SSID)
+        val settingsDataGhz5 = SettingsData(wiFiBand = WiFiBand.GHZ5, graphMaximumY = MAX_Y, sortBy = SortBy.SSID)
         doReturn(newSeries).whenever(dataManager).addSeriesData(graphWrapper, wiFiDetails, MAX_Y)
-        doReturn(SortBy.SSID).whenever(settings).sortBy()
-        doReturn(MAX_Y).whenever(settings).graphMaximumY()
-        doReturn(ThemeStyle.DARK).whenever(settings).themeStyle()
+
         // first call - selected
-        doReturn(WiFiBand.GHZ2).whenever(settings).wiFiBand()
-        fixture.update(wiFiData)
+        fixture.update(wiFiData, settingsDataGhz2)
         // second call - not selected
-        doReturn(WiFiBand.GHZ5).whenever(settings).wiFiBand()
-        fixture.update(wiFiData)
+        fixture.update(wiFiData, settingsDataGhz5)
         // third call - selected again, should reset
-        doReturn(WiFiBand.GHZ2).whenever(settings).wiFiBand()
-        fixture.update(wiFiData)
+        fixture.update(wiFiData, settingsDataGhz2)
+
         // Assert
         verify(dataManager, times(2)).reset(graphWrapper)
         verify(dataManager, times(2)).addSeriesData(graphWrapper, wiFiDetails, MAX_Y)
         verify(graphWrapper, times(2)).removeSeries(newSeries)
         verify(graphWrapper, times(2)).show()
         verify(graphWrapper).gone()
-        verify(fixture, times(2)).predicate(settings)
-        verify(settings, times(2)).sortBy()
-        verify(settings, times(2)).graphMaximumY()
-        verify(settings, times(3)).wiFiBand()
     }
 
     @Test
@@ -150,8 +117,10 @@ class TimeGraphTest {
         // Arrange
         val expected: CartesianChartView = mock()
         doReturn(expected).whenever(graphWrapper).chartView
+
         // Act
         val actual = fixture.graph()
+
         // Assert
         assertThat(actual).isEqualTo(expected)
         verify(graphWrapper).chartView
@@ -162,6 +131,7 @@ class TimeGraphTest {
     fun destroy() {
         // Act
         fixture.destroy()
+
         // Assert
         verify(graphWrapper).destroy()
     }
@@ -169,20 +139,12 @@ class TimeGraphTest {
     @Test
     fun predicate() {
         // Arrange
-        val settings = MainContextHelper.INSTANCE.settings
-        doReturn(WiFiBand.GHZ2).whenever(settings).wiFiBand()
-        doReturn(setOf<String>()).whenever(settings).findSSIDs()
-        doReturn(Strength.entries.toSet()).whenever(settings).findStrengths()
-        doReturn(Security.entries.toSet()).whenever(settings).findSecurities()
+        val settingsData = SettingsData(wiFiBand = WiFiBand.GHZ2)
+
         // Act
-        val actual = fixture.predicate(settings)
+        val actual = fixture.predicate(settingsData)
+
         // Assert
         assertThat(actual).isNotNull()
-        verify(settings).wiFiBand()
-        verify(settings).findSSIDs()
-        verify(settings).findStrengths()
-        verify(settings).findSecurities()
-        verifyNoMoreInteractions(settings)
     }
 }
-*/

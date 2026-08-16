@@ -26,7 +26,6 @@ import com.patrykandpatrick.vico.views.cartesian.data.CartesianChartModelProduce
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.cartesian.data.lineModel
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.SIZE_MAX
 import com.vrem.wifianalyzer.SIZE_MIN
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -56,7 +55,7 @@ class GraphWrapper(
     val chartView: CartesianChartView,
     val seriesLabel: SeriesLabel,
     private val seriesCache: SeriesCache = SeriesCache(graphViewport.placeholderDataPoints),
-    private val graphColors: GraphColors = GraphColors(),
+    private val graphColors: GraphColors = GraphColors(chartView.context),
     private val chartUpdater: ChartUpdater = ChartUpdater(chartView, seriesLabel, seriesCache),
 ) {
     internal val modelProducer: CartesianChartModelProducer = CartesianChartModelProducer()
@@ -170,7 +169,7 @@ class GraphWrapper(
         runCatching {
             with(MessageDigest.getInstance("MD5")) {
                 update(
-                    MainContext.INSTANCE.context.packageName
+                    chartView.context.packageName
                         .toByteArray(),
                 )
                 val digest: ByteArray = digest()

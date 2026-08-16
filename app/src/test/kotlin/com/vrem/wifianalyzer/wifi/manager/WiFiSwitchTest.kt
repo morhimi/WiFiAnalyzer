@@ -17,10 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.manager
 
+import android.content.Context
 import android.net.wifi.WifiManager
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.MainContextHelper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -39,11 +39,13 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class WiFiSwitchTest {
     private val wifiManager: WifiManager = mock()
-    private val fixture = spy(WiFiSwitch(wifiManager))
+    private val context: Context = mock()
+    private val fixture = spy(WiFiSwitch(wifiManager, context))
 
     @After
     fun tearDown() {
         verifyNoMoreInteractions(wifiManager)
+        verifyNoMoreInteractions(context)
     }
 
     @Test
@@ -87,12 +89,9 @@ class WiFiSwitchTest {
 
     @Test
     fun startWiFiSettings() {
-        // setup
-        val context = MainContextHelper.INSTANCE.context
         // execute
         fixture.startWiFiSettings()
         // validate
         verify(context).startActivity(any())
-        MainContextHelper.INSTANCE.restore()
     }
 }

@@ -204,7 +204,7 @@ fun SettingsScreen(
                     settingsData.languageLocale
                         .getDisplayName(
                             settingsData.languageLocale,
-                        ).toCapitalize(Locale.getDefault()),
+                        ).toCapitalize(settingsData.languageLocale),
                 onClick = { showLanguageDialog = true },
             )
 

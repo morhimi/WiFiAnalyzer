@@ -24,7 +24,7 @@ import android.view.WindowManager
 import androidx.annotation.RequiresApi
 
 internal fun MainActivity.keepScreenOn() =
-    if (MainContext.INSTANCE.settings.keepScreenOn()) {
+    if (this.settings.keepScreenOn()) {
         this.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     } else {
         this.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

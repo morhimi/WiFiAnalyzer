@@ -18,28 +18,28 @@
 package com.vrem.wifianalyzer.wifi.band
 
 import androidx.annotation.StringRes
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
-
-typealias Available = () -> Boolean
-
-internal val availableGHZ2: Available = { true }
-internal val availableGHZ5: Available = { MainContext.INSTANCE.wiFiManagerWrapper.is5GHzBandSupported() }
-internal val availableGHZ6: Available = { MainContext.INSTANCE.wiFiManagerWrapper.is6GHzBandSupported() }
+import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 
 enum class WiFiBand(
-    @StringRes val textResource: Int,
+    @param:StringRes val textResource: Int,
     val wiFiChannels: WiFiChannels,
-    val available: Available,
 ) {
-    GHZ2(R.string.wifi_band_2ghz, wiFiChannelsGHZ2, availableGHZ2),
-    GHZ5(R.string.wifi_band_5ghz, wiFiChannelsGHZ5, availableGHZ5),
-    GHZ6(R.string.wifi_band_6ghz, wiFiChannelsGHZ6, availableGHZ6),
+    GHZ2(R.string.wifi_band_2ghz, wiFiChannelsGHZ2),
+    GHZ5(R.string.wifi_band_5ghz, wiFiChannelsGHZ5),
+    GHZ6(R.string.wifi_band_6ghz, wiFiChannelsGHZ6),
     ;
 
     val ghz2: Boolean get() = GHZ2 == this
     val ghz5: Boolean get() = GHZ5 == this
     val ghz6: Boolean get() = GHZ6 == this
+
+    fun available(wiFiManagerWrapper: WiFiManagerWrapper): Boolean =
+        when (this) {
+            GHZ2 -> true
+            GHZ5 -> wiFiManagerWrapper.is5GHzBandSupported()
+            GHZ6 -> wiFiManagerWrapper.is6GHzBandSupported()
+        }
 
     companion object {
         fun find(frequency: Int): WiFiBand = WiFiBand.entries.firstOrNull { it.wiFiChannels.inRange(frequency) } ?: GHZ2

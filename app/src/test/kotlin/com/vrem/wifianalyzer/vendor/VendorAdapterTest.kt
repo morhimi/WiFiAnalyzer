@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vrem.wifianalyzer.MainActivity
-import com.vrem.wifianalyzer.MainContextHelper.INSTANCE
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.vendor.model.VendorService
@@ -54,7 +53,7 @@ class VendorAdapterTest {
     private lateinit var fixture: VendorAdapter
 
     private val mainActivity: MainActivity = RobolectricUtil.INSTANCE.activity
-    private val vendorService: VendorService = INSTANCE.vendorService
+    private val vendorService: VendorService = mock()
     private val vendors: List<String> = listOf(vendorName1, vendorName2, vendorName3)
     private val macs: List<String> = listOf("MAC1", "MAC2", "MAC3")
 
@@ -68,7 +67,6 @@ class VendorAdapterTest {
     fun tearDown() {
         verify(vendorService, atLeastOnce()).findVendors()
         verifyNoMoreInteractions(vendorService)
-        INSTANCE.restore()
     }
 
     @Test

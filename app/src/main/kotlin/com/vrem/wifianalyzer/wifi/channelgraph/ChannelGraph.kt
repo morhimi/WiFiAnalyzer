@@ -27,7 +27,6 @@ import com.patrykandpatrick.vico.views.cartesian.Zoom
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.common.data.ExtraStore
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.settings.ThemeStyle
@@ -51,6 +50,7 @@ import com.vrem.wifianalyzer.wifi.predicate.makeOtherPredicate
 internal class ChannelLayerRangeProvider(
     private val minXValue: Double,
     private val maxXValue: Double,
+    private val graphMaximumY: Int = -20,
 ) : CartesianLayerRangeProvider {
     override fun getMinX(
         minX: Double,
@@ -74,9 +74,7 @@ internal class ChannelLayerRangeProvider(
         minY: Double,
         maxY: Double,
         extraStore: ExtraStore,
-    ) = MainContext.INSTANCE.settings
-        .graphMaximumY()
-        .toDouble()
+    ) = graphMaximumY.toDouble()
 }
 
 internal fun calculateLabelPosition(
@@ -98,39 +96,32 @@ internal fun calculateLabelPosition(
 }
 
 internal fun makeGraph(
-    mainContext: MainContext,
     graphMaximumY: Int,
     themeStyle: ThemeStyle,
     wiFiBand: WiFiBand,
     scalable: Boolean,
-    context: Context = mainContext.context,
-): CartesianChartView {
-    val resources = mainContext.resources
-    return GraphBuilder(graphMaximumY, themeStyle, FREQUENCY_SPREAD.toDouble())
+    context: Context,
+): CartesianChartView =
+    GraphBuilder(graphMaximumY, themeStyle, FREQUENCY_SPREAD.toDouble())
         .setXAxisFormatter(channelXAxisFormatter(wiFiBand))
         .setItemPlacer(channelItemPlacer(wiFiBand))
-        .setVerticalTitle(resources.getString(R.string.graph_axis_y))
-        .setHorizontalTitle(resources.getString(R.string.graph_channel_axis_x))
+        .setVerticalTitle(context.getString(R.string.graph_axis_y))
+        .setHorizontalTitle(context.getString(R.string.graph_channel_axis_x))
         .build(context, scalable)
-}
 
 internal fun makeGraphWrapper(
     wiFiBand: WiFiBand,
-    context: Context? = null,
+    context: Context,
+    graphMaximumY: Int = -20,
+    themeStyle: ThemeStyle = ThemeStyle.DARK,
 ): GraphWrapper {
-    val mainContext = MainContext.INSTANCE
-    val configuration = mainContext.configuration
-    val settings = mainContext.settings
-    val graphMaximumY = settings.graphMaximumY()
-    val themeStyle = settings.themeStyle()
     val scalable = !wiFiBand.ghz2
-    val targetContext = context ?: mainContext.context
-    val chartView = makeGraph(mainContext, graphMaximumY, themeStyle, wiFiBand, scalable, targetContext)
+    val chartView = makeGraph(graphMaximumY, themeStyle, wiFiBand, scalable, context)
     val seriesLabel = SeriesLabel(::calculateLabelPosition)
     val wiFiChannels = wiFiBand.wiFiChannels.wiFiChannels()
     val minX = wiFiChannels.first().frequency
     val maxX = wiFiChannels.last().frequency
-    val rangeProvider = ChannelLayerRangeProvider(minX.toDouble(), maxX.toDouble())
+    val rangeProvider = ChannelLayerRangeProvider(minX.toDouble(), maxX.toDouble(), graphMaximumY)
     val graphViewport =
         GraphViewport(
             rangeProvider = rangeProvider,
@@ -140,16 +131,14 @@ internal fun makeGraphWrapper(
             maxZoom = Zoom.x(MIN_VISIBLE_FREQUENCY_RANGE),
             scalable = scalable,
         )
-    val graphWrapper = GraphWrapper(graphViewport, chartView, seriesLabel)
-    configuration.size = graphWrapper.size(graphWrapper.calculateGraphType())
-    return graphWrapper
+    return GraphWrapper(graphViewport, chartView, seriesLabel)
 }
 
 @OpenClass
 internal class ChannelGraph(
     private val wiFiBand: WiFiBand,
     private var dataManager: DataManager = DataManager(),
-    private var graphWrapper: GraphWrapper = makeGraphWrapper(wiFiBand),
+    private var graphWrapper: GraphWrapper,
 ) : GraphNotifier {
     constructor(wiFiBand: WiFiBand, context: Context) : this(
         wiFiBand = wiFiBand,

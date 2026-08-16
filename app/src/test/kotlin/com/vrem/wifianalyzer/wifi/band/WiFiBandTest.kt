@@ -17,22 +17,22 @@
  */
 package com.vrem.wifianalyzer.wifi.band
 
-import com.vrem.wifianalyzer.MainContextHelper
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.band.WiFiBand.Companion.find
+import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 class WiFiBandTest {
-    private val wiFiManagerWrapper = MainContextHelper.INSTANCE.wiFiManagerWrapper
+    private val wiFiManagerWrapper: WiFiManagerWrapper = mock()
 
     @After
     fun tearDown() {
-        MainContextHelper.INSTANCE.restore()
         verifyNoMoreInteractions(wiFiManagerWrapper)
     }
 
@@ -41,22 +41,6 @@ class WiFiBandTest {
         assertThat(WiFiBand.entries)
             .hasSize(3)
             .containsExactly(WiFiBand.GHZ2, WiFiBand.GHZ5, WiFiBand.GHZ6)
-    }
-
-    @Test
-    fun available() {
-        assertThat(
-            WiFiBand.GHZ2.available.javaClass
-                .isInstance(availableGHZ2),
-        ).isTrue
-        assertThat(
-            WiFiBand.GHZ5.available.javaClass
-                .isInstance(availableGHZ5),
-        ).isTrue
-        assertThat(
-            WiFiBand.GHZ6.available.javaClass
-                .isInstance(availableGHZ6),
-        ).isTrue
     }
 
     @Test
@@ -128,7 +112,7 @@ class WiFiBandTest {
     @Test
     fun availableGHZ2() {
         // execute
-        val actual = WiFiBand.GHZ2.available()
+        val actual = WiFiBand.GHZ2.available(wiFiManagerWrapper)
         // validate
         assertThat(actual).isTrue
     }
@@ -138,7 +122,7 @@ class WiFiBandTest {
         // setup
         whenever(wiFiManagerWrapper.is5GHzBandSupported()).thenReturn(true)
         // execute
-        val actual = WiFiBand.GHZ5.available()
+        val actual = WiFiBand.GHZ5.available(wiFiManagerWrapper)
         // validate
         assertThat(actual).isTrue
         verify(wiFiManagerWrapper).is5GHzBandSupported()
@@ -149,7 +133,7 @@ class WiFiBandTest {
         // setup
         whenever(wiFiManagerWrapper.is6GHzBandSupported()).thenReturn(true)
         // execute
-        val actual = WiFiBand.GHZ6.available()
+        val actual = WiFiBand.GHZ6.available(wiFiManagerWrapper)
         // validate
         assertThat(actual).isTrue
         verify(wiFiManagerWrapper).is6GHzBandSupported()

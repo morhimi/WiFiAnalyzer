@@ -108,18 +108,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        MainContext.INSTANCE.initialize(
-            applicationContext,
-            settings,
-            wiFiManagerWrapper,
-            permissionService,
-            scannerService,
-            vendorService,
-            apAliasService,
-            configuration,
-            filtersAdapter,
-        )
-
         settings.initializeDefaultValues()
         settings.themeStyle().setTheme(this)
         mainReload = MainReload(settings)
@@ -146,7 +134,7 @@ class MainActivity : AppCompatActivity() {
                     scannerService = scannerService,
                     vendorService = vendorService,
                     configuration = configuration,
-                    onFilterClick = { Filter.build(this).show() },
+                    onFilterClick = { Filter.build(this, filtersAdapter, settings, scannerService).show() },
                 )
             }
         }

@@ -19,9 +19,12 @@ package com.vrem.wifianalyzer.wifi.scanner
 
 import android.content.Context
 import android.os.Handler
+import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import kotlinx.coroutines.flow.StateFlow
 
@@ -59,9 +62,12 @@ fun makeScannerService(
     permissionService: PermissionService,
     handler: Handler,
     settings: Settings,
+    apAliasService: ApAliasService,
+    vendorService: VendorService,
+    configuration: Configuration,
 ): ScannerService {
-    val cache = Cache()
-    val transformer = Transformer(cache)
+    val cache = Cache(settings, configuration)
+    val transformer = Transformer(cache, apAliasService, vendorService)
     val scanner = Scanner(wiFiManagerWrapper, settings, permissionService, transformer)
     scanner.periodicScan = PeriodicScan(scanner, handler, settings)
     scanner.scannerCallback = ScannerCallback(wiFiManagerWrapper, cache)

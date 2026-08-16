@@ -19,9 +19,12 @@ package com.vrem.wifianalyzer.wifi.scanner
 
 import android.content.Context
 import android.os.Handler
+import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -34,6 +37,9 @@ class ScannerServiceTest {
     private val permissionService: PermissionService = mock()
     private val handler: Handler = mock()
     private val settings: Settings = mock()
+    private val apAliasService: ApAliasService = mock()
+    private val vendorService: VendorService = mock()
+    private val configuration: Configuration = mock()
 
     @After
     fun tearDown() {
@@ -42,13 +48,26 @@ class ScannerServiceTest {
         verifyNoMoreInteractions(permissionService)
         verifyNoMoreInteractions(handler)
         verifyNoMoreInteractions(settings)
+        verifyNoMoreInteractions(apAliasService)
+        verifyNoMoreInteractions(vendorService)
+        verifyNoMoreInteractions(configuration)
     }
 
     @Test
     fun makeScannerService() {
         // setup
         // execute
-        val actual = makeScannerService(context, wiFiManagerWrapper, permissionService, handler, settings) as Scanner
+        val actual =
+            makeScannerService(
+                context,
+                wiFiManagerWrapper,
+                permissionService,
+                handler,
+                settings,
+                apAliasService,
+                vendorService,
+                configuration,
+            ) as Scanner
         // validate
         assertThat(actual.wiFiManagerWrapper).isEqualTo(wiFiManagerWrapper)
         assertThat(actual.settings).isEqualTo(settings)

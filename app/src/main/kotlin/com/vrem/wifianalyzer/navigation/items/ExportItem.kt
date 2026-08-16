@@ -20,7 +20,6 @@ package com.vrem.wifianalyzer.navigation.items
 import android.content.Intent
 import android.widget.Toast
 import com.vrem.wifianalyzer.MainActivity
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.export.Export
 import com.vrem.wifianalyzer.navigation.NavigationMenu
@@ -34,7 +33,7 @@ internal class ExportItem(
         navigationMenu: NavigationMenu,
     ) {
         val wiFiDetails: List<WiFiDetail> =
-            MainContext.INSTANCE.scannerService
+            mainActivity.scannerService
                 .wiFiData()
                 .wiFiDetails
         if (wiFiDetails.isEmpty()) {

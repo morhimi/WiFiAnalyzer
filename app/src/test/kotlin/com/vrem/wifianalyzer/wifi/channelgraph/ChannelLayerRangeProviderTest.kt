@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -19,28 +18,23 @@
 package com.vrem.wifianalyzer.wifi.channelgraph
 
 import com.patrykandpatrick.vico.views.common.data.ExtraStore
-import com.vrem.wifianalyzer.MainContextHelper
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
-import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.whenever
 
 class ChannelLayerRangeProviderTest {
-    private val settings = MainContextHelper.INSTANCE.settings
     private val extraStore: ExtraStore = mock()
     private val minX = 100.0
     private val maxX = 200.0
-    private val fixture = ChannelLayerRangeProvider(minX, maxX)
+    private val graphMaximumY = -20
+    private val fixture = ChannelLayerRangeProvider(minX, maxX, graphMaximumY)
 
     @After
     fun tearDown() {
-        MainContextHelper.INSTANCE.restore()
-        verifyNoMoreInteractions(settings, extraStore)
+        verifyNoMoreInteractions(extraStore)
     }
 
     @Test
@@ -68,15 +62,10 @@ class ChannelLayerRangeProviderTest {
     }
 
     @Test
-    fun getMaxYReturnsDefaultWhenSettingsNotAvailable() {
-        // Arrange
-        val expected = 50
-        doReturn(expected).whenever(settings).graphMaximumY()
+    fun getMaxYReturnsConfiguredGraphMaximumY() {
         // Act
         val actual = fixture.getMaxY(minY = -123.0, maxY = 45.0, extraStore = extraStore)
         // Assert
-        assertThat(actual).isEqualTo(expected.toDouble())
-        verify(settings).graphMaximumY()
+        assertThat(actual).isEqualTo(graphMaximumY.toDouble())
     }
 }
-*/

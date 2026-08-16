@@ -23,12 +23,17 @@ import android.content.Context
 import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.NavigationMenu
+import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
+import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 
 class Filter(
     val alertDialog: AlertDialog?,
+    private val filtersAdapter: FiltersAdapter,
+    private val settings: Settings,
+    private val scannerService: ScannerService,
 ) {
     private var ssidFilter: SSIDFilter? = null
     internal var wiFiBandFilter: WiFiBandFilter? = null
@@ -49,58 +54,76 @@ class Filter(
     }
 
     private fun addSSIDFilter(alertDialog: AlertDialog): SSIDFilter =
-        SSIDFilter(MainContext.INSTANCE.filtersAdapter.ssidAdapter(), alertDialog)
+        SSIDFilter(filtersAdapter.ssidAdapter(), alertDialog)
 
     private fun addWiFiBandFilter(alertDialog: AlertDialog): WiFiBandFilter? =
-        if (NavigationMenu.ACCESS_POINTS == MainContext.INSTANCE.settings.selectedMenu()) {
-            WiFiBandFilter(MainContext.INSTANCE.filtersAdapter.wiFiBandAdapter(), alertDialog)
+        if (NavigationMenu.ACCESS_POINTS == settings.selectedMenu()) {
+            WiFiBandFilter(filtersAdapter.wiFiBandAdapter(), alertDialog)
         } else {
             alertDialog.findViewById<View>(R.id.filterWiFiBand)?.visibility = View.GONE
             null
         }
 
     private fun addStrengthFilter(alertDialog: AlertDialog): StrengthFilter =
-        StrengthFilter(MainContext.INSTANCE.filtersAdapter.strengthAdapter(), alertDialog)
+        StrengthFilter(filtersAdapter.strengthAdapter(), alertDialog)
 
     private fun addSecurityFilter(alertDialog: AlertDialog): SecurityFilter =
-        SecurityFilter(MainContext.INSTANCE.filtersAdapter.securityAdapter(), alertDialog)
+        SecurityFilter(filtersAdapter.securityAdapter(), alertDialog)
 
-    private class Close : DialogInterface.OnClickListener {
+    private class Close(
+        private val filtersAdapter: FiltersAdapter,
+    ) : DialogInterface.OnClickListener {
         override fun onClick(
             dialog: DialogInterface,
             which: Int,
         ) {
             dialog.dismiss()
-            MainContext.INSTANCE.filtersAdapter.reload()
+            filtersAdapter.reload()
         }
     }
 
-    private class Apply : DialogInterface.OnClickListener {
+    private class Apply(
+        private val filtersAdapter: FiltersAdapter,
+        private val scannerService: ScannerService,
+    ) : DialogInterface.OnClickListener {
         override fun onClick(
             dialog: DialogInterface,
             which: Int,
         ) {
             dialog.dismiss()
-            MainContext.INSTANCE.filtersAdapter.save()
-            MainContext.INSTANCE.scannerService.update()
+            filtersAdapter.save()
+            scannerService.update()
         }
     }
 
-    private class Reset : DialogInterface.OnClickListener {
+    private class Reset(
+        private val filtersAdapter: FiltersAdapter,
+        private val scannerService: ScannerService,
+    ) : DialogInterface.OnClickListener {
         override fun onClick(
             dialog: DialogInterface,
             which: Int,
         ) {
             dialog.dismiss()
-            MainContext.INSTANCE.filtersAdapter.reset()
-            MainContext.INSTANCE.scannerService.update()
+            filtersAdapter.reset()
+            scannerService.update()
         }
     }
 
     companion object {
-        fun build(context: Context = MainContext.INSTANCE.context): Filter = Filter(buildAlertDialog(context))
+        fun build(
+            context: Context,
+            filtersAdapter: FiltersAdapter,
+            settings: Settings,
+            scannerService: ScannerService,
+        ): Filter =
+            Filter(buildAlertDialog(context, filtersAdapter, scannerService), filtersAdapter, settings, scannerService)
 
-        private fun buildAlertDialog(context: Context): AlertDialog? {
+        private fun buildAlertDialog(
+            context: Context,
+            filtersAdapter: FiltersAdapter,
+            scannerService: ScannerService,
+        ): AlertDialog? {
             if ((context as? Activity)?.isFinishing == true) {
                 return null
             }
@@ -110,9 +133,9 @@ class Filter(
                 .setView(view)
                 .setTitle(R.string.filter_title)
                 .setIcon(R.drawable.ic_filter_list)
-                .setNegativeButton(R.string.filter_reset, Reset())
-                .setNeutralButton(R.string.filter_close, Close())
-                .setPositiveButton(R.string.filter_apply, Apply())
+                .setNegativeButton(R.string.filter_reset, Reset(filtersAdapter, scannerService))
+                .setNeutralButton(R.string.filter_close, Close(filtersAdapter))
+                .setPositiveButton(R.string.filter_apply, Apply(filtersAdapter, scannerService))
                 .create()
         }
     }

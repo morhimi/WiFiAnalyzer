@@ -22,7 +22,9 @@ import android.net.wifi.ScanResult.InformationElement
 import android.net.wifi.WifiInfo
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.MainContextHelper
+import com.vrem.util.EMPTY
+import com.vrem.wifianalyzer.vendor.model.VendorService
+import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.model.BSSID
 import com.vrem.wifianalyzer.wifi.model.FastRoaming
 import com.vrem.wifianalyzer.wifi.model.SSID
@@ -82,16 +84,17 @@ class TransformerTest {
     private val cacheResults = withCacheResults()
     private val wifiInfo = withWiFiInfo()
     private val cache: Cache = mock()
-    private val fixture = Transformer(cache)
+    private val apAliasService: ApAliasService = mock()
+    private val vendorService: VendorService = mock()
+    private val fixture = Transformer(cache, apAliasService, vendorService)
 
     @Before
     fun setUp() {
-        MainContextHelper.INSTANCE.apAliasService
+        whenever(apAliasService.getAlias(org.mockito.kotlin.any())).thenReturn("")
     }
 
     @After
     fun tearDown() {
-        MainContextHelper.INSTANCE.restore()
         verifyNoMoreInteractions(wifiInfo)
         verifyNoMoreInteractions(cache)
     }

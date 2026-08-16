@@ -17,10 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
+import android.content.Context
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 
 private fun String.toColor(): Int = this.substring(1).toLong(16).toInt()
@@ -31,20 +31,27 @@ data class GraphColor(
 )
 
 @OpenClass
-class GraphColors {
+class GraphColors(
+    private val context: Context? = null,
+) {
     private val availableGraphColors: List<GraphColor> by lazy {
-        MainContext.INSTANCE.resources
-            .getStringArray(R.array.graph_colors)
-            .filterNotNull()
-            .chunked(2) { GraphColor(it[0].toColor(), it[1].toColor()) }
-            .reversed()
+        context
+            ?.resources
+            ?.getStringArray(R.array.graph_colors)
+            ?.filterNotNull()
+            ?.chunked(2) { GraphColor(it[0].toColor(), it[1].toColor()) }
+            ?.reversed()
+            .orEmpty()
     }
     private val currentGraphColors: ArrayDeque<GraphColor> = ArrayDeque()
     val connectedColor: GraphColor by lazy {
-        val context = MainContext.INSTANCE.context
-        val primary = ContextCompat.getColor(context, R.color.selected)
-        val background = ContextCompat.getColor(context, R.color.selected_background)
-        GraphColor(primary, background)
+        if (context != null) {
+            val primary = ContextCompat.getColor(context, R.color.selected)
+            val background = ContextCompat.getColor(context, R.color.selected_background)
+            GraphColor(primary, background)
+        } else {
+            GraphColor(0, 0)
+        }
     }
 
     fun graphColor(): GraphColor {

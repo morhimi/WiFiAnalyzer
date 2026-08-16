@@ -29,7 +29,7 @@ import com.vrem.util.buildMinVersionR
 @OpenClass
 class WiFiManagerWrapper(
     private val wifiManager: WifiManager,
-    private val wiFiSwitch: WiFiSwitch = WiFiSwitch(wifiManager),
+    private val wiFiSwitch: WiFiSwitch,
 ) {
     fun wiFiEnabled(): Boolean = runCatching { wifiManager.isWifiEnabled }.getOrDefault(false)
 

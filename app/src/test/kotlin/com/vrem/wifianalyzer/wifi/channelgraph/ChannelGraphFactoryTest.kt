@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -20,7 +19,6 @@ package com.vrem.wifianalyzer.wifi.channelgraph
 
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
@@ -32,12 +30,12 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class ChannelGraphFactoryTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
+    private val context = RobolectricUtil.INSTANCE.activity
 
     @Test
     fun makeGraph() {
         // Act
-        val actual = makeGraph(MainContext.INSTANCE, 10, ThemeStyle.DARK, WiFiBand.GHZ2, false)
+        val actual = makeGraph(10, ThemeStyle.DARK, WiFiBand.GHZ2, false, context)
         // Assert
         assertThat(actual).isNotNull()
     }
@@ -45,9 +43,8 @@ class ChannelGraphFactoryTest {
     @Test
     fun makeGraphWrapper() {
         // Act
-        val actual = makeGraphWrapper(WiFiBand.GHZ2)
+        val actual = makeGraphWrapper(WiFiBand.GHZ2, context)
         // Assert
         assertThat(actual).isNotNull()
     }
 }
-*/

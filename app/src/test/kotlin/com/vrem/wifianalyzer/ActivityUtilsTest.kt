@@ -46,11 +46,10 @@ class ActivityUtilsTest {
     private val intent: Intent = mock()
     private val intentArgumentCaptor = argumentCaptor<Intent>()
     private val mainActivity: MainActivity = mock()
-    private val settings = MainContextHelper.INSTANCE.settings
+    private val settings: com.vrem.wifianalyzer.settings.Settings = mock()
 
     @After
     fun tearDown() {
-        MainContextHelper.INSTANCE.restore()
         verifyNoMoreInteractions(mainActivity)
         verifyNoMoreInteractions(toolbar)
         verifyNoMoreInteractions(actionBar)
@@ -80,11 +79,13 @@ class ActivityUtilsTest {
     @Test
     fun keepScreenOnSwitchOn() {
         // setup
+        doReturn(settings).whenever(mainActivity).settings
         doReturn(true).whenever(settings).keepScreenOn()
         doReturn(window).whenever(mainActivity).window
         // execute
         mainActivity.keepScreenOn()
         // validate
+        verify(mainActivity).settings
         verify(settings).keepScreenOn()
         verify(mainActivity).window
         verify(window).addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -93,11 +94,13 @@ class ActivityUtilsTest {
     @Test
     fun keepScreenOnSwitchOff() {
         // setup
+        doReturn(settings).whenever(mainActivity).settings
         doReturn(false).whenever(settings).keepScreenOn()
         doReturn(window).whenever(mainActivity).window
         // execute
         mainActivity.keepScreenOn()
         // validate
+        verify(mainActivity).settings
         verify(settings).keepScreenOn()
         verify(mainActivity).window
         verify(window).clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

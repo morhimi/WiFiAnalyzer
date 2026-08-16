@@ -30,7 +30,6 @@ import com.patrykandpatrick.vico.views.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.common.data.ExtraStore
 import com.vrem.annotation.OpenClass
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.settings.ThemeStyle
@@ -52,7 +51,9 @@ import com.vrem.wifianalyzer.wifi.predicate.makeOtherPredicate
 
 private const val NUM_X_TIME = 21
 
-internal class TimeLayerRangeProvider : CartesianLayerRangeProvider {
+internal class TimeLayerRangeProvider(
+    private val graphMaximumY: Int = -20,
+) : CartesianLayerRangeProvider {
     override fun getMinX(
         minX: Double,
         maxX: Double,
@@ -78,9 +79,7 @@ internal class TimeLayerRangeProvider : CartesianLayerRangeProvider {
         minY: Double,
         maxY: Double,
         extraStore: ExtraStore,
-    ) = MainContext.INSTANCE.settings
-        .graphMaximumY()
-        .toDouble()
+    ) = graphMaximumY.toDouble()
 }
 
 internal fun calculateLabelPosition(
@@ -97,44 +96,39 @@ internal fun calculateLabelPosition(
 }
 
 internal fun makeGraph(
-    mainContext: MainContext,
     graphMaximumY: Int,
     themeStyle: ThemeStyle,
-    context: Context = mainContext.context,
+    context: Context,
 ): CartesianChartView =
     GraphBuilder(graphMaximumY, themeStyle)
         .setItemPlacer(HorizontalAxis.ItemPlacer.aligned(spacing = { 2 }, shiftExtremeLines = false))
-        .setVerticalTitle(mainContext.resources.getString(R.string.graph_axis_y))
-        .setHorizontalTitle(mainContext.resources.getString(R.string.graph_time_axis_x))
+        .setVerticalTitle(context.getString(R.string.graph_axis_y))
+        .setHorizontalTitle(context.getString(R.string.graph_time_axis_x))
         .build(context, false)
 
-internal fun makeGraphWrapper(context: Context? = null): GraphWrapper {
-    val mainContext = MainContext.INSTANCE
-    val settings = mainContext.settings
-    val configuration = mainContext.configuration
-    val themeStyle = settings.themeStyle()
-    val graphMaximumY = settings.graphMaximumY()
-    val targetContext = context ?: mainContext.context
-    val chartView = makeGraph(mainContext, graphMaximumY, themeStyle, targetContext)
+internal fun makeGraphWrapper(
+    context: Context,
+    graphMaximumY: Int = -20,
+    themeStyle: ThemeStyle = ThemeStyle.DARK,
+): GraphWrapper {
+    val chartView = makeGraph(graphMaximumY, themeStyle, context)
     val seriesLabel = SeriesLabel(::calculateLabelPosition)
     val scrollHandler = ScrollHandler(true, Scroll.Absolute.End, Scroll.Absolute.End, AutoScrollCondition.OnModelGrowth)
     val graphViewport =
         GraphViewport(
-            rangeProvider = TimeLayerRangeProvider(),
+            rangeProvider = TimeLayerRangeProvider(graphMaximumY),
             scrollHandler = scrollHandler,
             placeholderDataPoints = (0..NUM_X_TIME).map { DataPoint(it, MIN_Y) },
             initialZoom = Zoom.x(NUM_X_TIME.toDouble()),
         )
-    val graphWrapper = GraphWrapper(graphViewport, chartView, seriesLabel)
-    configuration.size = graphWrapper.size(graphWrapper.calculateGraphType())
-    return graphWrapper
+    return GraphWrapper(graphViewport, chartView, seriesLabel)
 }
 
 @OpenClass
 internal class TimeGraph(
     private val wiFiBand: WiFiBand,
     private val dataManager: DataManager = DataManager(),
-    private val graphWrapper: GraphWrapper = makeGraphWrapper(),
+    private val graphWrapper: GraphWrapper,
 ) : GraphNotifier {
     constructor(wiFiBand: WiFiBand, context: Context) : this(
         wiFiBand = wiFiBand,

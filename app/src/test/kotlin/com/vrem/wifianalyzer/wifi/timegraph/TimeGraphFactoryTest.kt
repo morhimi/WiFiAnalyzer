@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -20,7 +19,6 @@ package com.vrem.wifianalyzer.wifi.timegraph
 
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.MainContext
 import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import org.assertj.core.api.Assertions.assertThat
@@ -31,12 +29,12 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class TimeGraphFactoryTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
+    private val context = RobolectricUtil.INSTANCE.activity
 
     @Test
     fun makeGraphShouldNotBeNull() {
         // Act
-        val actual = makeGraph(MainContext.INSTANCE, 10, ThemeStyle.DARK)
+        val actual = makeGraph(10, ThemeStyle.DARK, context)
         // Assert
         assertThat(actual).isNotNull()
     }
@@ -44,9 +42,8 @@ class TimeGraphFactoryTest {
     @Test
     fun makeGraphWrapperShouldNotBeNull() {
         // Act
-        val actual = makeGraphWrapper()
+        val actual = makeGraphWrapper(context)
         // Assert
         assertThat(actual).isNotNull()
     }
 }
-*/

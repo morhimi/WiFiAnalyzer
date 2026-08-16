@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -19,20 +18,14 @@
 package com.vrem.wifianalyzer.wifi.channelgraph
 
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.vrem.wifianalyzer.MainContextHelper
-import com.vrem.wifianalyzer.settings.Settings
-import com.vrem.wifianalyzer.settings.ThemeStyle
+import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
 import com.vrem.wifianalyzer.wifi.graphutils.MAX_Y
-import com.vrem.wifianalyzer.wifi.model.Security
 import com.vrem.wifianalyzer.wifi.model.SortBy
-import com.vrem.wifianalyzer.wifi.model.Strength
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
-import com.vrem.wifianalyzer.wifi.predicate.Predicate
-import com.vrem.wifianalyzer.wifi.predicate.truePredicate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -44,7 +37,6 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 
 class ChannelGraphTest {
-    private val settings: Settings = MainContextHelper.INSTANCE.settings
     private val graphWrapper: GraphWrapper = mock()
     private val dataManager: DataManager = mock()
     private val fixture: ChannelGraph = spy(ChannelGraph(WiFiBand.GHZ2, dataManager, graphWrapper))
@@ -53,7 +45,6 @@ class ChannelGraphTest {
     fun tearDown() {
         verifyNoMoreInteractions(graphWrapper)
         verifyNoMoreInteractions(dataManager)
-        MainContextHelper.INSTANCE.restore()
     }
 
     @Test
@@ -62,37 +53,30 @@ class ChannelGraphTest {
         val newSeries: Set<WiFiDetail> = setOf()
         val wiFiDetails: List<WiFiDetail> = listOf()
         val wiFiData = WiFiData(wiFiDetails, WiFiConnection.EMPTY)
-        val predicate: Predicate = truePredicate
-        doReturn(predicate).whenever(fixture).predicate(settings)
-        doReturn(true).whenever(fixture).selected()
+        val settingsData = SettingsData(wiFiBand = WiFiBand.GHZ2, graphMaximumY = MAX_Y, sortBy = SortBy.CHANNEL)
         doReturn(newSeries).whenever(dataManager).newSeries(wiFiDetails)
-        doReturn(MAX_Y).whenever(settings).graphMaximumY()
-        doReturn(ThemeStyle.DARK).whenever(settings).themeStyle()
-        doReturn(SortBy.CHANNEL).whenever(settings).sortBy()
+
         // Act
-        fixture.update(wiFiData)
+        fixture.update(wiFiData, settingsData)
+
         // Assert
-        verify(fixture).selected()
-        verify(fixture).predicate(settings)
+        verify(graphWrapper).show()
         verify(graphWrapper).reset()
         verify(dataManager).newSeries(wiFiDetails)
-        verify(dataManager).addSeriesData(graphWrapper, newSeries, MAX_Y)
         verify(graphWrapper).removeSeries(newSeries)
-        verify(graphWrapper).show()
-        verify(settings).sortBy()
-        verify(settings).graphMaximumY()
-        verifyNoMoreInteractions(settings)
+        verify(dataManager).addSeriesData(graphWrapper, newSeries, MAX_Y)
     }
 
     @Test
     fun updateWhenNotSelected() {
         // Arrange
         val wiFiData = WiFiData(listOf(), WiFiConnection.EMPTY)
-        doReturn(false).whenever(fixture).selected()
+        val settingsData = SettingsData(wiFiBand = WiFiBand.GHZ5)
+
         // Act
-        fixture.update(wiFiData)
+        fixture.update(wiFiData, settingsData)
+
         // Assert
-        verify(fixture).selected()
         verify(graphWrapper).gone()
     }
 
@@ -101,8 +85,10 @@ class ChannelGraphTest {
         // Arrange
         val expected: CartesianChartView = mock()
         doReturn(expected).whenever(graphWrapper).chartView
+
         // Act
         val actual = fixture.graph()
+
         // Assert
         assertThat(actual).isEqualTo(expected)
         verify(graphWrapper).chartView
@@ -112,50 +98,20 @@ class ChannelGraphTest {
     fun destroy() {
         // Act
         fixture.destroy()
+
         // Assert
         verify(graphWrapper).destroy()
     }
 
     @Test
-    fun selectedWhenBandMatches() {
-        // Arrange
-        doReturn(WiFiBand.GHZ2).whenever(settings).wiFiBand()
-        // Act
-        val actual = fixture.selected()
-        // Assert
-        assertThat(actual).isTrue()
-        verify(settings).wiFiBand()
-        verifyNoMoreInteractions(settings)
-    }
-
-    @Test
-    fun selectedWhenBandDoesNotMatch() {
-        // Arrange
-        doReturn(WiFiBand.GHZ5).whenever(settings).wiFiBand()
-        // Act
-        val actual = fixture.selected()
-        // Assert
-        assertThat(actual).isFalse()
-        verify(settings).wiFiBand()
-        verifyNoMoreInteractions(settings)
-    }
-
-    @Test
     fun predicate() {
         // Arrange
-        doReturn(WiFiBand.GHZ2).whenever(settings).wiFiBand()
-        doReturn(setOf<String>()).whenever(settings).findSSIDs()
-        doReturn(Strength.entries.toSet()).whenever(settings).findStrengths()
-        doReturn(Security.entries.toSet()).whenever(settings).findSecurities()
+        val settingsData = SettingsData(wiFiBand = WiFiBand.GHZ2)
+
         // Act
-        val actual = fixture.predicate(settings)
+        val actual = fixture.predicate(settingsData)
+
         // Assert
         assertThat(actual).isNotNull()
-        verify(settings).wiFiBand()
-        verify(settings).findSSIDs()
-        verify(settings).findStrengths()
-        verify(settings).findSecurities()
-        verifyNoMoreInteractions(settings)
     }
 }
-*/
