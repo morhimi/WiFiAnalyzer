@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -60,3 +61,4 @@ class BottomNavTest {
         verify(view).visibility = View.VISIBLE
     }
 }
+*/

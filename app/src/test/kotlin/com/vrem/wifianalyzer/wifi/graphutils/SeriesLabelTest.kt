@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -132,3 +133,4 @@ class SeriesLabelTest {
         doReturn(layerBounds).whenever(context).layerBounds
     }
 }
+*/

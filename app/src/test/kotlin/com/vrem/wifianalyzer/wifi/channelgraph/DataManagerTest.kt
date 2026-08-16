@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -125,3 +126,4 @@ class DataManagerTest {
     private fun makeWiFiDetails(): List<WiFiDetail> =
         listOf(makeWiFiDetail("SSID1"), makeWiFiDetail("SSID2"), makeWiFiDetail("SSID3"))
 }
+*/

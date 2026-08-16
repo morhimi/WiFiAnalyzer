@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<baseline version="1.0">
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/about/AboutScreen.kt">
+        <error line="52" column="5" source="standard:function-naming" />
+        <error line="192" column="13" source="standard:function-naming" />
+        <error line="213" column="13" source="standard:function-naming" />
+        <error line="223" column="13" source="standard:function-naming" />
+        <error line="240" column="5" source="standard:function-naming" />
+        <error line="259" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/compose/MainShell.kt">
+        <error line="87" column="5" source="standard:function-naming" />
+        <error line="179" column="5" source="standard:function-naming" />
+        <error line="257" column="5" source="standard:function-naming" />
+        <error line="310" column="13" source="standard:function-naming" />
+        <error line="341" column="5" source="standard:function-naming" />
+        <error line="360" column="5" source="standard:function-naming" />
+        <error line="376" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/compose/Theme.kt">
+        <error line="60" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/navigation/MainNavigationGraph.kt">
+        <error line="34" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/navigation/MainNavigationRoutes.kt">
+        <error line="71" column="5" source="standard:function-naming" />
+        <error line="123" column="5" source="standard:function-naming" />
+        <error line="183" column="5" source="standard:function-naming" />
+        <error line="239" column="5" source="standard:function-naming" />
+        <error line="295" column="5" source="standard:function-naming" />
+        <error line="300" column="5" source="standard:function-naming" />
+        <error line="309" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/navigation/MainNavigationRoutes_Extra.kt">
+        <error line="1" column="1" source="standard:filename" />
+        <error line="31" column="5" source="standard:function-naming" />
+        <error line="48" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/vendor/VendorsScreen.kt">
+        <error line="47" column="5" source="standard:function-naming" />
+        <error line="82" column="13" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/accesspoint/AccessPointItem.kt">
+        <error line="55" column="5" source="standard:function-naming" />
+        <error line="102" column="13" source="standard:function-naming" />
+        <error line="191" column="13" source="standard:function-naming" />
+        <error line="235" column="5" source="standard:function-naming" />
+        <error line="246" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/accesspoint/AccessPointsList.kt">
+        <error line="32" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/accesspoint/AccessPointsScreen.kt">
+        <error line="36" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/accesspoint/ConnectionHeader.kt">
+        <error line="56" column="5" source="standard:function-naming" />
+        <error line="158" column="13" source="standard:function-naming" />
+        <error line="183" column="13" source="standard:function-naming" />
+        <error line="208" column="13" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/channelavailable/ChannelAvailableScreen.kt">
+        <error line="41" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/channelrating/ChannelRatingBest.kt">
+        <error line="41" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/channelrating/ChannelRatingItem.kt">
+        <error line="42" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/channelrating/ChannelRatingScreen.kt">
+        <error line="44" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/detailview/WiFiDetailContent.kt">
+        <error line="45" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/main/kotlin/com/vrem/wifianalyzer/wifi/graphutils/WiFiGraphScreen.kt">
+        <error line="38" column="5" source="standard:function-naming" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/DrawerNavigationTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/MainActivityBackPressedTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/MainActivityTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/MainRobolectricTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/about/AboutFragment2Test.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/about/AboutFragmentTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/NavigationMenuControllerTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/NavigationMenuTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/availability/BottomNavTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/availability/FilterOffTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/availability/FilterOnTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/availability/NavigationOptionsTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/availability/ScannerSwitchOffTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/availability/ScannerSwitchOnTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/availability/WiFiSwitchOffTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/availability/WiFiSwitchOnTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/items/ExportItemTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/items/NavigationItemTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/items/NavigationItemsTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/navigation/options/OptionMenuTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/permission/ApplicationPermissionTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/vendor/VendorFragmentTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/accesspoint/AccessPointsFragmentTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelavailable/ChannelAvailableFragmentTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelgraph/CalculateLabelPositionTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelgraph/ChannelGraphFactoryTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelgraph/ChannelGraphFragmentTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelgraph/ChannelGraphTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelgraph/ChannelItemPlacerTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelgraph/ChannelLayerRangeProviderTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelgraph/ChannelXAxisFormatterTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelgraph/DataManagerTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/channelrating/ChannelRatingFragmentTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/filter/FilterTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/CanvasYTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/ChartUpdaterTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/ConfigureLabelTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/GraphAdapterTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/GraphBuilderTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/GraphColorsTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/GraphWrapperTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/LineLayerFactoryTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/LineStyleTrackerTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/MarkerFactoryTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/MarkerHandlerTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/MarkerInteractionTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/MarkerMatchingTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/SeriesCacheTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/SeriesDataTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/SeriesLabelTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/graphutils/SignalYAxisFormatterTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/timegraph/CalculateLabelPositionTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/timegraph/DataManagerTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/timegraph/TimeGraphAdapterTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/timegraph/TimeGraphCacheTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/timegraph/TimeGraphFactoryTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/timegraph/TimeGraphFragmentTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/timegraph/TimeGraphTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+    <file name="src/test/kotlin/com/vrem/wifianalyzer/wifi/timegraph/TimeLayerRangeProviderTest.kt">
+        <error line="1" column="1" source="standard:no-empty-file" />
+    </file>
+</baseline>

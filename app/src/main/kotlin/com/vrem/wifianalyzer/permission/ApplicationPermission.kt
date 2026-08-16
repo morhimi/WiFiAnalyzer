@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.permission
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import com.vrem.annotation.OpenClass

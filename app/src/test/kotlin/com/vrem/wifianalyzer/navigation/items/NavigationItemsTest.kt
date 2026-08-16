@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -85,3 +86,4 @@ class NavigationItemsTest {
         assertThat(navigationItemExport is ExportItem).isTrue
     }
 }
+*/

@@ -209,6 +209,7 @@ class ScannerTest {
         // validate
         verify(periodicScan).running
         verify(periodicScan).stop()
+        verify(scanResultsReceiver).unregister()
     }
 
     @Test

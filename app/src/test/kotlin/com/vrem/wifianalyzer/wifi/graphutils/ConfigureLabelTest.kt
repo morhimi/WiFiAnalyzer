@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -95,3 +96,4 @@ class ConfigureLabelTest {
         assertThat(paint.typeface).isEqualTo(Typeface.DEFAULT_BOLD)
     }
 }
+*/

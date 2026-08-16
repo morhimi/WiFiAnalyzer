@@ -56,19 +56,20 @@ fun VendorsScreen(vendorService: VendorService) {
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 placeholder = { Text(stringResource(R.string.vendor_search_hint)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                singleLine = true
+                singleLine = true,
             )
 
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(vendors) { vendor ->
                     VendorItem(
                         name = vendor,
-                        macs = vendorService.findMacAddresses(vendor)
+                        macs = vendorService.findMacAddresses(vendor),
                     )
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 }
@@ -78,22 +79,26 @@ fun VendorsScreen(vendorService: VendorService) {
 }
 
 @Composable
-private fun VendorItem(name: String, macs: List<String>) {
+private fun VendorItem(
+    name: String,
+    macs: List<String>,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
     ) {
         Text(
             text = name,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
         Text(
             text = macs.joinToString(", "),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

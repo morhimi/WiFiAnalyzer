@@ -37,6 +37,6 @@ enum class ThemeStyle(
 
     fun setTheme(activity: Activity) {
         activity.setTheme(theme)
-        // AppCompatDelegate.setDefaultNightMode(nightMode)
+        AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 }

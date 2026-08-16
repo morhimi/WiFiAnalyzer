@@ -311,6 +311,41 @@ class WiFiDataTest {
         verifyVendorNames()
     }
 
+    @Test
+    fun wiFiDetailsGroupByNoneReturnsFlatList() {
+        // setup
+        val predicate: Predicate = WiFiBand.GHZ2.predicate()
+        withVendorNames()
+        // execute
+        val actual: List<WiFiDetail> = fixture.wiFiDetails(predicate, SortBy.SSID, GroupBy.NONE)
+        // validate
+        assertThat(actual).hasSize(7)
+        actual.forEach {
+            assertThat(it.children).isEmpty()
+        }
+        verifyVendorNames()
+    }
+
+    @Test
+    fun wiFiDetailsGroupBySSIDReturnsGroupedList() {
+        // setup
+        val predicate: Predicate = WiFiBand.GHZ2.predicate()
+        withVendorNames()
+        // execute
+        val actual: List<WiFiDetail> = fixture.wiFiDetails(predicate, SortBy.SSID, GroupBy.SSID)
+        // validate
+        // SSID1: 1 AP
+        // SSID2: 4 APs (1 group with 3 children)
+        // SSID3: 1 AP
+        // SSID4: 1 AP
+        // Total groups = 4
+        assertThat(actual).hasSize(4)
+        val ssid2Group = actual.find { it.wiFiIdentifier.ssid == ssid2 }
+        assertThat(ssid2Group).isNotNull
+        assertThat(ssid2Group?.children).hasSize(3)
+        verifyVendorNames()
+    }
+
     private fun withVendorNames() {
         wiFiDetails.forEach {
             whenever(vendorService.findVendorName(it.wiFiIdentifier.bssid)).thenReturn(

@@ -109,7 +109,8 @@ class GraphWrapper(
         } else {
             val connected = wiFiDetail.wiFiAdditional.wiFiConnection.connected
             val graphColor = if (connected) graphColors.connectedColor else graphColors.graphColor()
-            val seriesData = SeriesData(wiFiDetail, dataPoints, graphColor, seriesTitle(wiFiDetail), connected, drawBackground)
+            val seriesData =
+                SeriesData(wiFiDetail, dataPoints, graphColor, seriesTitle(wiFiDetail), connected, drawBackground)
             seriesCache.put(wiFiDetail, seriesData)
             true
         }

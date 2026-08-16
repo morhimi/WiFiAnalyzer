@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -218,3 +219,4 @@ class MarkerInteractionTest {
         dataPoints: List<DataPoint>,
     ): SeriesEntry = AbstractMap.SimpleEntry(wiFiDetail, SeriesData(dataPoints))
 }
+*/

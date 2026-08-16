@@ -41,7 +41,6 @@ import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.about.AboutScreen
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
-import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.vendor.VendorsScreen
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.accesspoint.AccessPointsScreen
@@ -55,7 +54,6 @@ import com.vrem.wifianalyzer.wifi.graphutils.WiFiGraphScreen
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.ChannelRating
 import com.vrem.wifianalyzer.wifi.model.SortBy
-import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.predicate.makeAccessPointsPredicate
 import com.vrem.wifianalyzer.wifi.predicate.predicate
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
@@ -80,13 +78,14 @@ fun AccessPointsRoute(
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
     val settingsData by settings.settingsData.collectAsStateWithLifecycle()
 
-    val wiFiDetails = remember(wiFiData, settingsData) {
-        wiFiData.wiFiDetails(
-            makeAccessPointsPredicate(settingsData),
-            settingsData.sortBy,
-            settingsData.groupBy,
-        )
-    }
+    val wiFiDetails =
+        remember(wiFiData, settingsData) {
+            wiFiData.wiFiDetails(
+                makeAccessPointsPredicate(settingsData),
+                settingsData.sortBy,
+                settingsData.groupBy,
+            )
+        }
 
     val wiFiBand = settingsData.wiFiBand
     var isRefreshing by remember { mutableStateOf(false) }
@@ -137,15 +136,17 @@ fun ChannelRatingRoute(
     val context = LocalContext.current
     val fragmentActivity = context as? FragmentActivity
 
-    val wiFiChannels = remember(wiFiBand, countryCode) {
-        wiFiBand.wiFiChannels.availableChannels(wiFiBand, countryCode)
-    }
+    val wiFiChannels =
+        remember(wiFiBand, countryCode) {
+            wiFiBand.wiFiChannels.availableChannels(wiFiBand, countryCode)
+        }
 
-    val bestChannels = remember(wiFiData, settingsData, wiFiChannels) {
-        val wiFiDetails = wiFiData.wiFiDetails(wiFiBand.predicate(), SortBy.STRENGTH)
-        channelRating.wiFiDetails(wiFiDetails)
-        channelRating.bestChannels(wiFiBand, wiFiChannels)
-    }
+    val bestChannels =
+        remember(wiFiData, settingsData, wiFiChannels) {
+            val wiFiDetails = wiFiData.wiFiDetails(wiFiBand.predicate(), SortBy.STRENGTH)
+            channelRating.wiFiDetails(wiFiDetails)
+            channelRating.bestChannels(wiFiBand, wiFiChannels)
+        }
 
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -189,10 +190,11 @@ fun ChannelGraphRoute(
     val context = LocalContext.current
     val fragmentActivity = context as? FragmentActivity
 
-    val graphAdapter = remember {
-        val channelGraphs = WiFiBand.entries.map { ChannelGraph(it, context = context) }
-        GraphAdapter(channelGraphs)
-    }
+    val graphAdapter =
+        remember {
+            val channelGraphs = WiFiBand.entries.map { ChannelGraph(it, context = context) }
+            GraphAdapter(channelGraphs)
+        }
 
     DisposableEffect(graphAdapter) {
         onDispose {
@@ -244,10 +246,11 @@ fun TimeGraphRoute(
     val context = LocalContext.current
     val fragmentActivity = context as? FragmentActivity
 
-    val graphAdapter = remember {
-        val timeGraphs = WiFiBand.entries.map { TimeGraph(it, context = context) }
-        GraphAdapter(timeGraphs)
-    }
+    val graphAdapter =
+        remember {
+            val timeGraphs = WiFiBand.entries.map { TimeGraph(it, context = context) }
+            GraphAdapter(timeGraphs)
+        }
 
     DisposableEffect(graphAdapter) {
         onDispose {
@@ -363,12 +366,14 @@ private fun device(): String = Build.MANUFACTURER + " - " + Build.BRAND + " - " 
 private fun copyright(activity: FragmentActivity): String =
     activity.resources.getString(R.string.app_copyright) + SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
 
-private fun version(activity: FragmentActivity, configuration: WiFiConfiguration): String {
-    return applicationVersion(activity) +
+private fun version(
+    activity: FragmentActivity,
+    configuration: WiFiConfiguration,
+): String =
+    applicationVersion(activity) +
         (if (configuration.sizeAvailable) "S" else "") +
         (if (configuration.largeScreen) "L" else "") +
         " (" + Build.VERSION.RELEASE + "-" + Build.VERSION.SDK_INT + ")"
-}
 
 private fun applicationVersion(activity: FragmentActivity): String =
     runCatching {

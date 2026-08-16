@@ -37,7 +37,6 @@ import androidx.navigation.compose.rememberNavController
 import com.vrem.util.createContext
 import com.vrem.util.defaultLanguageTag
 import com.vrem.util.findByLanguageTag
-import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerApp
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 import com.vrem.wifianalyzer.permission.PermissionService
@@ -55,6 +54,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
@@ -138,7 +138,7 @@ class MainActivity : FragmentActivity() {
                     scannerService = scannerService,
                     vendorService = vendorService,
                     configuration = configuration,
-                    onFilterClick = { Filter.build(this).show() }
+                    onFilterClick = { Filter.build(this).show() },
                 )
             }
         }

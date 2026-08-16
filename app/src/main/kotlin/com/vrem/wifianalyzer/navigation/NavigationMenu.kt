@@ -54,7 +54,7 @@ enum class NavigationMenu(
         "access_points",
         showWiFiBandSelector = false,
         showFilter = true,
-        showScanner = true
+        showScanner = true,
     ),
     CHANNEL_RATING(
         R.string.action_channel_rating,
@@ -63,7 +63,7 @@ enum class NavigationMenu(
         "channel_rating",
         showWiFiBandSelector = true,
         showFilter = false,
-        showScanner = true
+        showScanner = true,
     ),
     CHANNEL_GRAPH(
         R.string.action_channel_graph,
@@ -72,7 +72,7 @@ enum class NavigationMenu(
         "channel_graph",
         showWiFiBandSelector = true,
         showFilter = true,
-        showScanner = true
+        showScanner = true,
     ),
     TIME_GRAPH(
         R.string.action_time_graph,
@@ -81,7 +81,7 @@ enum class NavigationMenu(
         "time_graph",
         showWiFiBandSelector = true,
         showFilter = true,
-        showScanner = true
+        showScanner = true,
     ),
     EXPORT(
         title = R.string.action_export,
@@ -118,7 +118,6 @@ enum class NavigationMenu(
     fun activateNavigationMenu(mainActivity: MainActivity) = navigationItem.activate(mainActivity, this)
 
     companion object {
-        fun findByRoute(route: String?): NavigationMenu =
-            entries.firstOrNull { it.route == route } ?: ACCESS_POINTS
+        fun findByRoute(route: String?): NavigationMenu = entries.firstOrNull { it.route == route } ?: ACCESS_POINTS
     }
 }

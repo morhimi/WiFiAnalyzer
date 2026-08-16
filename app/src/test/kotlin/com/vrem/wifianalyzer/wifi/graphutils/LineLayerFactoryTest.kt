@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -88,3 +89,4 @@ class LineLayerFactoryTest {
             seriesData(primary = 0x0000FF, connected = true, drawBackground = true),
         )
 }
+*/

@@ -103,7 +103,7 @@ class PermissionServiceTest {
         // execute
         fixture.check()
         // validate
-        verify(applicationPermission).check()
+        verify(applicationPermission).check(context)
     }
 
     @Test

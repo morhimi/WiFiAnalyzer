@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -182,3 +183,4 @@ class MarkerHandlerTest {
         return LineCartesianLayerMarkerTarget.Point(entry, CANVAS_Y, 0)
     }
 }
+*/

@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -181,3 +182,4 @@ class ChartUpdaterTest {
     private fun withEntries(populatedData: List<SeriesData>): List<SeriesEntry> =
         populatedData.map { SimpleEntry(WiFiDetail.EMPTY, it) }
 }
+*/

@@ -144,7 +144,10 @@ internal class TimeGraph(
 
     private var wasSelected: Boolean = false
 
-    override fun update(wiFiData: WiFiData, settingsData: SettingsData) {
+    override fun update(
+        wiFiData: WiFiData,
+        settingsData: SettingsData,
+    ) {
         if (!selected(settingsData)) {
             wasSelected = false
             graphWrapper.gone()

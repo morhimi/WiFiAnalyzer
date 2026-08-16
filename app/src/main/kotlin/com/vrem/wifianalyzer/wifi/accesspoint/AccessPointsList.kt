@@ -40,7 +40,7 @@ fun AccessPointsList(
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(
             items = wiFiDetails,
-            key = { it.wiFiIdentifier.bssid + "-" + it.wiFiIdentifier.ssid + "-" + it.children.size }
+            key = { it.wiFiIdentifier.bssid + "-" + it.wiFiIdentifier.ssid + "-" + it.children.size },
         ) { detail ->
             val isExpanded = expandedStates[detail.wiFiIdentifier] ?: false
             AccessPointItem(

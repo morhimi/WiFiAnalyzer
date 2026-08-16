@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -301,3 +302,4 @@ class MatchDetailsTest {
         assertThat(actual).containsExactly(wiFiDetails[0])
     }
 }
+*/

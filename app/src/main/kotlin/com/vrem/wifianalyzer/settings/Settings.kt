@@ -57,42 +57,99 @@ class Settings(
     private val _settingsData = MutableStateFlow(SettingsData())
     val settingsData: StateFlow<SettingsData> = _settingsData.asStateFlow()
 
-    private val sharedPreferenceChangeListener = OnSharedPreferenceChangeListener { _, key ->
-        val currentSettings = transformSync()
-        _settingsData.update { currentSettings }
+    private val sharedPreferenceChangeListener =
+        OnSharedPreferenceChangeListener { _, key ->
+            val currentSettings = transformSync()
+            _settingsData.update { currentSettings }
 
-        key?.let { k ->
-            scope.launch {
-                when (k) {
-                    repository.contextString(R.string.scan_speed_key) -> settingsRepository?.updateScanSpeed(currentSettings.scanSpeed.toString())
-                    repository.contextString(R.string.cache_off_key) -> settingsRepository?.updateCacheOff(currentSettings.cacheOff)
-                    repository.contextString(R.string.graph_maximum_y_key) -> settingsRepository?.updateGraphMaximumY((currentSettings.graphMaximumY / -10).toString())
-                    repository.contextString(R.string.wifi_band_key) -> settingsRepository?.updateWiFiBand(currentSettings.wiFiBand.ordinal)
-                    repository.contextString(R.string.country_code_key) -> settingsRepository?.updateCountryCode(currentSettings.countryCode)
-                    repository.contextString(R.string.language_key) -> settingsRepository?.updateLanguage(currentSettings.languageLocale.toLanguageTag())
-                    repository.contextString(R.string.sort_by_key) -> settingsRepository?.updateSortBy(currentSettings.sortBy.ordinal)
-                    repository.contextString(R.string.group_by_key) -> settingsRepository?.updateGroupBy(currentSettings.groupBy.ordinal)
-                    repository.contextString(R.string.ap_view_key) -> settingsRepository?.updateApView(currentSettings.accessPointView.ordinal)
-                    repository.contextString(R.string.connection_view_key) -> settingsRepository?.updateConnectionView(currentSettings.connectionViewType.ordinal)
-                    repository.contextString(R.string.wifi_off_on_exit_key) -> settingsRepository?.updateWiFiOffOnExit(currentSettings.wiFiOffOnExit)
-                    repository.contextString(R.string.keep_screen_on_key) -> settingsRepository?.updateKeepScreenOn(currentSettings.keepScreenOn)
-                    repository.contextString(R.string.theme_key) -> settingsRepository?.updateTheme(currentSettings.themeStyle.ordinal)
-                    repository.contextString(R.string.selected_menu_key) -> settingsRepository?.updateSelectedMenu(currentSettings.selectedMenu.ordinal)
-                    repository.contextString(R.string.filter_ssid_key) -> settingsRepository?.updateFilterSsids(currentSettings.filterSsids)
-                    repository.contextString(R.string.filter_wifi_band_key) -> settingsRepository?.updateFilterWiFiBands(ordinals(currentSettings.filterWiFiBands))
-                    repository.contextString(R.string.filter_strength_key) -> settingsRepository?.updateFilterStrengths(ordinals(currentSettings.filterStrengths))
-                    repository.contextString(R.string.filter_security_key) -> settingsRepository?.updateFilterSecurities(ordinals(currentSettings.filterSecurities))
+            key?.let { k ->
+                scope.launch {
+                    when (k) {
+                        repository.contextString(
+                            R.string.scan_speed_key,
+                        ),
+                        -> settingsRepository?.updateScanSpeed(currentSettings.scanSpeed.toString())
+                        repository.contextString(
+                            R.string.cache_off_key,
+                        ),
+                        -> settingsRepository?.updateCacheOff(currentSettings.cacheOff)
+                        repository.contextString(R.string.graph_maximum_y_key) ->
+                            settingsRepository?.updateGraphMaximumY(
+                                (
+                                    currentSettings.graphMaximumY /
+                                        -10
+                                ).toString(),
+                            )
+                        repository.contextString(
+                            R.string.wifi_band_key,
+                        ),
+                        -> settingsRepository?.updateWiFiBand(currentSettings.wiFiBand.ordinal)
+                        repository.contextString(
+                            R.string.country_code_key,
+                        ),
+                        -> settingsRepository?.updateCountryCode(currentSettings.countryCode)
+                        repository.contextString(
+                            R.string.language_key,
+                        ),
+                        -> settingsRepository?.updateLanguage(currentSettings.languageLocale.toLanguageTag())
+                        repository.contextString(
+                            R.string.sort_by_key,
+                        ),
+                        -> settingsRepository?.updateSortBy(currentSettings.sortBy.ordinal)
+                        repository.contextString(
+                            R.string.group_by_key,
+                        ),
+                        -> settingsRepository?.updateGroupBy(currentSettings.groupBy.ordinal)
+                        repository.contextString(
+                            R.string.ap_view_key,
+                        ),
+                        -> settingsRepository?.updateApView(currentSettings.accessPointView.ordinal)
+                        repository.contextString(
+                            R.string.connection_view_key,
+                        ),
+                        -> settingsRepository?.updateConnectionView(currentSettings.connectionViewType.ordinal)
+                        repository.contextString(
+                            R.string.wifi_off_on_exit_key,
+                        ),
+                        -> settingsRepository?.updateWiFiOffOnExit(currentSettings.wiFiOffOnExit)
+                        repository.contextString(
+                            R.string.keep_screen_on_key,
+                        ),
+                        -> settingsRepository?.updateKeepScreenOn(currentSettings.keepScreenOn)
+                        repository.contextString(
+                            R.string.theme_key,
+                        ),
+                        -> settingsRepository?.updateTheme(currentSettings.themeStyle.ordinal)
+                        repository.contextString(
+                            R.string.selected_menu_key,
+                        ),
+                        -> settingsRepository?.updateSelectedMenu(currentSettings.selectedMenu.ordinal)
+                        repository.contextString(
+                            R.string.filter_ssid_key,
+                        ),
+                        -> settingsRepository?.updateFilterSsids(currentSettings.filterSsids)
+                        repository.contextString(
+                            R.string.filter_wifi_band_key,
+                        ),
+                        -> settingsRepository?.updateFilterWiFiBands(ordinals(currentSettings.filterWiFiBands))
+                        repository.contextString(
+                            R.string.filter_strength_key,
+                        ),
+                        -> settingsRepository?.updateFilterStrengths(ordinals(currentSettings.filterStrengths))
+                        repository.contextString(
+                            R.string.filter_security_key,
+                        ),
+                        -> settingsRepository?.updateFilterSecurities(ordinals(currentSettings.filterSecurities))
+                    }
                 }
             }
         }
-    }
 
     init {
-        // Initialize with current repository values
-        _settingsData.value = transformSync()
-        repository.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
-        scope.launch {
-            settingsRepository?.let { repo ->
+        settingsRepository?.let { repo ->
+            _settingsData.value = transformSync()
+            repository.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
+            scope.launch {
                 repo.preferencesFlow.collectLatest { preferences ->
                     val newData = repo.toSettingsData(preferences)
                     _settingsData.update { newData }
@@ -101,8 +158,8 @@ class Settings(
         }
     }
 
-    private fun transformSync(): SettingsData {
-        return SettingsData(
+    private fun transformSync(): SettingsData =
+        SettingsData(
             scanSpeed = scanSpeedSync(),
             cacheOff = cacheOffSync(),
             graphMaximumY = graphMaximumYSync(),
@@ -120,9 +177,8 @@ class Settings(
             filterSsids = findSSIDsSync(),
             filterWiFiBands = findWiFiBandsSync(),
             filterStrengths = findStrengthsSync(),
-            filterSecurities = findSecuritiesSync()
+            filterSecurities = findSecuritiesSync(),
         )
-    }
 
     fun initializeDefaultValues() {
         repository.initializeDefaultValues()
@@ -133,24 +189,41 @@ class Settings(
     ): Unit = repository.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
 
     // Reactive methods
-    fun scanSpeed(): Int = settingsData.value.scanSpeed
-    fun cacheOff(): Boolean = settingsData.value.cacheOff
-    fun graphMaximumY(): Int = settingsData.value.graphMaximumY
-    fun countryCode(): String = settingsData.value.countryCode
-    fun languageLocale(): Locale = settingsData.value.languageLocale
-    fun sortBy(): SortBy = settingsData.value.sortBy
-    fun groupBy(): GroupBy = settingsData.value.groupBy
-    fun accessPointView(): AccessPointViewType = settingsData.value.accessPointView
-    fun connectionViewType(): ConnectionViewType = settingsData.value.connectionViewType
-    fun wiFiBand(): WiFiBand = settingsData.value.wiFiBand
-    fun wiFiOffOnExit(): Boolean = settingsData.value.wiFiOffOnExit
-    fun keepScreenOn(): Boolean = settingsData.value.keepScreenOn
-    fun themeStyle(): ThemeStyle = settingsData.value.themeStyle
-    fun selectedMenu(): NavigationMenu = settingsData.value.selectedMenu
-    fun findSSIDs(): Set<String> = settingsData.value.filterSsids
-    fun findWiFiBands(): Set<WiFiBand> = settingsData.value.filterWiFiBands
-    fun findStrengths(): Set<Strength> = settingsData.value.filterStrengths
-    fun findSecurities(): Set<Security> = settingsData.value.filterSecurities
+    fun scanSpeed(): Int = scanSpeedSync()
+
+    fun cacheOff(): Boolean = cacheOffSync()
+
+    fun graphMaximumY(): Int = graphMaximumYSync()
+
+    fun countryCode(): String = countryCodeSync()
+
+    fun languageLocale(): Locale = languageLocaleSync()
+
+    fun sortBy(): SortBy = sortBySync()
+
+    fun groupBy(): GroupBy = groupBySync()
+
+    fun accessPointView(): AccessPointViewType = accessPointViewSync()
+
+    fun connectionViewType(): ConnectionViewType = connectionViewTypeSync()
+
+    fun wiFiBand(): WiFiBand = wiFiBandSync()
+
+    fun wiFiOffOnExit(): Boolean = wiFiOffOnExitSync()
+
+    fun keepScreenOn(): Boolean = keepScreenOnSync()
+
+    fun themeStyle(): ThemeStyle = themeStyleSync()
+
+    fun selectedMenu(): NavigationMenu = selectedMenuSync()
+
+    fun findSSIDs(): Set<String> = findSSIDsSync()
+
+    fun findWiFiBands(): Set<WiFiBand> = findWiFiBandsSync()
+
+    fun findStrengths(): Set<Strength> = findStrengthsSync()
+
+    fun findSecurities(): Set<Security> = findSecuritiesSync()
 
     // Sync methods (internal/private)
     private fun scanSpeedSync(): Int =
@@ -208,11 +281,14 @@ class Settings(
 
     private fun findSSIDsSync(): Set<String> = repository.stringSet(R.string.filter_ssid_key, setOf())
 
-    private fun findWiFiBandsSync(): Set<WiFiBand> = settingsFindSet(WiFiBand.entries, R.string.filter_wifi_band_key, WiFiBand.GHZ2)
+    private fun findWiFiBandsSync(): Set<WiFiBand> =
+        settingsFindSet(WiFiBand.entries, R.string.filter_wifi_band_key, WiFiBand.GHZ2)
 
-    private fun findStrengthsSync(): Set<Strength> = settingsFindSet(Strength.entries, R.string.filter_strength_key, Strength.FOUR)
+    private fun findStrengthsSync(): Set<Strength> =
+        settingsFindSet(Strength.entries, R.string.filter_strength_key, Strength.FOUR)
 
-    private fun findSecuritiesSync(): Set<Security> = settingsFindSet(Security.entries, R.string.filter_security_key, Security.NONE)
+    private fun findSecuritiesSync(): Set<Security> =
+        settingsFindSet(Security.entries, R.string.filter_security_key, Security.NONE)
 
     // Save methods
     fun wiFiBand(wiFiBand: WiFiBand) {

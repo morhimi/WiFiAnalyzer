@@ -46,9 +46,9 @@ class Repository(
     fun save(
         key: String,
         value: String,
-    ): Unit = sharedPreferences().edit(commit = true) { putString(key, value) }
+    ): Unit = sharedPreferences().edit { putString(key, value) }
 
-    fun remove(key: String): Unit = sharedPreferences().edit(commit = true) { remove(key) }
+    fun remove(key: String): Unit = sharedPreferences().edit { remove(key) }
 
     fun stringAsInteger(
         key: Int,
@@ -67,7 +67,7 @@ class Repository(
         runCatching {
             sharedPreferences().getString(key, defaultValue) ?: defaultValue
         }.getOrElse {
-            sharedPreferences().edit(commit = true) { putString(key, defaultValue) }
+            sharedPreferences().edit { putString(key, defaultValue) }
             defaultValue
         }
 
@@ -79,7 +79,7 @@ class Repository(
         return runCatching {
             sharedPreferences().getBoolean(keyValue, defaultValue)
         }.getOrElse {
-            sharedPreferences().edit(commit = true) { putBoolean(keyValue, defaultValue) }
+            sharedPreferences().edit { putBoolean(keyValue, defaultValue) }
             return defaultValue
         }
     }
@@ -94,7 +94,7 @@ class Repository(
         return runCatching {
             sharedPreferences().getInt(keyValue, defaultValue)
         }.getOrElse {
-            sharedPreferences().edit(commit = true) { putString(keyValue, defaultValue.toString()) }
+            sharedPreferences().edit { putString(keyValue, defaultValue.toString()) }
             return defaultValue
         }
     }
@@ -107,7 +107,7 @@ class Repository(
         return runCatching {
             sharedPreferences().getStringSet(keyValue, defaultValues)!!
         }.getOrElse {
-            sharedPreferences().edit(commit = true) { putStringSet(keyValue, defaultValues) }
+            sharedPreferences().edit { putStringSet(keyValue, defaultValues) }
             return defaultValues
         }
     }
@@ -115,7 +115,7 @@ class Repository(
     fun saveStringSet(
         key: Int,
         values: Set<String>,
-    ): Unit = sharedPreferences().edit(commit = true) { putStringSet(context.getString(key), values) }
+    ): Unit = sharedPreferences().edit { putStringSet(context.getString(key), values) }
 
     fun contextString(key: Int): String = context.getString(key)
 

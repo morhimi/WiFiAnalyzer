@@ -21,7 +21,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -129,9 +128,9 @@ fun WiFiAnalyzerApp(
                             restoreState = true
                         }
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Scaffold(
             topBar = {
@@ -142,7 +141,7 @@ fun WiFiAnalyzerApp(
                     onToggleScanner = { scannerService.toggle() },
                     onOpenDrawer = { scope.launch { drawerState.open() } },
                     onBandSelected = { band -> settings.wiFiBand(band) },
-                    onFilterClick = onFilterClick
+                    onFilterClick = onFilterClick,
                 )
             },
             bottomBar = {
@@ -156,9 +155,9 @@ fun WiFiAnalyzerApp(
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
+                    },
                 )
-            }
+            },
         ) { innerPadding ->
             MainNavigationGraph(
                 navController = navController,
@@ -169,7 +168,7 @@ fun WiFiAnalyzerApp(
                 scannerService = scannerService,
                 vendorService = vendorService,
                 configuration = configuration,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
             )
         }
     }
@@ -205,12 +204,12 @@ fun WiFiAnalyzerTopBar(
                             fontSize = 10.sp,
                             lineHeight = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                     DropdownMenu(
                         expanded = showBandMenu,
-                        onDismissRequest = { showBandMenu = false }
+                        onDismissRequest = { showBandMenu = false },
                     ) {
                         WiFiBand.entries.forEach { band ->
                             DropdownMenuItem(
@@ -218,7 +217,7 @@ fun WiFiAnalyzerTopBar(
                                 onClick = {
                                     onBandSelected(band)
                                     showBandMenu = false
-                                }
+                                },
                             )
                         }
                     }
@@ -227,7 +226,10 @@ fun WiFiAnalyzerTopBar(
 
             if (currentMenu.showFilter) {
                 IconButton(onClick = onFilterClick) {
-                    Icon(painterResource(R.drawable.ic_filter_list), contentDescription = stringResource(R.string.filter_title))
+                    Icon(
+                        painterResource(R.drawable.ic_filter_list),
+                        contentDescription = stringResource(R.string.filter_title),
+                    )
                 }
             }
 
@@ -235,15 +237,19 @@ fun WiFiAnalyzerTopBar(
                 IconButton(onClick = onToggleScanner) {
                     Icon(
                         painter = painterResource(if (isScanning) R.drawable.ic_pause else R.drawable.ic_play_arrow),
-                        contentDescription = stringResource(if (isScanning) R.string.scanner_pause else R.string.scanner_play)
+                        contentDescription =
+                            stringResource(
+                                if (isScanning) R.string.scanner_pause else R.string.scanner_play,
+                            ),
                     )
                 }
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-        )
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+            ),
     )
 }
 
@@ -259,7 +265,7 @@ fun WiFiAnalyzerDrawer(
         Text(
             text = "Features",
             modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
         )
         MAIN_NAVIGATION.forEach { menu ->
             NavigationDrawerItem(
@@ -267,7 +273,7 @@ fun WiFiAnalyzerDrawer(
                 selected = menu == currentMenu,
                 onClick = { onMenuSelected(menu) },
                 icon = { Icon(painterResource(menu.icon), contentDescription = null) },
-                modifier = Modifier.padding(horizontal = 12.dp)
+                modifier = Modifier.padding(horizontal = 12.dp),
             )
         }
 
@@ -275,7 +281,7 @@ fun WiFiAnalyzerDrawer(
         Text(
             text = "Other",
             modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
         )
         listOf(NavigationMenu.EXPORT, NavigationMenu.CHANNEL_AVAILABLE, NavigationMenu.VENDORS).forEach { menu ->
             NavigationDrawerItem(
@@ -283,7 +289,7 @@ fun WiFiAnalyzerDrawer(
                 selected = menu == currentMenu,
                 onClick = { onMenuSelected(menu) },
                 icon = { Icon(painterResource(menu.icon), contentDescription = null) },
-                modifier = Modifier.padding(horizontal = 12.dp)
+                modifier = Modifier.padding(horizontal = 12.dp),
             )
         }
 
@@ -294,7 +300,7 @@ fun WiFiAnalyzerDrawer(
                 selected = menu == currentMenu,
                 onClick = { onMenuSelected(menu) },
                 icon = { Icon(painterResource(menu.icon), contentDescription = null) },
-                modifier = Modifier.padding(horizontal = 12.dp)
+                modifier = Modifier.padding(horizontal = 12.dp),
             )
         }
     }
@@ -303,27 +309,29 @@ fun WiFiAnalyzerDrawer(
 @Composable
 private fun DrawerHeader() {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(160.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer),
     ) {
         Column(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp)
+            modifier =
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(16.dp),
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_network_wifi),
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
             Text(
                 text = stringResource(R.string.app_name),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
     }
@@ -340,7 +348,7 @@ fun WiFiAnalyzerBottomBar(
                 icon = { Icon(painterResource(menu.icon), contentDescription = null) },
                 label = { Text(stringResource(menu.title), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 selected = currentDestination?.hierarchy?.any { it.route == menu.route } == true,
-                onClick = { onMenuSelected(menu) }
+                onClick = { onMenuSelected(menu) },
             )
         }
     }
@@ -358,7 +366,7 @@ fun WiFiAnalyzerTopBarPreview() {
             onToggleScanner = {},
             onOpenDrawer = {},
             onBandSelected = {},
-            onFilterClick = {}
+            onFilterClick = {},
         )
     }
 }
@@ -369,7 +377,7 @@ fun WiFiAnalyzerBottomBarPreview() {
     WiFiAnalyzerTheme {
         WiFiAnalyzerBottomBar(
             currentDestination = null,
-            onMenuSelected = {}
+            onMenuSelected = {},
         )
     }
 }

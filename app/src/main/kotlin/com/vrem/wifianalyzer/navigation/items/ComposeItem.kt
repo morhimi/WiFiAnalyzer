@@ -20,8 +20,13 @@ package com.vrem.wifianalyzer.navigation.items
 import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 
-class ComposeItem(override val registered: Boolean = true) : NavigationItem {
-    override fun activate(mainActivity: MainActivity, navigationMenu: NavigationMenu) {
+class ComposeItem(
+    override val registered: Boolean = true,
+) : NavigationItem {
+    override fun activate(
+        mainActivity: MainActivity,
+        navigationMenu: NavigationMenu,
+    ) {
         // NavController handles the navigation, title is handled by destination listener in MainActivity
     }
 }

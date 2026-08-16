@@ -48,15 +48,16 @@ fun ChannelAvailableScreen(
         color = MaterialTheme.colorScheme.background,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(scrollState)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(scrollState),
         ) {
             Text(
                 text = stringResource(R.string.wifi_channels_list_url),
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
 
             Row(modifier = Modifier.padding(bottom = 16.dp)) {
@@ -64,38 +65,52 @@ fun ChannelAvailableScreen(
                     text = countryCode,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.padding(end = 8.dp)
+                    modifier = Modifier.padding(end = 8.dp),
                 )
                 Text(
                     text = WiFiChannelCountry.find(countryCode).countryName(languageLocale),
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.secondary,
                 )
             }
 
             listOf(
                 Triple(R.string.wifi_band_2ghz, WiFiBand.GHZ2, listOf(WiFiWidth.MHZ_20, WiFiWidth.MHZ_40)),
-                Triple(R.string.wifi_band_5ghz, WiFiBand.GHZ5, listOf(WiFiWidth.MHZ_20, WiFiWidth.MHZ_40, WiFiWidth.MHZ_80, WiFiWidth.MHZ_160)),
-                Triple(R.string.wifi_band_6ghz, WiFiBand.GHZ6, listOf(WiFiWidth.MHZ_20, WiFiWidth.MHZ_40, WiFiWidth.MHZ_80, WiFiWidth.MHZ_160, WiFiWidth.MHZ_320))
+                Triple(
+                    R.string.wifi_band_5ghz,
+                    WiFiBand.GHZ5,
+                    listOf(WiFiWidth.MHZ_20, WiFiWidth.MHZ_40, WiFiWidth.MHZ_80, WiFiWidth.MHZ_160),
+                ),
+                Triple(
+                    R.string.wifi_band_6ghz,
+                    WiFiBand.GHZ6,
+                    listOf(WiFiWidth.MHZ_20, WiFiWidth.MHZ_40, WiFiWidth.MHZ_80, WiFiWidth.MHZ_160, WiFiWidth.MHZ_320),
+                ),
             ).forEach { (bandNameRes, wiFiBand, widths) ->
                 Text(
                     text = stringResource(bandNameRes),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 widths.forEach { width ->
                     Column(modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)) {
                         Text(
                             text = width.toString(),
                             fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
                         )
                         Text(
-                            text = wiFiBand.wiFiChannels.availableChannels(width, wiFiBand, countryCode).joinToString(", "),
+                            text =
+                                wiFiBand.wiFiChannels
+                                    .availableChannels(
+                                        width,
+                                        wiFiBand,
+                                        countryCode,
+                                    ).joinToString(", "),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }

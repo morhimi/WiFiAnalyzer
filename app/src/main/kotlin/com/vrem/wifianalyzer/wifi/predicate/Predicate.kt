@@ -77,24 +77,22 @@ private fun predicates(
         makePredicate(Security.entries, filterSecurities) { security -> security.predicate() },
     )
 
-fun makeAccessPointsPredicate(settings: Settings): Predicate =
-    makeAccessPointsPredicate(settings.settingsData.value)
+fun makeAccessPointsPredicate(settings: Settings): Predicate = makeAccessPointsPredicate(settings.settingsData.value)
 
 fun makeAccessPointsPredicate(settingsData: SettingsData): Predicate =
     predicates(
         settingsData.filterSsids,
         settingsData.filterWiFiBands,
         settingsData.filterStrengths,
-        settingsData.filterSecurities
+        settingsData.filterSecurities,
     ).allPredicate()
 
-fun makeOtherPredicate(settings: Settings): Predicate =
-    makeOtherPredicate(settings.settingsData.value)
+fun makeOtherPredicate(settings: Settings): Predicate = makeOtherPredicate(settings.settingsData.value)
 
 fun makeOtherPredicate(settingsData: SettingsData): Predicate =
     predicates(
         settingsData.filterSsids,
         setOf(settingsData.wiFiBand),
         settingsData.filterStrengths,
-        settingsData.filterSecurities
+        settingsData.filterSecurities,
     ).allPredicate()

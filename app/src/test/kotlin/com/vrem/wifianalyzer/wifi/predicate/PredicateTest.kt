@@ -18,6 +18,7 @@
 package com.vrem.wifianalyzer.wifi.predicate
 
 import com.vrem.wifianalyzer.settings.Settings
+import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.model.Security
 import com.vrem.wifianalyzer.wifi.model.Strength
@@ -26,6 +27,7 @@ import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import com.vrem.wifianalyzer.wifi.model.WiFiSecurity
 import com.vrem.wifianalyzer.wifi.model.WiFiSignal
 import com.vrem.wifianalyzer.wifi.model.WiFiWidth
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -123,39 +125,45 @@ class PredicateTest {
     @Test
     fun makeOtherPredicate() {
         // setup
-        whenever(settings.wiFiBand()).thenReturn(WiFiBand.GHZ5)
-        whenever(settings.findSSIDs()).thenReturn(setOf(ssid, ssid))
-        whenever(settings.findStrengths()).thenReturn(setOf(Strength.TWO, Strength.FOUR))
-        whenever(settings.findSecurities()).thenReturn(setOf(Security.WEP, Security.WPA2))
+        val settingsData =
+            SettingsData(
+                wiFiBand = WiFiBand.GHZ5,
+                filterSsids = setOf(ssid),
+                filterStrengths = setOf(Strength.TWO, Strength.FOUR),
+                filterSecurities = setOf(Security.WEP, Security.WPA2),
+            )
+        whenever(settings.settingsData).thenReturn(MutableStateFlow(settingsData))
         // execute
         val fixture: Predicate = makeOtherPredicate(settings)
         // validate
         assertThat(fixture).isNotNull()
-        verify(settings).wiFiBand()
-        verify(settings).findSSIDs()
-        verify(settings).findStrengths()
-        verify(settings).findSecurities()
+        verify(settings).settingsData
     }
 
     private fun whenSettingsWithFullSets() {
-        whenever(settings.findSSIDs()).thenReturn(setOf())
-        whenever(settings.findWiFiBands()).thenReturn(WiFiBand.entries.toSet())
-        whenever(settings.findStrengths()).thenReturn(Strength.entries.toSet())
-        whenever(settings.findSecurities()).thenReturn(Security.entries.toSet())
+        val settingsData =
+            SettingsData(
+                filterSsids = setOf(),
+                filterWiFiBands = WiFiBand.entries.toSet(),
+                filterStrengths = Strength.entries.toSet(),
+                filterSecurities = Security.entries.toSet(),
+            )
+        whenever(settings.settingsData).thenReturn(MutableStateFlow(settingsData))
     }
 
     private fun whenSettings() {
-        whenever(settings.findSSIDs()).thenReturn(setOf(ssid, ssid))
-        whenever(settings.findWiFiBands()).thenReturn(setOf(WiFiBand.GHZ2))
-        whenever(settings.findStrengths()).thenReturn(setOf(Strength.TWO, Strength.FOUR))
-        whenever(settings.findSecurities()).thenReturn(setOf(Security.WEP, Security.WPA2))
+        val settingsData =
+            SettingsData(
+                filterSsids = setOf(ssid),
+                filterWiFiBands = setOf(WiFiBand.GHZ2),
+                filterStrengths = setOf(Strength.TWO, Strength.FOUR),
+                filterSecurities = setOf(Security.WEP, Security.WPA2),
+            )
+        whenever(settings.settingsData).thenReturn(MutableStateFlow(settingsData))
     }
 
     private fun verifySettings() {
-        verify(settings).findSSIDs()
-        verify(settings).findWiFiBands()
-        verify(settings).findStrengths()
-        verify(settings).findSecurities()
+        verify(settings).settingsData
     }
 
     private fun makeWiFiDetail(

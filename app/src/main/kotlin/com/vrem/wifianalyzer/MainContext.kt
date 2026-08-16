@@ -22,6 +22,8 @@ import android.content.res.Resources
 import android.net.wifi.WifiManager
 import android.os.Handler
 import android.os.Looper
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Repository
 import com.vrem.wifianalyzer.settings.Settings
@@ -33,8 +35,6 @@ import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.makeScannerService
 import kotlin.properties.Delegates
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.preferencesDataStoreFile
 
 enum class MainContext {
     INSTANCE,
@@ -85,22 +85,26 @@ enum class MainContext {
         this.context = context.applicationContext
         configuration = Configuration(largeScreen)
         val repository = Repository(this.context)
-        val settingsRepo = SettingsRepository(
-            PreferenceDataStoreFactory.create(produceFile = { this.context.preferencesDataStoreFile("settings_fallback") }),
-            this.context
-        )
+        val settingsRepo =
+            SettingsRepository(
+                PreferenceDataStoreFactory.create(
+                    produceFile = { this.context.preferencesDataStoreFile("settings_fallback") },
+                ),
+                this.context,
+            )
         settings = Settings(repository, settingsRepo)
         apAliasService = ApAliasService(settingsRepo)
         vendorService = VendorService(this.context.resources)
         wiFiManagerWrapper = WiFiManagerWrapper(wiFiManager)
         permissionService = PermissionService(this.context)
-        scannerService = makeScannerService(
-            this.context,
-            wiFiManagerWrapper,
-            permissionService,
-            Handler(Looper.getMainLooper()),
-            settings,
-        )
+        scannerService =
+            makeScannerService(
+                this.context,
+                wiFiManagerWrapper,
+                permissionService,
+                Handler(Looper.getMainLooper()),
+                settings,
+            )
         filtersAdapter = FiltersAdapter(settings)
     }
 }

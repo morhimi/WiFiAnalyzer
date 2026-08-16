@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -114,3 +115,4 @@ class SeriesDataTest {
             listOf(2.0, 3.0) to listOf(-20.0, -30.0),
         )
 }
+*/

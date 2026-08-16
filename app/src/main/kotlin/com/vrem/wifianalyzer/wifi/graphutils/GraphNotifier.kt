@@ -24,7 +24,10 @@ import com.vrem.wifianalyzer.wifi.model.WiFiData
 interface GraphNotifier {
     fun graph(): View
 
-    fun update(wiFiData: WiFiData, settingsData: SettingsData)
+    fun update(
+        wiFiData: WiFiData,
+        settingsData: SettingsData,
+    )
 
     fun destroy()
 }

@@ -26,7 +26,12 @@ open class GraphAdapter(
 ) {
     fun graphs(): List<View> = graphNotifiers.map { it.graph() }
 
-    fun update(wiFiData: WiFiData, settingsData: SettingsData) = graphNotifiers.forEach { it.update(wiFiData, settingsData) }
+    fun update(
+        wiFiData: WiFiData,
+        settingsData: SettingsData,
+    ) = graphNotifiers.forEach {
+        it.update(wiFiData, settingsData)
+    }
 
     fun destroy() = graphNotifiers.forEach { it.destroy() }
 }

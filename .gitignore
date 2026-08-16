@@ -15,3 +15,4 @@ release
 androidkeystore*
 plans
 settings.*.json
+.artifacts/

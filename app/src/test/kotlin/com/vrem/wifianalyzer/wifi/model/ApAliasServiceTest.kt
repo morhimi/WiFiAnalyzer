@@ -18,43 +18,46 @@
 package com.vrem.wifianalyzer.wifi.model
 
 import com.vrem.util.EMPTY
-import com.vrem.wifianalyzer.settings.Repository
+import com.vrem.wifianalyzer.settings.SettingsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.whenever
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class ApAliasServiceTest {
     @Mock
-    private lateinit var repository: Repository
+    private lateinit var settingsRepository: SettingsRepository
 
-    @InjectMocks
+    private val testDispatcher = StandardTestDispatcher()
     private lateinit var fixture: ApAliasService
 
     private val bssid = "00:11:22:33:44:55"
-    private val key = "ap_alias_00:11:22:33:44:55"
+    private val key = "00:11:22:33:44:55"
     private val alias = "Living Room"
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+        fixture = ApAliasService(settingsRepository)
+    }
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(repository)
-    }
-
-    @Test
-    fun getAliasReturnsAliasFromRepository() {
-        whenever(repository.string(key, String.EMPTY)).thenReturn(alias)
-
-        val result = fixture.getAlias(bssid)
-
-        assertThat(result).isEqualTo(alias)
-        verify(repository).string(key, String.EMPTY)
+        verifyNoMoreInteractions(settingsRepository)
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -65,23 +68,32 @@ class ApAliasServiceTest {
     }
 
     @Test
-    fun saveAliasSavesTrimmedAlias() {
-        fixture.saveAlias(bssid, "  $alias  ")
+    fun saveAliasAndGetAlias() =
+        runTest(testDispatcher) {
+            fixture.saveAlias(bssid, "  $alias  ")
+            testScheduler.advanceUntilIdle()
 
-        verify(repository).save(key, alias)
-    }
+            val result = fixture.getAlias(bssid)
 
-    @Test
-    fun saveAliasRemovesAliasWhenEmpty() {
-        fixture.saveAlias(bssid, "   ")
-
-        verify(repository).remove(key)
-    }
+            assertThat(result).isEqualTo(alias)
+            verify(settingsRepository).saveAlias(key, alias)
+        }
 
     @Test
-    fun removeAliasRemovesFromRepository() {
-        fixture.removeAlias(bssid)
+    fun saveAliasRemovesAliasWhenEmpty() =
+        runTest(testDispatcher) {
+            fixture.saveAlias(bssid, "   ")
+            testScheduler.advanceUntilIdle()
 
-        verify(repository).remove(key)
-    }
+            verify(settingsRepository).saveAlias(key, "")
+        }
+
+    @Test
+    fun removeAliasRemovesFromRepository() =
+        runTest(testDispatcher) {
+            fixture.removeAlias(bssid)
+            testScheduler.advanceUntilIdle()
+
+            verify(settingsRepository).saveAlias(key, "")
+        }
 }

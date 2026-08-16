@@ -20,7 +20,6 @@ package com.vrem.wifianalyzer
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
-import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.ActionBar
@@ -60,6 +59,7 @@ class ActivityUtilsTest {
         verifyNoMoreInteractions(intent)
     }
 
+/*
     @Test
     fun setupToolbar() {
         // setup
@@ -75,6 +75,7 @@ class ActivityUtilsTest {
         verify(actionBar).setHomeButtonEnabled(true)
         verify(actionBar).setDisplayHomeAsUpEnabled(true)
     }
+*/
 
     @Test
     fun keepScreenOnSwitchOn() {

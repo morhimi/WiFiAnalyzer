@@ -21,7 +21,6 @@ import java.util.Locale
 import java.util.SortedMap
 
 private object SyncAvoid {
-    val defaultLocale: Locale = Locale.getDefault()
     val countryCodes: Set<String> = Locale.getISOCountries().toSet()
     val availableLocales: List<Locale> = Locale.getAvailableLocales().filter { countryCodes.contains(it.country) }
 
@@ -30,7 +29,7 @@ private object SyncAvoid {
             .associateBy { it.country.toCapitalize(Locale.getDefault()) }
             .toSortedMap()
     val supportedLocales: List<Locale> =
-        setOf(
+        listOf(
             BULGARIAN,
             DUTCH,
             GREEK,
@@ -49,8 +48,7 @@ private object SyncAvoid {
             RUSSIAN,
             TURKISH,
             UKRAINIAN,
-            defaultLocale,
-        ).toList()
+        )
 }
 
 val BULGARIAN: Locale = Locale.forLanguageTag("bg")
@@ -69,7 +67,7 @@ private const val SEPARATOR: String = "_"
 
 fun findByCountryCode(countryCode: String): Locale =
     SyncAvoid.availableLocales.firstOrNull { countryCode.toCapitalize(Locale.getDefault()) == it.country }
-        ?: SyncAvoid.defaultLocale
+        ?: Locale.getDefault()
 
 fun allCountries(): List<Locale> = SyncAvoid.countriesLocales.values.toList()
 
@@ -78,14 +76,14 @@ fun findByLanguageTag(languageTag: String): Locale {
         val locale: Locale = fromLanguageTag(languageTag)
         it.language == locale.language && it.country == locale.country
     }
-    return SyncAvoid.supportedLocales.firstOrNull(languageTagPredicate) ?: SyncAvoid.defaultLocale
+    return supportedLanguages().firstOrNull(languageTagPredicate) ?: Locale.getDefault()
 }
 
-fun supportedLanguages(): List<Locale> = SyncAvoid.supportedLocales
+fun supportedLanguages(): List<Locale> = (SyncAvoid.supportedLocales + Locale.getDefault()).distinct()
 
-fun defaultCountryCode(): String = SyncAvoid.defaultLocale.country
+fun defaultCountryCode(): String = Locale.getDefault().country
 
-fun defaultLanguageTag(): String = toLanguageTag(SyncAvoid.defaultLocale)
+fun defaultLanguageTag(): String = toLanguageTag(Locale.getDefault())
 
 fun toLanguageTag(locale: Locale): String = locale.language + SEPARATOR + locale.country
 
@@ -94,6 +92,6 @@ private fun fromLanguageTag(languageTag: String): Locale {
     return when (codes.size) {
         1 -> Locale.forLanguageTag(codes[0])
         2 -> Locale.forLanguageTag("${codes[0]}-${codes[1].toCapitalize(Locale.getDefault())}")
-        else -> SyncAvoid.defaultLocale
+        else -> Locale.getDefault()
     }
 }

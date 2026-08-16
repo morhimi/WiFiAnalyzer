@@ -41,6 +41,7 @@ class WiFiScanViewModelTest {
     @After
     fun tearDown() {
         verify(scannerService).wiFiData()
+        verify(scannerService).runningFlow
         verify(scannerService).register(fixture.updateNotifier)
         verifyNoMoreInteractions(scannerService, initialWiFiData)
     }

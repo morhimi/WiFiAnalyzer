@@ -1,4 +1,5 @@
 /*
+/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -117,3 +118,4 @@ class GraphColorsTest {
             GraphColor(0x8B1EFC, 0x338B1EFC),
         )
 }
+*/

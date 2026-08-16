@@ -64,7 +64,7 @@ class GroupByTest {
         ).isTrue
         assertThat(
             GroupBy.NONE.group.javaClass
-                .isInstance(groupBySSID),
+                .isInstance(groupByBSSID),
         ).isTrue
         assertThat(
             GroupBy.SSID.group.javaClass
@@ -87,8 +87,8 @@ class GroupByTest {
     @Test
     fun groupByKeyWithNone() {
         // setup
-        val expected = "SSID_TO_TEST"
-        val wiFiDetail = WiFiDetail(WiFiIdentifier(expected))
+        val expected = "BSSID_TO_TEST"
+        val wiFiDetail = WiFiDetail(WiFiIdentifier("SSID", expected))
         // execute
         val actual: String = GroupBy.NONE.group(wiFiDetail)
         // validate
