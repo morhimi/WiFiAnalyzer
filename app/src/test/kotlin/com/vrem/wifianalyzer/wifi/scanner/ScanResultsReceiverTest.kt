@@ -25,6 +25,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers
+import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
@@ -42,6 +43,7 @@ class ScanResultsReceiverTest {
     @Before
     fun setUp() {
         whenever(fixture.makeIntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)).thenReturn(intentFilter)
+        doNothing().whenever(fixture).registerReceiver(intentFilter)
     }
 
     @After
@@ -55,7 +57,7 @@ class ScanResultsReceiverTest {
         // execute
         fixture.register()
         // verify
-        verify(context).registerReceiver(fixture, intentFilter)
+        verify(fixture).registerReceiver(intentFilter)
     }
 
     @Test
@@ -64,7 +66,7 @@ class ScanResultsReceiverTest {
         fixture.register()
         fixture.register()
         // verify
-        verify(context).registerReceiver(fixture, intentFilter)
+        verify(fixture).registerReceiver(intentFilter)
     }
 
     @Test
@@ -74,7 +76,7 @@ class ScanResultsReceiverTest {
         // execute
         fixture.unregister()
         // verify
-        verify(context).registerReceiver(fixture, intentFilter)
+        verify(fixture).registerReceiver(intentFilter)
         verify(context).unregisterReceiver(fixture)
     }
 
@@ -86,7 +88,7 @@ class ScanResultsReceiverTest {
         fixture.unregister()
         fixture.unregister()
         // verify
-        verify(context).registerReceiver(fixture, intentFilter)
+        verify(fixture).registerReceiver(intentFilter)
         verify(context).unregisterReceiver(fixture)
     }
 

@@ -18,7 +18,6 @@
  */
 package com.vrem.wifianalyzer
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -29,19 +28,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.vrem.util.createContext
-import com.vrem.util.defaultLanguageTag
-import com.vrem.util.findByLanguageTag
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerApp
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
-import com.vrem.wifianalyzer.di.settingsDataStore
 import com.vrem.wifianalyzer.permission.ApplicationPermission
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
@@ -55,9 +49,7 @@ import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import com.vrem.wifianalyzer.Configuration as WiFiConfiguration
 
@@ -108,19 +100,6 @@ class MainActivity : AppCompatActivity() {
 
     fun showWiFiDetails(details: List<WiFiDetail>) {
         showWiFiDetailsCallback?.invoke(details)
-    }
-
-    override fun attachBaseContext(newBase: Context) {
-        val defaultLanguageTag = defaultLanguageTag()
-        val languageKey = stringPreferencesKey(newBase.getString(R.string.language_key))
-        val languageTag =
-            runCatching {
-                runBlocking(kotlinx.coroutines.Dispatchers.IO) {
-                    newBase.settingsDataStore.data.first()[languageKey]
-                } ?: defaultLanguageTag
-            }.getOrDefault(defaultLanguageTag)
-        val locale = findByLanguageTag(languageTag)
-        super.attachBaseContext(newBase.createContext(locale))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

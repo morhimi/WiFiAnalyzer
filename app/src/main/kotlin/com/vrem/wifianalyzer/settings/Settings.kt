@@ -36,10 +36,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.Locale
 
 @OpenClass
@@ -48,14 +46,7 @@ class Settings(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
 ) {
     private val dataFlow = settingsRepository.settingsData
-    private val _settingsData =
-        MutableStateFlow(
-            runCatching {
-                runBlocking(Dispatchers.IO) {
-                    dataFlow.first()
-                }
-            }.getOrDefault(SettingsData()),
-        )
+    private val _settingsData = MutableStateFlow(SettingsData())
     val settingsData: StateFlow<SettingsData> = _settingsData.asStateFlow()
 
     init {

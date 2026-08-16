@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.WifiManager
+import androidx.core.content.ContextCompat
 import com.vrem.annotation.OpenClass
 
 fun interface Callback { // Compliant, function interface used
@@ -38,9 +39,13 @@ internal class ScanResultsReceiver(
     fun register() {
         if (!registered) {
             val intentFilter = makeIntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-            context.registerReceiver(this, intentFilter)
+            registerReceiver(intentFilter)
             registered = true
         }
+    }
+
+    fun registerReceiver(intentFilter: IntentFilter) {
+        ContextCompat.registerReceiver(context, this, intentFilter, ContextCompat.RECEIVER_EXPORTED)
     }
 
     fun unregister() {
