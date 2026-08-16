@@ -42,7 +42,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -146,15 +145,9 @@ class Settings(
         }
 
     init {
-        settingsRepository?.let { repo ->
+        settingsRepository?.let {
             _settingsData.value = transformSync()
             repository.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener)
-            scope.launch {
-                repo.preferencesFlow.collectLatest { preferences ->
-                    val newData = repo.toSettingsData(preferences)
-                    _settingsData.update { newData }
-                }
-            }
         }
     }
 

@@ -57,21 +57,21 @@ class SeriesData(
     var connected: Boolean = false,
     var drawBackground: Boolean = false,
 ) {
-    val dataPoints: List<DataPoint>
-        field = ArrayDeque(dataPoints)
+    private val _dataPoints: ArrayDeque<DataPoint> = ArrayDeque(dataPoints)
+    val dataPoints: List<DataPoint> get() = _dataPoints
 
     fun replaceAll(points: List<DataPoint>) {
-        dataPoints.clear()
-        dataPoints.addAll(points)
+        _dataPoints.clear()
+        _dataPoints.addAll(points)
     }
 
     fun append(
         point: DataPoint,
         maxSize: Int,
     ) {
-        dataPoints.addLast(point)
-        if (dataPoints.size > maxSize) {
-            dataPoints.removeFirst()
+        _dataPoints.addLast(point)
+        if (_dataPoints.size > maxSize) {
+            _dataPoints.removeFirst()
         }
     }
 

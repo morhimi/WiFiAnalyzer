@@ -28,16 +28,7 @@ plugins {
     alias(libs.plugins.ktlint) apply false
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    tasks.withType<JavaCompile>().configureEach {
-        options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
-    }
-}
-
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+

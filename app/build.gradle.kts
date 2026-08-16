@@ -21,9 +21,8 @@ import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.io.File
 import java.util.Properties
+
 
 plugins {
     alias(libs.plugins.android.application)
@@ -94,6 +93,19 @@ dependencies {
     androidTestImplementation(libs.androidTest.hamcrest)
 }
 
+val versionProperties =
+    Properties().apply {
+        val propFile = file("build.properties")
+        if (propFile.canRead()) {
+            propFile.inputStream().use { load(it) }
+        }
+    }
+val versionMajor = versionProperties.getProperty("version_major", "3")
+val versionMinor = versionProperties.getProperty("version_minor", "3")
+val versionPatch = versionProperties.getProperty("version_patch", "1")
+val versionStore = versionProperties.getProperty("version_store", "72").toInt()
+val versionBuild = versionProperties.getProperty("version_build", "0")
+
 configure<ApplicationExtension> {
     namespace = "com.vrem.wifianalyzer"
     compileSdk = 37
@@ -103,7 +115,25 @@ configure<ApplicationExtension> {
         applicationId = "com.vrem.wifianalyzer"
         minSdk = 24
         targetSdk = 37
+        versionCode = versionStore
+        versionName = "$versionMajor.$versionMinor.$versionPatch.$versionBuild"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        val keystorePropertiesFile = file("androidkeystore.properties")
+        if (keystorePropertiesFile.canRead()) {
+            val properties =
+                Properties().apply {
+                    keystorePropertiesFile.inputStream().use { load(it) }
+                }
+            create("release") {
+                keyAlias = properties.getProperty("key_alias")
+                keyPassword = properties.getProperty("key_password")
+                storeFile = file(properties.getProperty("store_filename"))
+                storePassword = properties.getProperty("store_password")
+            }
+        }
     }
 
     buildFeatures {
@@ -116,6 +146,9 @@ configure<ApplicationExtension> {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            signingConfigs.findByName("release")?.let {
+                signingConfig = it
+            }
         }
         debug {
             applicationIdSuffix = ".BETA"
@@ -133,20 +166,21 @@ configure<ApplicationExtension> {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-            freeCompilerArgs.add("-XXLanguage:+ExplicitBackingFields")
-        }
+        jvmToolchain(21)
     }
 
     lint {
         lintConfig = file("lint.xml")
     }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
 }
 
 tasks.withType<Test>().configureEach {
@@ -185,9 +219,15 @@ val fileFilter =
         "**/*Test*.*",
         "android/**/*.*",
         "**/*\$DefaultImpls.class",
+        "**/Hilt_*.*",
+        "**/Dagger*.*",
+        "**/*_HiltComponents*.*",
+        "**/*_GeneratedInjector*.*",
+        "**/*_MembersInjector*.*",
+        "**/*_Factory*.*",
     )
 
-val classKotlinDir = layout.buildDirectory.dir("intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes")
+val classKotlinDir = layout.buildDirectory.dir("intermediates/classes/debug/transformDebugClassesWithAsm/dirs")
 val mainKotlinSrc = layout.projectDirectory.dir("src/main/kotlin")
 val debugTree =
     fileTree(classKotlinDir) {
@@ -252,110 +292,47 @@ tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
     }
 }
 
-// keystore and version helper -----------------------------
-object BuildHelper {
-    fun isTestTask(gradle: org.gradle.api.invocation.Gradle): Boolean {
-        val taskNames = gradle.startParameter.taskNames
-        return ":app:testDebugUnitTest" in taskNames ||
-            "testDebugUnitTest" in taskNames ||
-            ":app:testReleaseUnitTest" in taskNames ||
-            "testReleaseUnitTest" in taskNames
-    }
-
-    fun isReleaseTask(gradle: org.gradle.api.invocation.Gradle): Boolean {
-        val taskNames = gradle.startParameter.taskNames
-        return ":app:assembleRelease" in taskNames ||
-            "assembleRelease" in taskNames ||
-            ":app:bundleRelease" in taskNames ||
-            "bundleRelease" in taskNames
-    }
-
-    fun readProperties(propertiesFile: File): Properties {
-        if (propertiesFile.canRead()) {
-            val properties = Properties()
-            propertiesFile.inputStream().use { inputStream ->
-                properties.load(inputStream)
+// versioning tasks ----------------------------------------
+tasks.register("bumpReleaseVersion") {
+    description = "Increments patch and store versions in build.properties for release"
+    group = "versioning"
+    doLast {
+        val propFile = file("build.properties")
+        val props =
+            Properties().apply {
+                if (propFile.canRead()) {
+                    propFile.inputStream().use { load(it) }
+                }
             }
-            return properties
-        } else {
-            val message = ">>> Could not read ${propertiesFile.name} file!"
-            System.err.println(message)
-            throw RuntimeException(message)
-        }
-    }
-
-    fun writeProperties(
-        propertiesFile: File,
-        properties: Properties,
-    ) {
-        propertiesFile.writer().use { writer ->
-            properties.store(writer, "Build Properties")
-        }
-    }
-
-    fun configureSigning(project: Project) {
-        if (isReleaseTask(project.gradle)) {
-            val propertiesFile = project.file("androidkeystore.properties")
-            if (propertiesFile.exists()) {
-                val properties = readProperties(propertiesFile)
-                println(">>> Signing Config $properties")
-                val android = project.extensions.getByType<ApplicationExtension>()
-                val releaseConfig =
-                    android.signingConfigs.create("releaseConfig") {
-                        keyAlias = properties["key_alias"].toString()
-                        keyPassword = properties["key_password"].toString()
-                        storeFile = project.file(properties["store_filename"].toString())
-                        storePassword = properties["store_password"].toString()
-                    }
-                android.buildTypes.getByName("release").signingConfig = releaseConfig
-            } else {
-                System.err.println(">>> No Signing Config found! Missing '${propertiesFile.name}' file!")
-            }
-        }
-    }
-
-    fun updateVersion(project: Project) {
-        val propertiesFile = project.file("build.properties")
-        val properties = readProperties(propertiesFile)
-
-        var versionMajor = properties["version_major"].toString().toInt()
-        var versionMinor = properties["version_minor"].toString().toInt()
-        var versionPatch = properties["version_patch"].toString().toInt()
-        var versionBuild = properties["version_build"].toString().toInt()
-        var versionStore = properties["version_store"].toString().toInt()
-
-        if (isReleaseTask(project.gradle)) {
-            println(">>> Building Release...")
-            versionPatch++
-            versionStore++
-            versionBuild = 0
-            properties["version_patch"] = versionPatch.toString()
-            properties["version_store"] = versionStore.toString()
-            properties["version_build"] = versionBuild.toString()
-            writeProperties(propertiesFile, properties)
-        }
-        if (isTestTask(project.gradle)) {
-            println(">>> Running Tests...")
-            versionBuild++
-            properties["version_build"] = versionBuild.toString()
-            writeProperties(propertiesFile, properties)
-        }
-
-        val android = project.extensions.getByType<ApplicationExtension>()
-        var versionName = "$versionMajor.$versionMinor.$versionPatch"
-        var applicationId = android.defaultConfig.applicationId ?: ""
-        if (!isReleaseTask(project.gradle)) {
-            versionName = "$versionName.$versionBuild"
-            applicationId += (android.buildTypes.getByName("debug").applicationIdSuffix ?: "")
-        }
-        println(">>> ${project.parent?.name} $versionName ($versionStore) $applicationId")
-        android.defaultConfig.versionCode = versionStore
-        android.defaultConfig.versionName = versionName
+        val newPatch = props.getProperty("version_patch", "0").toInt() + 1
+        val newStore = props.getProperty("version_store", "0").toInt() + 1
+        props.setProperty("version_patch", newPatch.toString())
+        props.setProperty("version_store", newStore.toString())
+        props.setProperty("version_build", "0")
+        propFile.writer().use { props.store(it, "Build Properties") }
+        println(
+            ">>> Updated release version: ${props["version_major"]}.${props["version_minor"]}.$newPatch ($newStore)",
+        )
     }
 }
 
-BuildHelper.configureSigning(project)
-BuildHelper.updateVersion(project)
+tasks.register("bumpBuildVersion") {
+    description = "Increments build version in build.properties"
+    group = "versioning"
+    doLast {
+        val propFile = file("build.properties")
+        val props =
+            Properties().apply {
+                if (propFile.canRead()) {
+                    propFile.inputStream().use { load(it) }
+                }
+            }
+        val newBuild = props.getProperty("version_build", "0").toInt() + 1
+        props.setProperty("version_build", newBuild.toString())
+        propFile.writer().use { props.store(it, "Build Properties") }
+        println(">>> Updated build version to: $newBuild")
+    }
+}
 
 configurations.configureEach {
     exclude(group = "org.hamcrest", module = "hamcrest-core")
