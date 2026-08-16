@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.wifi.scanner
 
 import android.content.Context
-import android.os.Handler
 import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
@@ -35,7 +34,6 @@ class ScannerServiceTest {
     private val wiFiManagerWrapper: WiFiManagerWrapper = mock()
     private val context: Context = mock()
     private val permissionService: PermissionService = mock()
-    private val handler: Handler = mock()
     private val settings: Settings = mock()
     private val apAliasService: ApAliasService = mock()
     private val vendorService: VendorService = mock()
@@ -46,7 +44,6 @@ class ScannerServiceTest {
         verifyNoMoreInteractions(wiFiManagerWrapper)
         verifyNoMoreInteractions(context)
         verifyNoMoreInteractions(permissionService)
-        verifyNoMoreInteractions(handler)
         verifyNoMoreInteractions(settings)
         verifyNoMoreInteractions(apAliasService)
         verifyNoMoreInteractions(vendorService)
@@ -55,14 +52,12 @@ class ScannerServiceTest {
 
     @Test
     fun makeScannerService() {
-        // setup
         // execute
         val actual =
             makeScannerService(
                 context,
                 wiFiManagerWrapper,
                 permissionService,
-                handler,
                 settings,
                 apAliasService,
                 vendorService,

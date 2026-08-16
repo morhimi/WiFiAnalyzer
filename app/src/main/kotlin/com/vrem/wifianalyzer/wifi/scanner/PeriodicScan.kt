@@ -17,40 +17,51 @@
  */
 package com.vrem.wifianalyzer.wifi.scanner
 
-import android.os.Handler
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.settings.Settings
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 @OpenClass
 internal class PeriodicScan(
     private val scanner: ScannerService,
-    private val handler: Handler,
     private val settings: Settings,
-) : Runnable {
-    internal var running = false
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
+) {
+    private var job: Job? = null
+
+    internal val running: Boolean
+        get() = job?.isActive == true
 
     fun stop() {
-        handler.removeCallbacks(this)
-        running = false
+        job?.cancel()
+        job = null
     }
 
     fun start() {
-        nextRun(DELAY_INITIAL)
+        schedule(DELAY_INITIAL)
     }
 
     fun startWithDelay() {
-        nextRun(settings.scanSpeed() * DELAY_INTERVAL)
+        schedule(settings.scanSpeed() * DELAY_INTERVAL)
     }
 
-    override fun run() {
-        scanner.update()
-        startWithDelay()
-    }
-
-    private fun nextRun(delay: Long) {
+    private fun schedule(initialDelay: Long) {
         stop()
-        handler.postDelayed(this, delay)
-        running = true
+        job =
+            scope.launch(dispatcher) {
+                delay(initialDelay)
+                while (isActive) {
+                    scanner.update()
+                    delay(settings.scanSpeed() * DELAY_INTERVAL)
+                }
+            }
     }
 
     companion object {

@@ -18,6 +18,7 @@
 package com.vrem.wifianalyzer.wifi.scanner
 
 import com.vrem.wifianalyzer.wifi.model.WiFiData
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -29,26 +30,32 @@ import org.mockito.kotlin.whenever
 
 class WiFiScanViewModelTest {
     private val scannerService: ScannerService = mock()
-    private val initialWiFiData: WiFiData = mock()
+    private val wiFiDataFlow = MutableStateFlow(WiFiData.EMPTY)
+    private val runningFlow = MutableStateFlow(false)
     private lateinit var fixture: WiFiScanViewModel
 
     @Before
     fun setUp() {
-        whenever(scannerService.wiFiData()).thenReturn(initialWiFiData)
+        whenever(scannerService.wiFiDataFlow).thenReturn(wiFiDataFlow)
+        whenever(scannerService.runningFlow).thenReturn(runningFlow)
         fixture = WiFiScanViewModel(scannerService)
     }
 
     @After
     fun tearDown() {
-        verify(scannerService).wiFiData()
+        verify(scannerService).wiFiDataFlow
         verify(scannerService).runningFlow
-        verify(scannerService).register(fixture.updateNotifier)
-        verifyNoMoreInteractions(scannerService, initialWiFiData)
+        verifyNoMoreInteractions(scannerService)
     }
 
     @Test
-    fun initialWiFiData() {
-        assertThat(fixture.wiFiData.value).isEqualTo(initialWiFiData)
+    fun wiFiDataExposesScannerServiceFlow() {
+        assertThat(fixture.wiFiData).isEqualTo(wiFiDataFlow)
+    }
+
+    @Test
+    fun isScanningExposesScannerServiceFlow() {
+        assertThat(fixture.isScanning).isEqualTo(runningFlow)
     }
 
     @Test
@@ -57,23 +64,5 @@ class WiFiScanViewModelTest {
         fixture.update()
         // validate
         verify(scannerService).update()
-    }
-
-    @Test
-    fun updateNotifierEmitsNewData() {
-        // setup
-        val newWiFiData: WiFiData = mock()
-        // execute
-        fixture.updateNotifier.update(newWiFiData)
-        // validate
-        assertThat(fixture.wiFiData.value).isEqualTo(newWiFiData)
-    }
-
-    @Test
-    fun onCleared() {
-        // execute
-        fixture.onCleared()
-        // validate
-        verify(scannerService).unregister(fixture.updateNotifier)
     }
 }

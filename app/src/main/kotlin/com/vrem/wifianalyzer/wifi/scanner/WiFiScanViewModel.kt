@@ -21,9 +21,7 @@ import androidx.lifecycle.ViewModel
 import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,25 +31,10 @@ class WiFiScanViewModel
     constructor(
         private val scannerService: ScannerService,
     ) : ViewModel() {
-        private val _wiFiData: MutableStateFlow<WiFiData> = MutableStateFlow(scannerService.wiFiData())
-        val wiFiData: StateFlow<WiFiData> = _wiFiData.asStateFlow()
+        val wiFiData: StateFlow<WiFiData> = scannerService.wiFiDataFlow
         val isScanning: StateFlow<Boolean> = scannerService.runningFlow
-
-        internal val updateNotifier: UpdateNotifier =
-            UpdateNotifier { data ->
-                _wiFiData.value = data
-            }
-
-        init {
-            scannerService.register(updateNotifier)
-        }
 
         fun update() {
             scannerService.update()
-        }
-
-        public override fun onCleared() {
-            scannerService.unregister(updateNotifier)
-            super.onCleared()
         }
     }

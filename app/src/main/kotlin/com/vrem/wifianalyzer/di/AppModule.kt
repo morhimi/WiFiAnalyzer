@@ -20,8 +20,6 @@ package com.vrem.wifianalyzer.di
 import android.content.Context
 import android.content.res.Configuration
 import android.net.wifi.WifiManager
-import android.os.Handler
-import android.os.Looper
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
@@ -129,7 +127,6 @@ object AppModule {
             context,
             wiFiManagerWrapper,
             permissionService,
-            Handler(Looper.getMainLooper()),
             settings,
             apAliasService,
             vendorService,

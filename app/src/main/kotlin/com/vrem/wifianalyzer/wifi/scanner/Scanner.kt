@@ -36,6 +36,9 @@ internal class Scanner(
     private val _runningFlow = MutableStateFlow(false)
     override val runningFlow: StateFlow<Boolean> = _runningFlow.asStateFlow()
 
+    private val _wiFiDataFlow = MutableStateFlow(WiFiData.EMPTY)
+    override val wiFiDataFlow: StateFlow<WiFiData> = _wiFiDataFlow.asStateFlow()
+
     private val updateNotifiers: MutableList<UpdateNotifier> = mutableListOf()
 
     private var wiFiData: WiFiData = WiFiData.EMPTY
@@ -56,6 +59,7 @@ internal class Scanner(
             }
         }
         wiFiData = transformer.transformToWiFiData()
+        _wiFiDataFlow.value = wiFiData
         updateNotifiers.forEach { it.update(wiFiData) }
     }
 

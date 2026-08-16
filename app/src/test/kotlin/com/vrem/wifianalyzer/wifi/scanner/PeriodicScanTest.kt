@@ -17,62 +17,99 @@
  */
 package com.vrem.wifianalyzer.wifi.scanner
 
-import android.os.Handler
 import com.vrem.wifianalyzer.settings.Settings
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PeriodicScanTest {
-    private val handler: Handler = mock()
     private val settings: Settings = mock()
     private val scanner: ScannerService = mock()
-    private val fixture: PeriodicScan = PeriodicScan(scanner, handler, settings)
 
     @Test
-    fun run() {
-        // setup
-        val delayInterval = 1000L
-        val scanSpeed = 15
-        whenever(settings.scanSpeed()).thenReturn(scanSpeed)
-        // execute
-        fixture.run()
-        // validate
-        verify(scanner).update()
-        verify(handler).removeCallbacks(fixture)
-        verify(handler).postDelayed(fixture, scanSpeed * delayInterval)
-    }
+    fun startSchedulesImmediateInitialScanAndPeriodicLoops() =
+        runTest {
+            val dispatcher = StandardTestDispatcher(testScheduler)
+            val fixture = PeriodicScan(scanner, settings, this, dispatcher)
+            val scanSpeed = 10
+            whenever(settings.scanSpeed()).thenReturn(scanSpeed)
+
+            // execute
+            fixture.start()
+            assertThat(fixture.running).isTrue
+
+            // Advance past initial delay (1ms)
+            testScheduler.advanceTimeBy(2L)
+            verify(scanner, times(1)).update()
+
+            // Advance by one interval (10s)
+            testScheduler.advanceTimeBy(10_000L)
+            verify(scanner, times(2)).update()
+
+            // Advance by another interval (10s)
+            testScheduler.advanceTimeBy(10_000L)
+            verify(scanner, times(3)).update()
+
+            // Stop
+            fixture.stop()
+            assertThat(fixture.running).isFalse
+
+            // Advance time further, no more updates should occur
+            testScheduler.advanceTimeBy(20_000L)
+            verify(scanner, times(3)).update()
+        }
 
     @Test
-    fun stop() {
-        // execute
-        fixture.stop()
-        // validate
-        verify(handler).removeCallbacks(fixture)
-    }
+    fun startWithDelayWaitsIntervalBeforeFirstScan() =
+        runTest {
+            val dispatcher = StandardTestDispatcher(testScheduler)
+            val fixture = PeriodicScan(scanner, settings, this, dispatcher)
+            val scanSpeed = 5
+            whenever(settings.scanSpeed()).thenReturn(scanSpeed)
+
+            // execute
+            fixture.startWithDelay()
+            assertThat(fixture.running).isTrue
+
+            // Advance 4.9s - no scan yet
+            testScheduler.advanceTimeBy(4_900L)
+            verify(scanner, never()).update()
+
+            // Advance remaining 101ms - first scan runs
+            testScheduler.advanceTimeBy(101L)
+            verify(scanner, times(1)).update()
+
+            // Next interval runs
+            testScheduler.advanceTimeBy(5_000L)
+            verify(scanner, times(2)).update()
+
+            fixture.stop()
+            assertThat(fixture.running).isFalse
+        }
 
     @Test
-    fun start() {
-        // setup
-        val delayInitial = 1L
-        // execute
-        fixture.start()
-        // validate
-        verify(handler).removeCallbacks(fixture)
-        verify(handler).postDelayed(fixture, delayInitial)
-    }
+    fun stopCancelsActiveJob() =
+        runTest {
+            val dispatcher = StandardTestDispatcher(testScheduler)
+            val fixture = PeriodicScan(scanner, settings, this, dispatcher)
+            val scanSpeed = 10
+            whenever(settings.scanSpeed()).thenReturn(scanSpeed)
 
-    @Test
-    fun startWithDelay() {
-        // setup
-        val scanSpeed = 15
-        whenever(settings.scanSpeed()).thenReturn(scanSpeed)
-        // execute
-        fixture.startWithDelay()
-        // validate
-        verify(handler).removeCallbacks(fixture)
-        verify(handler).postDelayed(fixture, scanSpeed * PeriodicScan.DELAY_INTERVAL)
-        verify(settings).scanSpeed()
-    }
+            fixture.start()
+            assertThat(fixture.running).isTrue
+
+            fixture.stop()
+            assertThat(fixture.running).isFalse
+
+            testScheduler.advanceTimeBy(20_000L)
+            verify(scanner, never()).update()
+        }
 }

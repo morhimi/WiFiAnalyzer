@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.wifi.scanner
 
 import android.content.Context
-import android.os.Handler
 import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
@@ -34,6 +33,7 @@ fun interface UpdateNotifier { // Compliant, function interface used
 
 interface ScannerService {
     val runningFlow: StateFlow<Boolean>
+    val wiFiDataFlow: StateFlow<WiFiData>
 
     fun update()
 
@@ -60,7 +60,6 @@ fun makeScannerService(
     context: Context,
     wiFiManagerWrapper: WiFiManagerWrapper,
     permissionService: PermissionService,
-    handler: Handler,
     settings: Settings,
     apAliasService: ApAliasService,
     vendorService: VendorService,
@@ -69,7 +68,7 @@ fun makeScannerService(
     val cache = Cache(settings, configuration)
     val transformer = Transformer(cache, apAliasService, vendorService)
     val scanner = Scanner(wiFiManagerWrapper, settings, permissionService, transformer)
-    scanner.periodicScan = PeriodicScan(scanner, handler, settings)
+    scanner.periodicScan = PeriodicScan(scanner, settings)
     scanner.scannerCallback = ScannerCallback(wiFiManagerWrapper, cache)
     scanner.scanResultsReceiver = ScanResultsReceiver(context, scanner.scannerCallback)
     return scanner
