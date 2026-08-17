@@ -23,6 +23,7 @@ import com.vrem.util.ssid
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.model.FastRoaming
+import com.vrem.wifianalyzer.wifi.model.WiFiAdditional
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -58,27 +59,30 @@ internal class Transformer(
 
     internal fun transformCacheResults(): List<WiFiDetail> = cache.scanResults().map { transform(it) }
 
-    internal fun transformToWiFiData(): WiFiData = WiFiData(transformCacheResults(), transformWifiInfo(), vendorService)
+    internal fun transformToWiFiData(): WiFiData = WiFiData(transformCacheResults(), transformWifiInfo())
 
     private fun transform(cacheResult: CacheResult): WiFiDetail {
         val scanResult = cacheResult.scanResult
         val wiFiWidth = WiFiWidth.findOne(scanResult.channelWidth)
         val bssid = String.nullToEmpty(scanResult.BSSID)
         val alias = apAliasService.getAlias(bssid)
+        val vendorName = vendorService.findVendorName(bssid)
         return WiFiDetail(
-            WiFiIdentifier(scanResult.ssid(), bssid, alias),
-            WiFiSecurity(String.nullToEmpty(scanResult.capabilities), WiFiSecurityType.find(scanResult)),
-            WiFiSignal(
-                scanResult.frequency,
-                wiFiWidth.calculateCenter(scanResult.frequency, scanResult.centerFreq0, scanResult.centerFreq1),
-                wiFiWidth,
-                cacheResult.average,
-                WiFiSignalExtra(
-                    scanResult.is80211mcResponder,
-                    WiFiStandard.findOne(scanResult),
-                    FastRoaming.find(scanResult),
+            wiFiIdentifier = WiFiIdentifier(scanResult.ssid(), bssid, alias),
+            wiFiSecurity = WiFiSecurity(String.nullToEmpty(scanResult.capabilities), WiFiSecurityType.find(scanResult)),
+            wiFiSignal =
+                WiFiSignal(
+                    scanResult.frequency,
+                    wiFiWidth.calculateCenter(scanResult.frequency, scanResult.centerFreq0, scanResult.centerFreq1),
+                    wiFiWidth,
+                    cacheResult.average,
+                    WiFiSignalExtra(
+                        scanResult.is80211mcResponder,
+                        WiFiStandard.findOne(scanResult),
+                        FastRoaming.find(scanResult),
+                    ),
                 ),
-            ),
+            wiFiAdditional = WiFiAdditional(vendorName, WiFiConnection.EMPTY),
         )
     }
 }

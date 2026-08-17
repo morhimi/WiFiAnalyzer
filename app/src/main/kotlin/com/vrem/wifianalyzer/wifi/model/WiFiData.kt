@@ -17,13 +17,11 @@
  */
 package com.vrem.wifianalyzer.wifi.model
 
-import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.predicate.Predicate
 
 class WiFiData(
     val wiFiDetails: List<WiFiDetail>,
     val wiFiConnection: WiFiConnection,
-    private val vendorService: VendorService? = null,
 ) {
     fun connection(): WiFiDetail = wiFiDetails.firstOrNull { connected(it) }?.let { copy(it) } ?: WiFiDetail.EMPTY
 
@@ -76,18 +74,13 @@ class WiFiData(
     ): WiFiDetail =
         when (wiFiDetail) {
             connection -> connection
-            else -> {
-                val vendorName: String = vendorService?.findVendorName(wiFiDetail.wiFiIdentifier.bssid).orEmpty()
-                val wiFiAdditional = WiFiAdditional(vendorName, WiFiConnection.EMPTY)
-                WiFiDetail(wiFiDetail, wiFiAdditional)
-            }
+            else -> wiFiDetail
         }
 
     private fun connected(it: WiFiDetail): Boolean = wiFiConnection.wiFiIdentifier.equals(it.wiFiIdentifier, true)
 
     private fun copy(wiFiDetail: WiFiDetail): WiFiDetail {
-        val vendorName: String = vendorService?.findVendorName(wiFiDetail.wiFiIdentifier.bssid).orEmpty()
-        val wiFiAdditional = WiFiAdditional(vendorName, wiFiConnection)
+        val wiFiAdditional = WiFiAdditional(wiFiDetail.wiFiAdditional.vendorName, wiFiConnection)
         return WiFiDetail(wiFiDetail, wiFiAdditional)
     }
 

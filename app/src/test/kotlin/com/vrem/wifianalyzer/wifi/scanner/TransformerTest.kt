@@ -91,6 +91,7 @@ class TransformerTest {
     @Before
     fun setUp() {
         whenever(apAliasService.getAlias(org.mockito.kotlin.any())).thenReturn("")
+        whenever(vendorService.findVendorName(org.mockito.kotlin.any())).thenReturn("")
     }
 
     @After
