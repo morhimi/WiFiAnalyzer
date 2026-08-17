@@ -27,10 +27,6 @@ import com.vrem.wifianalyzer.wifi.model.ApAliasService
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import kotlinx.coroutines.flow.StateFlow
 
-fun interface UpdateNotifier { // Compliant, function interface used
-    fun update(wiFiData: WiFiData)
-}
-
 interface ScannerService {
     val runningFlow: StateFlow<Boolean>
     val wiFiDataFlow: StateFlow<WiFiData>
@@ -38,10 +34,6 @@ interface ScannerService {
     fun update()
 
     fun wiFiData(): WiFiData
-
-    fun register(updateNotifier: UpdateNotifier): Boolean
-
-    fun unregister(updateNotifier: UpdateNotifier): Boolean
 
     fun pause()
 

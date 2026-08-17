@@ -37,8 +37,6 @@ internal class Scanner(
     private val _wiFiDataFlow = MutableStateFlow(WiFiData.EMPTY)
     override val wiFiDataFlow: StateFlow<WiFiData> = _wiFiDataFlow.asStateFlow()
 
-    private val updateNotifiers: MutableList<UpdateNotifier> = mutableListOf()
-
     private var wiFiData: WiFiData = WiFiData.EMPTY
     private var initialScan: Boolean = false
 
@@ -58,14 +56,9 @@ internal class Scanner(
         }
         wiFiData = transformer.transformToWiFiData()
         _wiFiDataFlow.value = wiFiData
-        updateNotifiers.forEach { it.update(wiFiData) }
     }
 
     override fun wiFiData(): WiFiData = wiFiData
-
-    override fun register(updateNotifier: UpdateNotifier): Boolean = updateNotifiers.add(updateNotifier)
-
-    override fun unregister(updateNotifier: UpdateNotifier): Boolean = updateNotifiers.remove(updateNotifier)
 
     override fun pause() {
         periodicScan.stop()
@@ -88,7 +81,6 @@ internal class Scanner(
     override fun stop() {
         periodicScan.stop()
         _runningFlow.value = false
-        updateNotifiers.clear()
         if (settings.wiFiOffOnExit()) {
             wiFiManagerWrapper.disableWiFi()
         }
@@ -102,6 +94,4 @@ internal class Scanner(
             resume()
         }
     }
-
-    fun registered(): Int = updateNotifiers.size
 }

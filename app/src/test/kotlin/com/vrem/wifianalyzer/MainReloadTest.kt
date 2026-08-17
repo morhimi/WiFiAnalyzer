@@ -17,8 +17,6 @@
  */
 package com.vrem.wifianalyzer
 
-import com.vrem.wifianalyzer.settings.ThemeStyle
-import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionViewType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -35,60 +33,14 @@ class MainReloadTest {
 
     @Before
     fun setUp() {
-        whenever(settings.themeStyle()).thenReturn(ThemeStyle.DARK)
-        whenever(settings.connectionViewType()).thenReturn(ConnectionViewType.COMPLETE)
         whenever(settings.languageLocale()).thenReturn(Locale.UK)
         fixture = MainReload(settings)
     }
 
     @After
     fun tearDown() {
-        verify(settings, atLeastOnce()).themeStyle()
-        verify(settings, atLeastOnce()).connectionViewType()
         verify(settings, atLeastOnce()).languageLocale()
         verifyNoMoreInteractions(settings)
-    }
-
-    @Test
-    fun shouldNotReloadWithNoThemeChanges() {
-        // execute
-        val actual = fixture.shouldReload(settings)
-        // validate
-        assertThat(actual).isFalse
-        assertThat(fixture.themeStyle).isEqualTo(ThemeStyle.DARK)
-    }
-
-    @Test
-    fun shouldReloadWithThemeChange() {
-        // setup
-        val expected = ThemeStyle.LIGHT
-        whenever(settings.themeStyle()).thenReturn(expected)
-        // execute
-        val actual = fixture.shouldReload(settings)
-        // validate
-        assertThat(actual).isTrue
-        assertThat(fixture.themeStyle).isEqualTo(expected)
-    }
-
-    @Test
-    fun shouldNotReloadWithNoConnectionViewTypeChanges() {
-        // execute
-        val actual = fixture.shouldReload(settings)
-        // validate
-        assertThat(actual).isFalse
-        assertThat(fixture.connectionViewType).isEqualTo(ConnectionViewType.COMPLETE)
-    }
-
-    @Test
-    fun shouldReloadWithConnectionViewTypeChange() {
-        // setup
-        val expected = ConnectionViewType.COMPACT
-        whenever(settings.connectionViewType()).thenReturn(expected)
-        // execute
-        val actual = fixture.shouldReload(settings)
-        // validate
-        assertThat(actual).isTrue
-        assertThat(fixture.connectionViewType).isEqualTo(expected)
     }
 
     @Test

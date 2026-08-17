@@ -32,31 +32,31 @@ fun MainNavigationGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavigationMenu.ACCESS_POINTS.route,
+        startDestination = Screen.AccessPoints,
         modifier = modifier,
     ) {
-        composable(NavigationMenu.ACCESS_POINTS.route) {
+        composable<Screen.AccessPoints> {
             AccessPointsRoute(onDetailClick = onDetailClick)
         }
-        composable(NavigationMenu.CHANNEL_RATING.route) {
+        composable<Screen.ChannelRating> {
             ChannelRatingRoute(onDetailClick = onDetailClick)
         }
-        composable(NavigationMenu.CHANNEL_GRAPH.route) {
+        composable<Screen.ChannelGraph> {
             ChannelGraphRoute(onDetailClick = onDetailClick)
         }
-        composable(NavigationMenu.TIME_GRAPH.route) {
+        composable<Screen.TimeGraph> {
             TimeGraphRoute(onDetailClick = onDetailClick)
         }
-        composable(NavigationMenu.ABOUT.route) {
+        composable<Screen.About> {
             AboutRoute()
         }
-        composable(NavigationMenu.VENDORS.route) {
+        composable<Screen.Vendors> {
             VendorsRoute()
         }
-        composable(NavigationMenu.CHANNEL_AVAILABLE.route) {
+        composable<Screen.ChannelAvailable> {
             ChannelAvailableRoute()
         }
-        composable(NavigationMenu.SETTINGS.route) {
+        composable<Screen.Settings> {
             SettingsRoute()
         }
     }

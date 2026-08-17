@@ -39,7 +39,6 @@ import com.vrem.wifianalyzer.permission.ApplicationPermission
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
-import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -59,7 +58,6 @@ class MainActivity : AppCompatActivity() {
 
     internal lateinit var mainReload: MainReload
     internal lateinit var navController: NavHostController
-    internal var showWiFiDetailsCallback: ((List<WiFiDetail>) -> Unit)? = null
 
     internal val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -73,10 +71,6 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
         }
-
-    fun showWiFiDetails(details: List<WiFiDetail>) {
-        showWiFiDetailsCallback?.invoke(details)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -103,8 +97,6 @@ class MainActivity : AppCompatActivity() {
                 WiFiAnalyzerApp(navController = controller)
             }
         }
-
-        onBackPressedDispatcher.addCallback(this, MainActivityBackPressed(this))
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

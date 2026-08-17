@@ -35,9 +35,6 @@ import org.mockito.kotlin.whenever
 class ScannerTest {
     private val settings: Settings = mock()
     private val wiFiManagerWrapper: WiFiManagerWrapper = mock()
-    private val updateNotifier1: UpdateNotifier = mock()
-    private val updateNotifier2: UpdateNotifier = mock()
-    private val updateNotifier3: UpdateNotifier = mock()
     private val transformer: Transformer = mock()
     private val scanResultsReceiver: ScanResultsReceiver = mock()
     private val scannerCallback: ScannerCallback = mock()
@@ -51,10 +48,6 @@ class ScannerTest {
         fixture.periodicScan = periodicScan
         fixture.scanResultsReceiver = scanResultsReceiver
         fixture.scannerCallback = scannerCallback
-
-        fixture.register(updateNotifier1)
-        fixture.register(updateNotifier2)
-        fixture.register(updateNotifier3)
     }
 
     @After
@@ -75,7 +68,6 @@ class ScannerTest {
         // execute
         fixture.stop()
         // validate
-        assertThat(fixture.registered()).isEqualTo(0)
         verify(settings).wiFiOffOnExit()
         verify(wiFiManagerWrapper, never()).disableWiFi()
         verify(periodicScan).stop()
@@ -89,7 +81,6 @@ class ScannerTest {
         // execute
         fixture.stop()
         // validate
-        assertThat(fixture.registered()).isEqualTo(0)
         verify(wiFiManagerWrapper).disableWiFi()
         verify(periodicScan).stop()
         verify(scanResultsReceiver).unregister()
@@ -125,26 +116,6 @@ class ScannerTest {
     }
 
     @Test
-    fun register() {
-        // setup
-        assertThat(fixture.registered()).isEqualTo(3)
-        // execute
-        fixture.register(updateNotifier2)
-        // validate
-        assertThat(fixture.registered()).isEqualTo(4)
-    }
-
-    @Test
-    fun unregister() {
-        // setup
-        assertThat(fixture.registered()).isEqualTo(3)
-        // execute
-        fixture.unregister(updateNotifier2)
-        // validate
-        assertThat(fixture.registered()).isEqualTo(2)
-    }
-
-    @Test
     fun update() {
         // setup
         whenever(transformer.transformToWiFiData()).thenReturn(wiFiData)
@@ -153,13 +124,13 @@ class ScannerTest {
         fixture.update()
         // validate
         assertThat(fixture.wiFiData()).isEqualTo(wiFiData)
+        assertThat(fixture.wiFiDataFlow.value).isEqualTo(wiFiData)
         verify(wiFiManagerWrapper).enableWiFi()
         verify(permissionService).enabled()
         verify(scanResultsReceiver).register()
         verify(wiFiManagerWrapper).startScan()
         verify(scannerCallback).onSuccess()
         verify(transformer).transformToWiFiData()
-        verifyUpdateNotifier(1)
     }
 
     @Test
@@ -179,7 +150,6 @@ class ScannerTest {
         verify(wiFiManagerWrapper, times(expected)).startScan()
         verify(scannerCallback).onSuccess()
         verify(transformer, times(expected)).transformToWiFiData()
-        verifyUpdateNotifier(expected)
     }
 
     @Test
@@ -196,7 +166,6 @@ class ScannerTest {
         verify(wiFiManagerWrapper, never()).startScan()
         verify(scannerCallback, never()).onSuccess()
         verify(transformer).transformToWiFiData()
-        verifyUpdateNotifier(1)
     }
 
     @Test
@@ -230,11 +199,5 @@ class ScannerTest {
         fixture.resumeWithDelay()
         // validate
         verify(periodicScan).startWithDelay()
-    }
-
-    private fun verifyUpdateNotifier(expected: Int) {
-        verify(updateNotifier1, times(expected)).update(wiFiData)
-        verify(updateNotifier2, times(expected)).update(wiFiData)
-        verify(updateNotifier3, times(expected)).update(wiFiData)
     }
 }

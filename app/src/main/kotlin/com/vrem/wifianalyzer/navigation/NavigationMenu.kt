@@ -17,6 +17,8 @@
  */
 package com.vrem.wifianalyzer.navigation
 
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.items.NavigationItem
@@ -42,7 +44,7 @@ enum class NavigationMenu(
     val title: Int,
     val icon: Int,
     val navigationItem: NavigationItem,
-    val route: String,
+    val screen: Screen?,
     val showWiFiBandSelector: Boolean = false,
     val showFilter: Boolean = false,
     val showScanner: Boolean = false,
@@ -51,7 +53,7 @@ enum class NavigationMenu(
         R.string.action_access_points,
         R.drawable.ic_network_wifi,
         navigationItemAccessPoints,
-        "access_points",
+        Screen.AccessPoints,
         showWiFiBandSelector = false,
         showFilter = true,
         showScanner = true,
@@ -60,7 +62,7 @@ enum class NavigationMenu(
         R.string.action_channel_rating,
         R.drawable.ic_wifi_tethering,
         navigationItemChannelRating,
-        "channel_rating",
+        Screen.ChannelRating,
         showWiFiBandSelector = true,
         showFilter = false,
         showScanner = true,
@@ -69,7 +71,7 @@ enum class NavigationMenu(
         R.string.action_channel_graph,
         R.drawable.ic_insert_chart,
         navigationItemChannelGraph,
-        "channel_graph",
+        Screen.ChannelGraph,
         showWiFiBandSelector = true,
         showFilter = true,
         showScanner = true,
@@ -78,7 +80,7 @@ enum class NavigationMenu(
         R.string.action_time_graph,
         R.drawable.ic_show_chart,
         navigationItemTimeGraph,
-        "time_graph",
+        Screen.TimeGraph,
         showWiFiBandSelector = true,
         showFilter = true,
         showScanner = true,
@@ -87,37 +89,40 @@ enum class NavigationMenu(
         title = R.string.action_export,
         icon = R.drawable.ic_import_export,
         navigationItem = navigationItemExport,
-        route = "export",
+        screen = null,
     ),
     CHANNEL_AVAILABLE(
         title = R.string.action_channel_available,
         icon = R.drawable.ic_location_on,
         navigationItem = navigationItemChannelAvailable,
-        route = "channel_available",
+        screen = Screen.ChannelAvailable,
     ),
     VENDORS(
         title = R.string.action_vendors,
         icon = R.drawable.ic_list,
         navigationItem = navigationItemVendors,
-        route = "vendors",
+        screen = Screen.Vendors,
     ),
     SETTINGS(
         title = R.string.action_settings,
         icon = R.drawable.ic_settings,
         navigationItem = navigationItemSettings,
-        route = "settings",
+        screen = Screen.Settings,
     ),
     ABOUT(
         title = R.string.action_about,
         icon = R.drawable.ic_info_outline,
         navigationItem = navigationItemAbout,
-        route = "about",
+        screen = Screen.About,
     ),
     ;
 
     fun activateNavigationMenu(mainActivity: MainActivity) = navigationItem.activate(mainActivity, this)
 
     companion object {
-        fun findByRoute(route: String?): NavigationMenu = entries.firstOrNull { it.route == route } ?: ACCESS_POINTS
+        fun findByDestination(destination: NavDestination?): NavigationMenu =
+            entries.firstOrNull { menu ->
+                menu.screen != null && destination?.hasRoute(menu.screen::class) == true
+            } ?: ACCESS_POINTS
     }
 }

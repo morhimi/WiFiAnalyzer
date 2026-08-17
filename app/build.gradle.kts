@@ -29,6 +29,7 @@ plugins {
     id("jacoco")
     alias(libs.plugins.ktlint)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
@@ -44,6 +45,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.vico.views)
     implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinx.serialization.json)
     // Hilt Dependencies
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

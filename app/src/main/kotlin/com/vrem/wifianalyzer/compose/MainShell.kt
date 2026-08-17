@@ -46,7 +46,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -74,6 +74,7 @@ import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.MAIN_NAVIGATION
 import com.vrem.wifianalyzer.navigation.MainNavigationGraph
 import com.vrem.wifianalyzer.navigation.NavigationMenu
+import com.vrem.wifianalyzer.navigation.Screen
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.detailview.ApAliasDialog
@@ -95,21 +96,21 @@ fun WiFiAnalyzerApp(
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val currentRoute = currentDestination?.route ?: NavigationMenu.ACCESS_POINTS.route
-    val currentMenu = NavigationMenu.findByRoute(currentRoute)
+    val currentMenu = NavigationMenu.findByDestination(currentDestination)
+    val isAccessPoints = currentDestination?.hasRoute(Screen.AccessPoints::class) == true
     val context = LocalContext.current
     val mainActivity = context as? MainActivity
-
     var showFilterDialog by remember { mutableStateOf(false) }
     var activeDetailList by remember { mutableStateOf<List<WiFiDetail>?>(null) }
     var aliasEditDetail by remember { mutableStateOf<WiFiDetail?>(null) }
 
-    DisposableEffect(mainActivity) {
-        mainActivity?.showWiFiDetailsCallback = { details ->
-            activeDetailList = details
-        }
-        onDispose {
-            mainActivity?.showWiFiDetailsCallback = null
+    BackHandler(enabled = !isAccessPoints) {
+        navController.navigate(Screen.AccessPoints) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
         }
     }
 
@@ -171,8 +172,8 @@ fun WiFiAnalyzerApp(
                     scope.launch { drawerState.close() }
                     if (menu == NavigationMenu.EXPORT) {
                         mainActivity?.let { menu.activateNavigationMenu(it) }
-                    } else {
-                        navController.navigate(menu.route) {
+                    } else if (menu.screen != null) {
+                        navController.navigate(menu.screen) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
@@ -200,12 +201,14 @@ fun WiFiAnalyzerApp(
                 WiFiAnalyzerBottomBar(
                     currentDestination = currentDestination,
                     onMenuSelected = { menu ->
-                        navController.navigate(menu.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        if (menu.screen != null) {
+                            navController.navigate(menu.screen) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
                     },
                 )
@@ -393,7 +396,9 @@ fun WiFiAnalyzerBottomBar(
             NavigationBarItem(
                 icon = { Icon(painterResource(menu.icon), contentDescription = null) },
                 label = { Text(stringResource(menu.title), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                selected = currentDestination?.hierarchy?.any { it.route == menu.route } == true,
+                selected =
+                    menu.screen != null &&
+                        currentDestination?.hierarchy?.any { it.hasRoute(menu.screen::class) } == true,
                 onClick = { onMenuSelected(menu) },
             )
         }

@@ -24,12 +24,10 @@ import com.patrykandpatrick.vico.views.cartesian.marker.DefaultCartesianMarker
 import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
 import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.views.common.Point
-import com.vrem.util.findActivity
-import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 class MarkerHandler(
-    private val chartView: CartesianChartView,
+    private val onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
 ) {
     fun event(
         touch: Point,
@@ -45,8 +43,7 @@ class MarkerHandler(
         val markerPoints = points.map { MarkerPoint(DataPoint(it.entry.x.toInt(), it.entry.y.toInt()), it.canvasY) }
         val wiFiDetails = matchDetails(markerPoints, lineTarget.canvasX, touch, thresholdPx, dataPointToDetail)
         if (wiFiDetails.isNotEmpty()) {
-            val mainActivity = chartView.findActivity() as? MainActivity
-            mainActivity?.showWiFiDetails(wiFiDetails)
+            onShowWiFiDetails(wiFiDetails)
             return true
         }
         return false
@@ -55,7 +52,7 @@ class MarkerHandler(
 
 class MarkerInteraction(
     chartView: CartesianChartView,
-    private val markerHandler: MarkerHandler = MarkerHandler(chartView),
+    private val markerHandler: MarkerHandler = MarkerHandler(),
 ) {
     private var dataPointToDetail: Map<Long, MutableList<WiFiDetail>> = emptyMap()
     private val thresholdPx: Float = 24f * chartView.resources.displayMetrics.density

@@ -15,20 +15,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
+package com.vrem.wifianalyzer.navigation
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+import kotlinx.serialization.Serializable
 
-plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.kotlin.compose) apply false
-    alias(libs.plugins.kotlin.serialization) apply false
-    alias(libs.plugins.hilt) apply false
-    alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.ktlint) apply false
+sealed interface Screen {
+    @Serializable
+    data object AccessPoints : Screen
+
+    @Serializable
+    data object ChannelRating : Screen
+
+    @Serializable
+    data object ChannelGraph : Screen
+
+    @Serializable
+    data object TimeGraph : Screen
+
+    @Serializable
+    data object About : Screen
+
+    @Serializable
+    data object Vendors : Screen
+
+    @Serializable
+    data object ChannelAvailable : Screen
+
+    @Serializable
+    data object Settings : Screen
 }
-
-tasks.register<Delete>("clean") {
-    delete(rootProject.layout.buildDirectory)
-}
-
