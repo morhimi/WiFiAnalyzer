@@ -71,6 +71,7 @@ private fun predicates(
     filterSecurities: Set<Security>,
 ): List<Predicate> =
     listOf(
+        { wiFiDetail -> wiFiDetail.wiFiSignal.level < 0 },
         filterSsids.ssidPredicate(),
         makePredicate(WiFiBand.entries, filterWiFiBands) { wiFiBand -> wiFiBand.predicate() },
         makePredicate(Strength.entries, filterStrengths) { strength -> strength.predicate() },

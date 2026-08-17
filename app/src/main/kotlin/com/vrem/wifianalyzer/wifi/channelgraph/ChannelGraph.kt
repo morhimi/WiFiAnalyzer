@@ -83,7 +83,7 @@ internal fun calculateLabelPosition(
 ): LabelPosition? {
     if (seriesData.dataPoints.isEmpty() || seriesData.title.isEmpty()) return null
     val point = seriesData.dataPoints[seriesData.dataPoints.size / 2]
-    if (point.y <= MIN_Y || context.ranges.xStep == 0.0) return null
+    if (point.y <= MIN_Y || point.y >= 0 || context.ranges.xStep == 0.0) return null
     return with(context) {
         val boundsStart = if (isLtr) layerBounds.left else layerBounds.right
         val drawingStart = boundsStart + layoutDirectionMultiplier * layerDimensions.startPadding - scroll

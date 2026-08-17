@@ -85,6 +85,24 @@ class PredicateTest {
     }
 
     @Test
+    fun makeAccessPointsPredicateWithZeroLevelToFalse() {
+        // setup
+        whenSettings()
+        val fixture: Predicate = makeAccessPointsPredicate(settings)
+        val wiFiDetail =
+            WiFiDetail(
+                WiFiIdentifier(ssid, "bssid"),
+                WiFiSecurity(wpa2),
+                WiFiSignal(2445, 2445, WiFiWidth.MHZ_20, 0),
+            )
+        // execute
+        val actual = fixture(wiFiDetail)
+        // validate
+        assertThat(actual).isFalse
+        verifySettings()
+    }
+
+    @Test
     fun makeAccessPointsPredicateWithSSIDToFalse() {
         // setup
         whenSettings()

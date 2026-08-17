@@ -23,7 +23,8 @@ import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 internal class DataManager {
-    fun newSeries(wiFiDetails: List<WiFiDetail>): Set<WiFiDetail> = wiFiDetails.toSet()
+    fun newSeries(wiFiDetails: List<WiFiDetail>): Set<WiFiDetail> =
+        wiFiDetails.filter { it.wiFiSignal.level < 0 }.toSet()
 
     fun graphDataPoints(
         wiFiDetail: WiFiDetail,

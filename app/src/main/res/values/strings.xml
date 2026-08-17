@@ -146,6 +146,7 @@
     <string name="scanner_message">"Scanning &#8230;"</string>
     <string name="scanner_pause">"Pause"</string>
     <string name="scanner_play">"Play"</string>
+    <string name="search_hint">"Search"</string>
     <string name="security_none">"None"</string>
     <string name="security_type_dpp" translatable="false">"DPP"</string>
     <string name="security_type_eap" translatable="false">"EAP"</string>

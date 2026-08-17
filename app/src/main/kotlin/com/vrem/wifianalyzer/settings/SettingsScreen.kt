@@ -560,7 +560,7 @@ private fun SearchableListChoiceDialog(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text(stringResource(R.string.vendor_search_hint)) },
+                    placeholder = { Text(stringResource(R.string.search_hint)) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),

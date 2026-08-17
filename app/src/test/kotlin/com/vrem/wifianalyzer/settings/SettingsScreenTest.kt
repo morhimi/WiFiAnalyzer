@@ -88,6 +88,22 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun clickingCountryOpensDialogWithSearchPlaceholder() {
+        composeTestRule.setContent {
+            WiFiAnalyzerTheme {
+                SettingsScreen(settings = settings)
+            }
+        }
+
+        composeTestRule
+            .onNode(hasText("Country") and hasClickAction())
+            .performScrollTo()
+            .performClick()
+
+        composeTestRule.onNodeWithText("Search").assertExists()
+    }
+
+    @Test
     fun clickingResetOpensConfirmationDialogAndTriggersReset() =
         runTest {
             composeTestRule.setContent {

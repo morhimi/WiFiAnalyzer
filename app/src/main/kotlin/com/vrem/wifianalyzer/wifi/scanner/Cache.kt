@@ -55,7 +55,8 @@ internal class Cache(
         while (this.scanResults.size >= size) {
             this.scanResults.removeLastOrNull()
         }
-        this.scanResults.addFirst(scanResults)
+        val validScanResults = scanResults.filter { it.level < 0 }
+        this.scanResults.addFirst(validScanResults)
     }
 
     fun first(): List<ScanResult> = scanResults.first()
@@ -104,7 +105,7 @@ internal class Cache(
         private const val MAXIMUM: Int = 4
         private const val SIZE: Int = MINIMUM + MAXIMUM
         private const val LEVEL_MINIMUM: Int = -100
-        private const val LEVEL_MAXIMUM: Int = 0
+        private const val LEVEL_MAXIMUM: Int = -1
         private const val FACTOR: Int = 3
         private const val DENOMINATOR: Int = 2
         private const val COUNT_MIN: Int = 2

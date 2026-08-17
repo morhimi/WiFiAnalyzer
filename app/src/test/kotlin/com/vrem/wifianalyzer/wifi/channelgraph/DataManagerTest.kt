@@ -48,6 +48,18 @@ class DataManagerTest {
     }
 
     @Test
+    fun newSeriesFiltersOutZeroLevel() {
+        // Arrange
+        val valid = makeWiFiDetail(ssid = "valid", level = -50)
+        val zero = makeWiFiDetail(ssid = "zero", level = 0)
+        val positive = makeWiFiDetail(ssid = "positive", level = 5)
+        // Act
+        val actual = fixture.newSeries(listOf(valid, zero, positive))
+        // Assert
+        assertThat(actual).containsExactly(valid)
+    }
+
+    @Test
     fun graphDataPoints() {
         // Arrange
         val expected = makeWiFiDetail()
@@ -108,9 +120,10 @@ class DataManagerTest {
     private fun makeWiFiDetail(
         ssid: String = "SSID",
         frequency: Int = 2455,
+        level: Int = this.level,
     ): WiFiDetail {
         val wiFiSignal = WiFiSignal(frequency, frequency, WiFiWidth.MHZ_20, level)
-        val wiFiIdentifier = WiFiIdentifier(ssid, "BSSID")
+        val wiFiIdentifier = WiFiIdentifier(ssid, "BSSID_$ssid")
         return WiFiDetail(wiFiIdentifier, WiFiSecurity.EMPTY, wiFiSignal, WiFiAdditional.EMPTY)
     }
 

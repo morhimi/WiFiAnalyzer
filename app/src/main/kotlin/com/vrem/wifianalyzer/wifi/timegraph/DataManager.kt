@@ -40,7 +40,7 @@ internal class DataManager(
         wiFiDetails: List<WiFiDetail>,
         levelMax: Int,
     ): Set<WiFiDetail> {
-        val inOrder: Set<WiFiDetail> = wiFiDetails.toSet()
+        val inOrder: Set<WiFiDetail> = wiFiDetails.filter { it.wiFiSignal.level < 0 }.toSet()
         inOrder.forEach { addData(graphWrapper, it, levelMax) }
         adjustData(graphWrapper, inOrder)
         graphWrapper.flushData()

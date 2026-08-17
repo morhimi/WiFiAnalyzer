@@ -82,6 +82,16 @@ class CalculateLabelPositionTest {
     }
 
     @Test
+    fun zeroOrPositiveYReturnsNull() {
+        // Arrange
+        val series = withSeriesData(y = 0)
+        // Act
+        val actual = calculateLabelPosition(context, series)
+        // Assert
+        assertThat(actual).isNull()
+    }
+
+    @Test
     fun zeroXStepReturnsNull() {
         // Arrange
         val series = withSeriesData()
