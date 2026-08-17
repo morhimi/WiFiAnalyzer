@@ -19,7 +19,6 @@ package com.vrem.wifianalyzer.export
 
 import android.content.Context
 import android.content.Intent
-import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.model.FastRoaming
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -46,7 +45,6 @@ class ExportTest {
     private val name = "name"
     private val date = Date()
 
-    private val mainActivity: MainActivity = mock()
     private val context: Context = mock()
     private val exportIntent: ExportIntent = mock()
     private val intent: Intent = mock()
@@ -54,7 +52,6 @@ class ExportTest {
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(mainActivity)
         verifyNoMoreInteractions(exportIntent)
         verifyNoMoreInteractions(intent)
         verifyNoMoreInteractions(context)
@@ -68,16 +65,14 @@ class ExportTest {
         val timestamp = timestamp(date)
         val title = title(timestamp)
         val data = data(timestamp)
-        doReturn(context).whenever(mainActivity).applicationContext
         doReturn(name).whenever(context).getString(R.string.action_access_points)
         doReturn("802.11AC").whenever(context).getString(WiFiStandard.AC.fullResource)
         doReturn("802.11R").whenever(context).getString(FastRoaming.FR_802_11R.textResource)
         whenever(exportIntent.intent(title, data)).thenReturn(intent)
         // execute
-        val actual = fixture.export(mainActivity, wiFiDetails, date)
+        val actual = fixture.export(context, wiFiDetails, date)
         // validate
         assertThat(actual).isEqualTo(intent)
-        verify(mainActivity).applicationContext
         verify(context).getString(R.string.action_access_points)
         verify(context, times(count)).getString(WiFiStandard.AC.fullResource)
         verify(context, times(count)).getString(FastRoaming.FR_802_11R.textResource)

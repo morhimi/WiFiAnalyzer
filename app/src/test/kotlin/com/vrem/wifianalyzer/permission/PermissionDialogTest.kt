@@ -17,74 +17,62 @@
  */
 package com.vrem.wifianalyzer.permission
 
-import android.content.DialogInterface
 import android.os.Build
-import android.view.View
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vrem.wifianalyzer.R
-import com.vrem.wifianalyzer.RobolectricUtil
-import com.vrem.wifianalyzer.permission.PermissionDialog.CancelClick
-import com.vrem.wifianalyzer.permission.PermissionDialog.OkClick
+import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class PermissionDialogTest {
-    private val activity = RobolectricUtil.INSTANCE.activity
-    private val fixture = PermissionDialog(activity)
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
 
     @Test
-    fun show() {
-        // execute
-        val actual = fixture.show()
-        //
-        assertThat(actual).isNotNull()
-        assertThat(actual?.findViewById<View>(R.id.throttling)?.isVisible).isTrue
+    fun displaysDialogAndConfirms() {
+        var confirmed = false
+        composeTestRule.setContent {
+            WiFiAnalyzerTheme {
+                PermissionRationaleDialog(
+                    onConfirm = { confirmed = true },
+                    onDismiss = {},
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText(context.getString(R.string.app_full_name)).assertExists()
+        composeTestRule.onNodeWithText(context.getString(R.string.throttling_msg)).assertExists()
+        composeTestRule.onNodeWithText(context.getString(R.string.permission_msg)).assertExists()
+        composeTestRule.onNodeWithText(context.getString(android.R.string.ok)).performClick()
+
+        assertThat(confirmed).isTrue()
     }
 
     @Test
-    @Config(sdk = [Build.VERSION_CODES.O_MR1])
-    fun showAndroidO() {
-        // execute
-        val actual = fixture.show()
-        //
-        assertThat(actual).isNotNull()
-        assertThat(actual?.findViewById<View>(R.id.throttling)?.isGone).isTrue
-    }
+    fun displaysDialogAndDismisses() {
+        var dismissed = false
+        composeTestRule.setContent {
+            WiFiAnalyzerTheme {
+                PermissionRationaleDialog(
+                    onConfirm = {},
+                    onDismiss = { dismissed = true },
+                )
+            }
+        }
 
-    @Test
-    fun okClick() {
-        // setup
-        var okCalled = false
-        val dialog: DialogInterface = mock()
-        val fixture = OkClick { okCalled = true }
-        // execute
-        fixture.onClick(dialog, 0)
-        // validate
-        assertThat(okCalled).isTrue()
-        verify(dialog).dismiss()
-        verifyNoMoreInteractions(dialog)
-    }
+        composeTestRule.onNodeWithText(context.getString(android.R.string.cancel)).performClick()
 
-    @Test
-    fun cancelClick() {
-        // setup
-        var cancelCalled = false
-        val dialog: DialogInterface = mock()
-        val fixture = CancelClick { cancelCalled = true }
-        // execute
-        fixture.onClick(dialog, 0)
-        // validate
-        assertThat(cancelCalled).isTrue()
-        verify(dialog).dismiss()
-        verifyNoMoreInteractions(dialog)
+        assertThat(dismissed).isTrue()
     }
 }

@@ -65,7 +65,10 @@ fun VendorsScreen(
             )
 
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(vendors) { vendor ->
+                items(
+                    items = vendors,
+                    key = { it },
+                ) { vendor ->
                     VendorItem(
                         name = vendor,
                         macs = findMacAddresses(vendor),

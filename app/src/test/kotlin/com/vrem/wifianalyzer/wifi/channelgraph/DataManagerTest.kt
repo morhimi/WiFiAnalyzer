@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -18,9 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import android.os.Build
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
 import com.vrem.wifianalyzer.wifi.graphutils.MAX_Y
@@ -32,17 +28,12 @@ import com.vrem.wifianalyzer.wifi.model.WiFiSignal
 import com.vrem.wifianalyzer.wifi.model.WiFiWidth
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mockito.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.robolectric.annotation.Config
 
-@RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class DataManagerTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val level = -40
     private val fixture = DataManager()
 
@@ -126,4 +117,3 @@ class DataManagerTest {
     private fun makeWiFiDetails(): List<WiFiDetail> =
         listOf(makeWiFiDetail("SSID1"), makeWiFiDetail("SSID2"), makeWiFiDetail("SSID3"))
 }
-*/

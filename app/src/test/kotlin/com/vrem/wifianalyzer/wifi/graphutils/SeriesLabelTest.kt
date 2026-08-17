@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -113,13 +112,13 @@ class SeriesLabelTest {
 
     private fun withSeries(): List<SeriesData> =
         listOf(
-            SeriesData(listOf(DataPoint(1, -50)), title = "SSID1"),
-            SeriesData(listOf(DataPoint(2, -60)), title = "SSID2"),
-            SeriesData(listOf(DataPoint(3, -70)), title = "SSID3"),
+            SeriesData(dataPoints = listOf(DataPoint(1, -50)), title = "SSID1"),
+            SeriesData(dataPoints = listOf(DataPoint(2, -60)), title = "SSID2"),
+            SeriesData(dataPoints = listOf(DataPoint(3, -70)), title = "SSID3"),
         )
 
     private fun verifyContext() {
-        verify(context).spToPx(4f)
+        verify(context).spToPx(6f)
         verify(context).canvas
         verify(context).layerBounds
         verify(canvas).save()
@@ -128,9 +127,8 @@ class SeriesLabelTest {
     }
 
     private fun withContext() {
-        doReturn(8f).whenever(context).spToPx(4f)
+        doReturn(8f).whenever(context).spToPx(6f)
         doReturn(canvas).whenever(context).canvas
         doReturn(layerBounds).whenever(context).layerBounds
     }
 }
-*/

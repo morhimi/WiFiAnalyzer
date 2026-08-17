@@ -21,7 +21,6 @@ package com.vrem.wifianalyzer.export
 import android.content.Context
 import android.content.Intent
 import com.vrem.util.EMPTY
-import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiSignal.Companion.FREQUENCY_UNITS
@@ -51,16 +50,15 @@ class Export(
             "\n"
 
     fun export(
-        mainActivity: MainActivity,
+        context: Context,
         wiFiDetails: List<WiFiDetail>,
-    ): Intent = export(mainActivity, wiFiDetails, Date())
+    ): Intent = export(context, wiFiDetails, Date())
 
     fun export(
-        mainActivity: MainActivity,
+        context: Context,
         wiFiDetails: List<WiFiDetail>,
         date: Date,
     ): Intent {
-        val context: Context = mainActivity.applicationContext
         val timestamp: String = timestamp(date)
         val title: String = title(context, timestamp)
         val data: String = data(context, wiFiDetails, timestamp)

@@ -20,28 +20,10 @@ package com.vrem.wifianalyzer.permission
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import com.vrem.util.findActivity
 
 class ApplicationPermission(
     private val context: Context,
 ) {
-    fun check(
-        targetContext: Context = context,
-        onOk: () -> Unit = {},
-        onCancel: () -> Unit = {},
-    ) {
-        if (!granted()) {
-            val activity = targetContext.findActivity()
-            if (activity != null && !activity.isFinishing) {
-                PermissionDialog(
-                    activity = activity,
-                    onOk = onOk,
-                    onCancel = onCancel,
-                ).show()
-            }
-        }
-    }
-
     fun granted(): Boolean = context.checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED
 
     companion object {

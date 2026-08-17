@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -61,7 +60,7 @@ class GraphWrapperTest {
     private val seriesLabel: SeriesLabel = mock()
     private val chartUpdater: ChartUpdater = mock()
     private val chart: CartesianChart = mock()
-    private val graphColors: GraphColors = GraphColors()
+    private val graphColors: GraphColors = GraphColors(mainActivity)
     private val seriesData: SeriesData = SeriesData()
     private val dataPoint: DataPoint = DataPoint(1, 2)
     private val wiFiDetail = WiFiDetail.EMPTY
@@ -74,12 +73,12 @@ class GraphWrapperTest {
         )
     private val fixture =
         GraphWrapper(
-            graphViewport,
-            chartView,
-            seriesLabel,
-            seriesCache,
-            graphColors,
-            chartUpdater,
+            graphViewport = graphViewport,
+            chartView = chartView,
+            seriesLabel = seriesLabel,
+            seriesCache = seriesCache,
+            graphColors = graphColors,
+            chartUpdater = chartUpdater,
         )
 
     @After
@@ -111,9 +110,10 @@ class GraphWrapperTest {
         // Assert
         verify(seriesCache).difference(newSeries)
         verify(seriesCache).remove(difference)
-        verify(seriesCache).populatedEntries()
+        verify(seriesCache, times(2)).populatedEntries()
         verify(chartUpdater).resetStyles()
         verify(chartUpdater).syncPointMap(populatedEntries)
+        verify(chartView).chart
     }
 
     @Test
@@ -228,10 +228,13 @@ class GraphWrapperTest {
 
     @Test
     fun calculateGraphType() {
+        // Arrange
+        doReturn(mainActivity).whenever(chartView).context
         // Act
         val actual = fixture.calculateGraphType()
         // Assert
         assertThat(actual).isGreaterThan(0)
+        verify(chartView).context
     }
 
     @Test
@@ -279,7 +282,7 @@ class GraphWrapperTest {
         // Assert
         verify(seriesCache).difference(emptySet())
         verify(seriesCache).remove(difference)
-        verify(seriesCache, times(2)).populatedEntries()
+        verify(seriesCache, times(3)).populatedEntries()
         verify(chartUpdater).resetStyles()
         verify(chartUpdater).syncPointMap(populatedEntries)
     }
@@ -364,7 +367,11 @@ class GraphWrapperTest {
     @Test
     fun flushDataWithNoChart() {
         // Arrange
-        val seriesData = SeriesData(listOf(DataPoint(1, -50)), GraphColor(0xFF0000, 0x00FF00))
+        val seriesData =
+            SeriesData(
+                dataPoints = listOf(DataPoint(1, -50)),
+                graphColor = GraphColor(0xFF0000, 0x00FF00),
+            )
         val entry = SimpleEntry(wiFiDetail, seriesData)
         doReturn(listOf(entry)).whenever(seriesCache).populatedEntries()
         doReturn(null).whenever(chartView).chart
@@ -379,7 +386,11 @@ class GraphWrapperTest {
     @Test
     fun flushDataWithValidDataSyncsChart() {
         // Arrange
-        val seriesData = SeriesData(listOf(DataPoint(1, -50)), GraphColor(0xFF0000, 0x00FF00))
+        val seriesData =
+            SeriesData(
+                dataPoints = listOf(DataPoint(1, -50)),
+                graphColor = GraphColor(0xFF0000, 0x00FF00),
+            )
         val entry = SimpleEntry(wiFiDetail, seriesData)
         val rangeProviderCaptor = argumentCaptor<CartesianLayerRangeProvider>()
         val entries = listOf(entry)
@@ -424,7 +435,12 @@ class GraphWrapperTest {
                 wiFiAdditional = WiFiAdditional(wiFiConnection = wiFiConnection),
             )
         val originalColor = GraphColor(0xFF0000, 0x00FF00)
-        val existingData = SeriesData(listOf(dataPoint), originalColor, connected = false)
+        val existingData =
+            SeriesData(
+                dataPoints = listOf(dataPoint),
+                graphColor = originalColor,
+                connected = false,
+            )
         doReturn(existingData).whenever(seriesCache)[connectedDetail]
         // Act
         val actual = fixture.updateSeries(connectedDetail, listOf(dataPoint), true)
@@ -443,7 +459,12 @@ class GraphWrapperTest {
                 wiFiIdentifier = WiFiIdentifier("ssid", "bssid"),
             )
         val connectedColor = GraphColor(0x0000FF, 0xFF00FF)
-        val existingData = SeriesData(listOf(dataPoint), connectedColor, connected = true)
+        val existingData =
+            SeriesData(
+                dataPoints = listOf(dataPoint),
+                graphColor = connectedColor,
+                connected = true,
+            )
         doReturn(existingData).whenever(seriesCache)[disconnectedDetail]
         // Act
         val actual = fixture.updateSeries(disconnectedDetail, listOf(dataPoint), true)
@@ -466,7 +487,10 @@ class GraphWrapperTest {
     fun appendToSeriesRemovesOldDataPoints() {
         // Arrange
         val count = 2
-        val existingData = SeriesData(listOf(DataPoint(0, -40), DataPoint(1, -50), DataPoint(2, -60)))
+        val existingData =
+            SeriesData(
+                dataPoints = listOf(DataPoint(0, -40), DataPoint(1, -50), DataPoint(2, -60)),
+            )
         doReturn(existingData).whenever(seriesCache)[wiFiDetail]
         // Act
         val actual = fixture.appendToSeries(wiFiDetail, DataPoint(3, -70), count, true)
@@ -476,4 +500,3 @@ class GraphWrapperTest {
         verify(seriesCache)[wiFiDetail]
     }
 }
-*/

@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -173,4 +172,3 @@ class CalculateLabelPositionTest {
             graphColor = GraphColor(0xFF0000, 0x00FF00),
         )
 }
-*/

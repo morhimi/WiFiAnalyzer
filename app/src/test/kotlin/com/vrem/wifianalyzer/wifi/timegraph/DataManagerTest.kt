@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -18,9 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.timegraph
 
-import android.os.Build
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
 import com.vrem.wifianalyzer.wifi.graphutils.MAX_SCAN_COUNT
@@ -34,16 +30,11 @@ import com.vrem.wifianalyzer.wifi.model.WiFiSignal
 import com.vrem.wifianalyzer.wifi.model.WiFiWidth
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.robolectric.annotation.Config
 
-@RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class DataManagerTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val bssid = "BSSID"
     private val level = -40
     private val graphWrapper: GraphWrapper = mock()
@@ -215,4 +206,3 @@ class DataManagerTest {
 
     private fun makeMoreWiFiDetails(): List<WiFiDetail> = listOf(makeWiFiDetail("SSID4"), makeWiFiDetail("SSID5"))
 }
-*/

@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -39,18 +38,23 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class ConfigureLabelTest {
     private val position = LabelPosition(10f, 20f, Paint.Align.LEFT)
-    private val seriesData = SeriesData(listOf(DataPoint(1, -50)), GraphColor(0xFF0000, 0x00FF00), "SSID")
+    private val seriesData =
+        SeriesData(
+            dataPoints = listOf(DataPoint(1, -50)),
+            graphColor = GraphColor(0xFF0000, 0x00FF00),
+            title = "SSID",
+        )
     private val context: CartesianDrawingContext = mock()
     private val paint = Paint()
 
     @Before
     fun setUp() {
-        doReturn(20f).whenever(context).spToPx(10f)
+        doReturn(20f).whenever(context).spToPx(13f)
     }
 
     @After
     fun tearDown() {
-        verify(context).spToPx(10f)
+        verify(context).spToPx(13f)
         verifyNoMoreInteractions(context)
     }
 
@@ -83,17 +87,22 @@ class ConfigureLabelTest {
         // Act
         configureLabel(context, position, seriesData, paint)
         // Assert
-        assertThat(paint.typeface).isEqualTo(Typeface.DEFAULT)
+        assertThat(paint.typeface).isEqualTo(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
     }
 
     @Test
     fun configureLabelSetsBoldTypeface() {
         // Arrange
-        val seriesData = SeriesData(listOf(DataPoint(1, -50)), GraphColor(0xFF0000, 0x00FF00), "SSID", true)
+        val seriesData =
+            SeriesData(
+                dataPoints = listOf(DataPoint(1, -50)),
+                graphColor = GraphColor(0xFF0000, 0x00FF00),
+                title = "SSID",
+                connected = true,
+            )
         // Act
         configureLabel(context, position, seriesData, paint)
         // Assert
-        assertThat(paint.typeface).isEqualTo(Typeface.DEFAULT_BOLD)
+        assertThat(paint.typeface).isEqualTo(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
     }
 }
-*/

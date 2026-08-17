@@ -17,55 +17,124 @@
  */
 package com.vrem.wifianalyzer.permission
 
-import android.app.Activity
-import android.content.DialogInterface
-import android.view.View
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.vrem.util.buildMinVersionP
 import com.vrem.wifianalyzer.R
 
-class PermissionDialog(
-    private val activity: Activity,
-    private val onOk: () -> Unit = {},
-    private val onCancel: () -> Unit = { activity.finish() },
+@Composable
+fun PermissionRationaleDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    fun show(): View? {
-        val view = activity.layoutInflater.inflate(R.layout.info_permission, null)
-        val visibility = if (buildMinVersionP()) View.VISIBLE else View.GONE
-        view.findViewById<View>(R.id.throttling)!!.visibility = visibility
-        AlertDialog
-            .Builder(activity)
-            .setView(view)
-            .setTitle(R.string.app_full_name)
-            .setIcon(R.drawable.ic_app)
-            .setPositiveButton(android.R.string.ok, OkClick(onOk))
-            .setNegativeButton(android.R.string.cancel, CancelClick(onCancel))
-            .create()
-            .show()
-        return view
-    }
+    val scrollState = rememberScrollState()
 
-    internal class OkClick(
-        private val onOk: () -> Unit,
-    ) : DialogInterface.OnClickListener {
-        override fun onClick(
-            alertDialog: DialogInterface,
-            which: Int,
-        ) {
-            alertDialog.dismiss()
-            onOk()
-        }
-    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_app),
+                contentDescription = null,
+                modifier = Modifier.size(36.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        },
+        title = {
+            Text(
+                text = stringResource(R.string.app_full_name),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        text = {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState),
+            ) {
+                if (buildMinVersionP()) {
+                    Text(
+                        text = stringResource(R.string.throttling_msg),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(bottom = 12.dp),
+                    )
+                }
 
-    internal class CancelClick(
-        private val onCancel: () -> Unit,
-    ) : DialogInterface.OnClickListener {
-        override fun onClick(
-            alertDialog: DialogInterface,
-            which: Int,
-        ) {
-            alertDialog.dismiss()
-            onCancel()
-        }
-    }
+                Text(
+                    text = stringResource(R.string.permission_msg),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.location_msg),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(R.string.no_data_msg),
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Text(
+                    text = stringResource(R.string.no_data_url),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = stringResource(android.R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(android.R.string.cancel))
+            }
+        },
+    )
 }

@@ -13,29 +13,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  See the  GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 package com.vrem.wifianalyzer
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerApp
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
 import com.vrem.wifianalyzer.permission.ApplicationPermission
+import com.vrem.wifianalyzer.permission.PermissionRationaleDialog
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var scannerService: ScannerService
 
     internal lateinit var mainReload: MainReload
-    internal lateinit var navController: NavHostController
+    private var showPermissionRationale by mutableStateOf(false)
 
     internal val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -77,8 +78,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        settings.initializeDefaultValues()
-        settings.themeStyle().setTheme(this)
         mainReload = MainReload(settings)
 
         setContent {
@@ -90,10 +89,26 @@ class MainActivity : AppCompatActivity() {
                     ThemeStyle.SYSTEM -> isSystemInDarkTheme()
                 }
 
+            DisposableEffect(settingsData.keepScreenOn) {
+                keepScreenOn()
+                onDispose {}
+            }
+
+            if (showPermissionRationale) {
+                PermissionRationaleDialog(
+                    onConfirm = {
+                        showPermissionRationale = false
+                        permissionLauncher.launch(ApplicationPermission.PERMISSION)
+                    },
+                    onDismiss = {
+                        showPermissionRationale = false
+                        finish()
+                    },
+                )
+            }
+
             WiFiAnalyzerTheme(darkTheme = isDark) {
                 val controller = rememberNavController()
-                navController = controller
-
                 WiFiAnalyzerApp(navController = controller)
             }
         }
@@ -111,14 +126,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    internal val largeScreen: Boolean
-        get() {
-            val configuration = resources.configuration
-            val screenLayoutSize = configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK
-            return screenLayoutSize == Configuration.SCREENLAYOUT_SIZE_LARGE ||
-                screenLayoutSize == Configuration.SCREENLAYOUT_SIZE_XLARGE
-        }
 
     fun update() {
         scannerService.update()
@@ -154,11 +161,7 @@ class MainActivity : AppCompatActivity() {
             }
             scannerService.resume()
         } else {
-            permissionService.check(
-                context = this,
-                onOk = { permissionLauncher.launch(ApplicationPermission.PERMISSION) },
-                onCancel = { finish() },
-            )
+            showPermissionRationale = true
         }
     }
 }

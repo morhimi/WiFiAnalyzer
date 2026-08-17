@@ -21,8 +21,6 @@ import android.content.Context
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
@@ -98,13 +96,5 @@ class PermissionServiceTest {
         // validate
         assertThat(actual).isTrue
         verify(applicationPermission).granted()
-    }
-
-    @Test
-    fun permissionCheck() {
-        // execute
-        fixture.check()
-        // validate
-        verify(applicationPermission).check(eq(context), any(), any())
     }
 }

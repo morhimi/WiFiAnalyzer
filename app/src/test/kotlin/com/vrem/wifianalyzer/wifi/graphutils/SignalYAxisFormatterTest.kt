@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -36,4 +35,3 @@ class SignalYAxisFormatterTest {
         assertThat(format(MAX_Y + 1.toDouble())).isEqualTo("1")
     }
 }
-*/

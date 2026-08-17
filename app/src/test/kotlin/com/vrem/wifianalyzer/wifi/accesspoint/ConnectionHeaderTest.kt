@@ -18,7 +18,7 @@
 package com.vrem.wifianalyzer.wifi.accesspoint
 
 import android.os.Build
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme

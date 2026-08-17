@@ -49,13 +49,15 @@ data class DataPoint(
 }
 
 class SeriesData(
-    var wiFiDetail: WiFiDetail,
+    var wiFiDetail: WiFiDetail = PLACEHOLDER_DETAIL,
     dataPoints: List<DataPoint> = emptyList(),
     var graphColor: GraphColor = GraphColor(0, 0),
     var title: String = "",
     var connected: Boolean = false,
     var drawBackground: Boolean = false,
 ) {
+    constructor(dataPoints: List<DataPoint>) : this(PLACEHOLDER_DETAIL, dataPoints)
+
     private val _dataPoints: ArrayDeque<DataPoint> = ArrayDeque(dataPoints)
     val dataPoints: List<DataPoint> get() = _dataPoints
 

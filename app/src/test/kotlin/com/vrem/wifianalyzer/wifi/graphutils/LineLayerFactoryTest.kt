@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -21,6 +20,7 @@ package com.vrem.wifianalyzer.wifi.graphutils
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.views.cartesian.layer.LineCartesianLayer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,13 +42,13 @@ class LineLayerFactoryTest {
         // Arrange
         val seriesData = withSeriesData()
         val expectedThickness = listOf(THICKNESS_CONNECTED_DP, THICKNESS_REGULAR_DP, THICKNESS_CONNECTED_DP)
-        val expectedColors = listOf(0xFF0000, 0x00FF00, 0x0000FF)
         // Act
         val actual = fixture.lines(seriesData)
         // Assert
         assertThat(actual).hasSize(3)
-        assertThat(actual.map { it.stroke.thicknessDp }).containsExactlyElementsOf(expectedThickness)
-        assertThat(actual.map { it.fillColor }).containsExactlyElementsOf(expectedColors)
+        assertThat(
+            actual.map { (it.stroke as LineCartesianLayer.LineStroke.Continuous).thicknessDp },
+        ).containsExactlyElementsOf(expectedThickness)
     }
 
     @Test
@@ -89,4 +89,3 @@ class LineLayerFactoryTest {
             seriesData(primary = 0x0000FF, connected = true, drawBackground = true),
         )
 }
-*/

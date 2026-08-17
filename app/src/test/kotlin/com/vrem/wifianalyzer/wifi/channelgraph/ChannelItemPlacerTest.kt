@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -179,4 +178,3 @@ class ChannelItemPlacerTest {
         doReturn(ranges).`when`(drawingContext).ranges
     }
 }
-*/
