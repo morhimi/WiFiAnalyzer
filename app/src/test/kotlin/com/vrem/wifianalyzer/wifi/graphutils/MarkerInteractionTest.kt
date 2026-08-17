@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -92,6 +91,14 @@ class MarkerInteractionTest {
     fun markerIsDefaultCartesianMarker() {
         // Act & Assert
         assertThat(fixture.marker).usingRecursiveComparison().isEqualTo(createMarker())
+    }
+
+    @Test
+    fun secondaryConstructorInstantiatesSuccessfully() {
+        // Act
+        val custom = MarkerInteraction(chartView) { _ -> }
+        // Assert
+        assertThat(custom.marker).isNotNull
     }
 
     @Test
@@ -217,6 +224,5 @@ class MarkerInteractionTest {
     private fun withEntry(
         wiFiDetail: WiFiDetail,
         dataPoints: List<DataPoint>,
-    ): SeriesEntry = AbstractMap.SimpleEntry(wiFiDetail, SeriesData(dataPoints))
+    ): SeriesEntry = AbstractMap.SimpleEntry(wiFiDetail, SeriesData(wiFiDetail, dataPoints))
 }
-*/

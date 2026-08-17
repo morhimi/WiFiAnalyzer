@@ -217,6 +217,7 @@ fun WiFiAnalyzerApp(
             MainNavigationGraph(
                 navController = navController,
                 onDetailClick = { detail -> activeDetailList = listOf(detail) },
+                onShowWiFiDetails = { details -> activeDetailList = details },
                 modifier = Modifier.padding(innerPadding),
             )
         }

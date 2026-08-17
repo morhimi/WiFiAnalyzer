@@ -43,6 +43,7 @@ import com.vrem.wifianalyzer.wifi.graphutils.SeriesData
 import com.vrem.wifianalyzer.wifi.graphutils.SeriesLabel
 import com.vrem.wifianalyzer.wifi.graphutils.canvasY
 import com.vrem.wifianalyzer.wifi.model.WiFiData
+import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.predicate.Predicate
 import com.vrem.wifianalyzer.wifi.predicate.makeOtherPredicate
 
@@ -113,6 +114,7 @@ internal fun makeGraphWrapper(
     context: Context,
     graphMaximumY: Int = -20,
     themeStyle: ThemeStyle = ThemeStyle.DARK,
+    onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
 ): GraphWrapper {
     val scalable = !wiFiBand.ghz2
     val chartView = makeGraph(graphMaximumY, themeStyle, wiFiBand, scalable, context)
@@ -130,7 +132,12 @@ internal fun makeGraphWrapper(
             maxZoom = Zoom.x(MIN_VISIBLE_FREQUENCY_RANGE),
             scalable = scalable,
         )
-    return GraphWrapper(graphViewport, chartView, seriesLabel)
+    return GraphWrapper(
+        graphViewport = graphViewport,
+        chartView = chartView,
+        seriesLabel = seriesLabel,
+        onShowWiFiDetails = onShowWiFiDetails,
+    )
 }
 
 internal class ChannelGraph(
@@ -138,10 +145,14 @@ internal class ChannelGraph(
     private var dataManager: DataManager = DataManager(),
     private var graphWrapper: GraphWrapper,
 ) : GraphNotifier {
-    constructor(wiFiBand: WiFiBand, context: Context) : this(
+    constructor(
+        wiFiBand: WiFiBand,
+        context: Context,
+        onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
+    ) : this(
         wiFiBand = wiFiBand,
         dataManager = DataManager(),
-        graphWrapper = makeGraphWrapper(wiFiBand, context),
+        graphWrapper = makeGraphWrapper(wiFiBand, context, onShowWiFiDetails = onShowWiFiDetails),
     )
 
     private var wasSelected: Boolean = false

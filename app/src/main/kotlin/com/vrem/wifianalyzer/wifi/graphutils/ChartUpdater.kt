@@ -21,6 +21,7 @@ import com.patrykandpatrick.vico.views.cartesian.CartesianChart
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.cartesian.layer.LineCartesianLayer
+import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 class ChartUpdater(
     private val chartView: CartesianChartView,
@@ -28,7 +29,8 @@ class ChartUpdater(
     seriesCache: SeriesCache,
     private val lineStyleTracker: LineStyleTracker = LineStyleTracker(),
     private val lineLayerFactory: LineLayerFactory = LineLayerFactory(),
-    private val markerInteraction: MarkerInteraction = MarkerInteraction(chartView),
+    onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
+    private val markerInteraction: MarkerInteraction = MarkerInteraction(chartView, onShowWiFiDetails),
 ) {
     fun sync(
         entries: List<SeriesEntry>,

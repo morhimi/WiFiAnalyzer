@@ -54,7 +54,9 @@ class GraphWrapper(
     val seriesLabel: SeriesLabel,
     private val seriesCache: SeriesCache = SeriesCache(graphViewport.placeholderDataPoints),
     private val graphColors: GraphColors = GraphColors(chartView.context),
-    private val chartUpdater: ChartUpdater = ChartUpdater(chartView, seriesLabel, seriesCache),
+    onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
+    private val chartUpdater: ChartUpdater =
+        ChartUpdater(chartView, seriesLabel, seriesCache, onShowWiFiDetails = onShowWiFiDetails),
 ) {
     internal val modelProducer: CartesianChartModelProducer = CartesianChartModelProducer()
     internal val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())

@@ -28,6 +28,7 @@ import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 fun MainNavigationGraph(
     navController: NavHostController,
     onDetailClick: (WiFiDetail) -> Unit,
+    onShowWiFiDetails: (List<WiFiDetail>) -> Unit = { details -> details.firstOrNull()?.let(onDetailClick) },
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -42,10 +43,16 @@ fun MainNavigationGraph(
             ChannelRatingRoute(onDetailClick = onDetailClick)
         }
         composable<Screen.ChannelGraph> {
-            ChannelGraphRoute(onDetailClick = onDetailClick)
+            ChannelGraphRoute(
+                onDetailClick = onDetailClick,
+                onShowWiFiDetails = onShowWiFiDetails,
+            )
         }
         composable<Screen.TimeGraph> {
-            TimeGraphRoute(onDetailClick = onDetailClick)
+            TimeGraphRoute(
+                onDetailClick = onDetailClick,
+                onShowWiFiDetails = onShowWiFiDetails,
+            )
         }
         composable<Screen.About> {
             AboutRoute()

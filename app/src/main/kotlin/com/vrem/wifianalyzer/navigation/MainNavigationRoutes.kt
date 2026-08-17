@@ -180,13 +180,17 @@ fun ChannelRatingRoute(
 @Composable
 fun ChannelGraphRoute(
     onDetailClick: (WiFiDetail) -> Unit,
+    onShowWiFiDetails: (List<WiFiDetail>) -> Unit = { details -> details.firstOrNull()?.let(onDetailClick) },
     wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
 
     val graphAdapter =
         remember {
-            val channelGraphs = WiFiBand.entries.map { ChannelGraph(it, context = context) }
+            val channelGraphs =
+                WiFiBand.entries.map {
+                    ChannelGraph(it, context = context, onShowWiFiDetails = onShowWiFiDetails)
+                }
             GraphAdapter(channelGraphs)
         }
 
@@ -231,13 +235,17 @@ fun ChannelGraphRoute(
 @Composable
 fun TimeGraphRoute(
     onDetailClick: (WiFiDetail) -> Unit,
+    onShowWiFiDetails: (List<WiFiDetail>) -> Unit = { details -> details.firstOrNull()?.let(onDetailClick) },
     wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
 
     val graphAdapter =
         remember {
-            val timeGraphs = WiFiBand.entries.map { TimeGraph(it, context = context) }
+            val timeGraphs =
+                WiFiBand.entries.map {
+                    TimeGraph(it, context = context, onShowWiFiDetails = onShowWiFiDetails)
+                }
             GraphAdapter(timeGraphs)
         }
 

@@ -1,5 +1,4 @@
 /*
-/*
  * WiFiAnalyzer
  * Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
  *
@@ -20,12 +19,10 @@ package com.vrem.wifianalyzer.wifi.graphutils
 
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.patrykandpatrick.vico.views.cartesian.data.LineCartesianLayerModel
 import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.views.common.Point
-import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import org.assertj.core.api.Assertions.assertThat
@@ -46,16 +43,14 @@ private const val CANVAS_Y = 200f
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class MarkerHandlerTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
-    private val chartView: CartesianChartView = CartesianChartView(mainActivity)
     private val lineCartesianLayerMarkerTarget: LineCartesianLayerMarkerTarget = mock()
     private val lastTouch = Point(CANVAS_X, CANVAS_Y)
+    private var capturedDetails: List<WiFiDetail>? = null
 
-    private val fixture = MarkerHandler(chartView)
+    private val fixture = MarkerHandler(onShowWiFiDetails = { capturedDetails = it })
 
     @After
     fun tearDown() {
-        mainActivity.showWiFiDetailsCallback = null
         verifyNoMoreInteractions(lineCartesianLayerMarkerTarget)
     }
 
@@ -83,10 +78,8 @@ class MarkerHandlerTest {
     }
 
     @Test
-    fun eventShowsPopupWhenDetailsMatch() {
+    fun eventInvokesCallbackWhenDetailsMatch() {
         // Arrange
-        var capturedDetails: List<WiFiDetail>? = null
-        mainActivity.showWiFiDetailsCallback = { capturedDetails = it }
         val wiFiDetails = withWiFiDetails()
         val targetPoints = withTargetPoints()
         val pointMap = withPointMap(targetPoints, wiFiDetails)
@@ -102,28 +95,7 @@ class MarkerHandlerTest {
     }
 
     @Test
-    fun eventWithNonActivityContextChartView() {
-        // Arrange
-        val nonActivityChartView = CartesianChartView(mainActivity.applicationContext)
-        val handler = MarkerHandler(nonActivityChartView)
-        val wiFiDetails = withWiFiDetails()
-        val targetPoints = withTargetPoints()
-        val pointMap = withPointMap(targetPoints, wiFiDetails)
-        doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
-        doReturn(targetPoints).whenever(lineCartesianLayerMarkerTarget).points
-        // Act
-        val actual = handler.event(lastTouch, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
-        // Assert
-        assertThat(actual).isTrue()
-        verify(lineCartesianLayerMarkerTarget).canvasX
-        verify(lineCartesianLayerMarkerTarget).points
-        // Should not show popup because context is not an activity
-        val fragment = mainActivity.supportFragmentManager.findFragmentByTag("WiFiDetailPopup")
-        assertThat(fragment).isNull()
-    }
-
-    @Test
-    fun eventDoesNotShowPopupWhenNoMatchingDetails() {
+    fun eventDoesNotInvokeCallbackWhenNoMatchingDetails() {
         // Arrange
         val targetPoints = withTargetPoints()
         doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
@@ -134,10 +106,11 @@ class MarkerHandlerTest {
         assertThat(actual).isFalse()
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
+        assertThat(capturedDetails).isNull()
     }
 
     @Test
-    fun eventDoesNotShowPopupWhenTouchOutsideYThreshold() {
+    fun eventDoesNotInvokeCallbackWhenTouchOutsideYThreshold() {
         // Arrange - touch is far above in Y from the target points
         val touchFarInY = Point(CANVAS_X, CANVAS_Y - THRESHOLD_PX - 1f)
         val wiFiDetails = withWiFiDetails()
@@ -151,6 +124,7 @@ class MarkerHandlerTest {
         assertThat(actual).isFalse()
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
+        assertThat(capturedDetails).isNull()
     }
 
     private fun withWiFiDetails(): List<WiFiDetail> =
@@ -183,4 +157,3 @@ class MarkerHandlerTest {
         return LineCartesianLayerMarkerTarget.Point(entry, CANVAS_Y, 0)
     }
 }
-*/

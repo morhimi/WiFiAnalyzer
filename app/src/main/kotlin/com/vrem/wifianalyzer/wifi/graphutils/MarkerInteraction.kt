@@ -54,6 +54,14 @@ class MarkerInteraction(
     chartView: CartesianChartView,
     private val markerHandler: MarkerHandler = MarkerHandler(),
 ) {
+    constructor(
+        chartView: CartesianChartView,
+        onShowWiFiDetails: (List<WiFiDetail>) -> Unit,
+    ) : this(
+        chartView = chartView,
+        markerHandler = MarkerHandler(onShowWiFiDetails),
+    )
+
     private var dataPointToDetail: Map<Long, MutableList<WiFiDetail>> = emptyMap()
     private val thresholdPx: Float = 24f * chartView.resources.displayMetrics.density
 
