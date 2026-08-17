@@ -25,7 +25,6 @@ import com.patrykandpatrick.vico.views.cartesian.ZoomHandler
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.cartesian.data.lineModel
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.SIZE_MAX
 import com.vrem.wifianalyzer.SIZE_MIN
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -49,7 +48,6 @@ data class GraphViewport(
 
 private const val ZOOM_MAX: Float = 10f
 
-@OpenClass
 class GraphWrapper(
     val graphViewport: GraphViewport,
     val chartView: CartesianChartView,

@@ -17,13 +17,11 @@
  */
 package com.vrem.wifianalyzer.wifi.timegraph
 
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
 import com.vrem.wifianalyzer.wifi.graphutils.MAX_SCAN_COUNT
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
-@OpenClass
 internal class DataManager(
     private val timeGraphCache: TimeGraphCache = TimeGraphCache(),
 ) {

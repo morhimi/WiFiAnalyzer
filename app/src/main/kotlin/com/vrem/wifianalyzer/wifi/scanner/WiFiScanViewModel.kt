@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.wifi.scanner
 
 import androidx.lifecycle.ViewModel
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsData
@@ -29,7 +28,6 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-@OpenClass
 class WiFiScanViewModel
     @Inject
     constructor(

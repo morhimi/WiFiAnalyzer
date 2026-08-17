@@ -23,13 +23,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.wifi.WifiManager
 import androidx.core.content.ContextCompat
-import com.vrem.annotation.OpenClass
 
 fun interface Callback { // Compliant, function interface used
     fun onSuccess()
 }
 
-@OpenClass
 internal class ScanResultsReceiver(
     private val context: Context,
     private val callback: Callback,

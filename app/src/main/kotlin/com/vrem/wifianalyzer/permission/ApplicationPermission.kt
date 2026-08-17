@@ -20,10 +20,8 @@ package com.vrem.wifianalyzer.permission
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import com.vrem.annotation.OpenClass
 import com.vrem.util.findActivity
 
-@OpenClass
 class ApplicationPermission(
     private val context: Context,
 ) {

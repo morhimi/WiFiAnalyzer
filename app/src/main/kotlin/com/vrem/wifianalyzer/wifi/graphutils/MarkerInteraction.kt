@@ -28,7 +28,6 @@ import com.vrem.util.findActivity
 import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
-@com.vrem.annotation.OpenClass
 class MarkerHandler(
     private val chartView: CartesianChartView,
 ) {

@@ -17,11 +17,9 @@
  */
 package com.vrem.wifianalyzer.wifi.model
 
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import com.vrem.wifianalyzer.wifi.predicate.Predicate
 
-@OpenClass
 class WiFiData(
     val wiFiDetails: List<WiFiDetail>,
     val wiFiConnection: WiFiConnection,

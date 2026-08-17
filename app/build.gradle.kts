@@ -26,7 +26,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.allopen)
     id("jacoco")
     alias(libs.plugins.ktlint)
     alias(libs.plugins.kotlin.compose)
@@ -138,7 +137,6 @@ configure<ApplicationExtension> {
     }
 
     buildFeatures {
-        viewBinding = true
         compose = true
     }
 
@@ -197,10 +195,6 @@ tasks.withType<Test>().configureEach {
         isIncludeNoLocationClasses = true
         excludes = listOf("jdk.internal.*")
     }
-}
-
-allOpen {
-    annotation("com.vrem.annotation.OpenClass")
 }
 
 // jacoco ---------------------------------------------------

@@ -21,9 +21,7 @@ import com.patrykandpatrick.vico.views.cartesian.CartesianChart
 import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.cartesian.layer.LineCartesianLayer
-import com.vrem.annotation.OpenClass
 
-@OpenClass
 class ChartUpdater(
     private val chartView: CartesianChartView,
     private val seriesLabel: SeriesLabel,

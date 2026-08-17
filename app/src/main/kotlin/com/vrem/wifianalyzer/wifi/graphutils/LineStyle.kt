@@ -20,7 +20,6 @@ package com.vrem.wifianalyzer.wifi.graphutils
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.cartesian.layer.LineCartesianLayer
 import com.patrykandpatrick.vico.views.common.Fill
-import com.vrem.annotation.OpenClass
 
 private data class LineStyle(
     val primaryColor: Int,
@@ -41,7 +40,6 @@ private fun SeriesData.styleDigest(prior: Long): Long {
     return digest * 31 + (if (connected) 1 else 0)
 }
 
-@OpenClass
 class LineStyleTracker {
     private var lastDigest: Long = 0
 
@@ -60,7 +58,6 @@ class LineStyleTracker {
     }
 }
 
-@OpenClass
 class LineLayerFactory {
     fun create(
         seriesData: List<SeriesData>,

@@ -21,7 +21,6 @@ import android.content.Context
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.ViewModel
-import com.vrem.annotation.OpenClass
 import com.vrem.util.packageInfo
 import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.R
@@ -44,7 +43,6 @@ data class AboutUiState(
 )
 
 @HiltViewModel
-@OpenClass
 class AboutViewModel
     @Inject
     constructor(

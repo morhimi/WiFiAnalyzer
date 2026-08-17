@@ -17,13 +17,11 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
-@OpenClass
 internal class DataManager {
     fun newSeries(wiFiDetails: List<WiFiDetail>): Set<WiFiDetail> = wiFiDetails.toSet()
 

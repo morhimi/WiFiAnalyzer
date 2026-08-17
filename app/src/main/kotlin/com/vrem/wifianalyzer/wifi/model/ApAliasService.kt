@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.model
 
-import com.vrem.annotation.OpenClass
 import com.vrem.util.EMPTY
 import com.vrem.wifianalyzer.settings.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +25,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
-@OpenClass
 class ApAliasService(
     private val settingsRepository: SettingsRepository,
 ) {

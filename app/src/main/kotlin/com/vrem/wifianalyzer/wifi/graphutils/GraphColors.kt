@@ -20,7 +20,6 @@ package com.vrem.wifianalyzer.wifi.graphutils
 import android.content.Context
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.R
 
 private fun String.toColor(): Int = this.substring(1).toLong(16).toInt()
@@ -30,7 +29,6 @@ data class GraphColor(
     @param:ColorInt val background: Int,
 )
 
-@OpenClass
 class GraphColors(
     private val context: Context? = null,
 ) {

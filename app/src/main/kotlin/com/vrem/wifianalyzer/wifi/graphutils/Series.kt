@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.wifi.graphutils
 
 import android.graphics.Color
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import com.vrem.wifianalyzer.wifi.model.WiFiSecurity
@@ -88,7 +87,6 @@ class SeriesData(
 
 fun List<SeriesData>.toCoordinates(): List<Coordinates> = map { it.toCoordinates() }
 
-@OpenClass
 class SeriesCache(
     placeholder: List<DataPoint>,
 ) {

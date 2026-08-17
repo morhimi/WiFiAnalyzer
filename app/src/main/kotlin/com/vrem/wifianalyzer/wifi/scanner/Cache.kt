@@ -19,7 +19,6 @@ package com.vrem.wifianalyzer.wifi.scanner
 
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
-import com.vrem.annotation.OpenClass
 import com.vrem.util.ssid
 import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.settings.Settings
@@ -34,7 +33,6 @@ internal data class CacheKey(
     val ssid: String,
 )
 
-@OpenClass
 internal class Cache(
     private val settings: Settings,
     private val configuration: Configuration,

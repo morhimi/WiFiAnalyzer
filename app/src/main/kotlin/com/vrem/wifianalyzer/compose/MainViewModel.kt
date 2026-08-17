@@ -18,7 +18,6 @@
 package com.vrem.wifianalyzer.compose
 
 import androidx.lifecycle.ViewModel
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
@@ -29,7 +28,6 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-@OpenClass
 class MainViewModel
     @Inject
     constructor(

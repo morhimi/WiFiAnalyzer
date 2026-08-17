@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.settings
 
-import com.vrem.annotation.OpenClass
 import com.vrem.util.findByLanguageTag
 import com.vrem.util.ordinals
 import com.vrem.wifianalyzer.navigation.MAIN_NAVIGATION
@@ -40,7 +39,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-@OpenClass
 class Settings(
     private val settingsRepository: SettingsRepository,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),

@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.scanner
 
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.settings.Settings
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +26,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-@OpenClass
 internal class PeriodicScan(
     private val scanner: ScannerService,
     private val settings: Settings,

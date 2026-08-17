@@ -19,7 +19,6 @@ package com.vrem.wifianalyzer.vendor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +32,6 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-@OpenClass
 class VendorsViewModel
     @Inject
     constructor(

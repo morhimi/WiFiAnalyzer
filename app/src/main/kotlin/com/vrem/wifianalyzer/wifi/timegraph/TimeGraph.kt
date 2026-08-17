@@ -29,7 +29,6 @@ import com.patrykandpatrick.vico.views.cartesian.Zoom
 import com.patrykandpatrick.vico.views.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.common.data.ExtraStore
-import com.vrem.annotation.OpenClass
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.settings.ThemeStyle
@@ -124,7 +123,6 @@ internal fun makeGraphWrapper(
     return GraphWrapper(graphViewport, chartView, seriesLabel)
 }
 
-@OpenClass
 internal class TimeGraph(
     private val wiFiBand: WiFiBand,
     private val dataManager: DataManager = DataManager(),

@@ -23,10 +23,8 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import com.vrem.annotation.OpenClass
 import com.vrem.util.buildMinVersionQ
 
-@OpenClass
 class WiFiSwitch(
     private val wifiManager: WifiManager,
     private val context: Context,

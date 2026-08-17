@@ -18,9 +18,7 @@
 package com.vrem.wifianalyzer.permission
 
 import android.content.Context
-import com.vrem.annotation.OpenClass
 
-@OpenClass
 class PermissionService(
     private val context: Context,
     private val locationPermission: LocationPermission = LocationPermission(context),
