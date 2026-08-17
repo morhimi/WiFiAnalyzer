@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionHeader
+import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionViewType
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.band.WiFiChannel
 import com.vrem.wifianalyzer.wifi.model.ChannelAPCount
@@ -52,6 +53,7 @@ fun ChannelRatingScreen(
     permissionEnabled: Boolean,
     isScanning: Boolean,
     isRefreshing: Boolean,
+    connectionViewType: ConnectionViewType = ConnectionViewType.COMPACT,
     onRefresh: () -> Unit,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
@@ -71,6 +73,7 @@ fun ChannelRatingScreen(
                     scanThrottleEnabled = scanThrottleEnabled,
                     permissionEnabled = permissionEnabled,
                     isScanning = isScanning,
+                    connectionViewType = connectionViewType,
                     onDetailClick = onDetailClick,
                 )
 

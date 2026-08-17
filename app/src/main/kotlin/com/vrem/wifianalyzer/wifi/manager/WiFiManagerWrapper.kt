@@ -40,7 +40,12 @@ class WiFiManagerWrapper(
     @SuppressLint("MissingPermission")
     fun scanResults(): List<ScanResult> = runCatching { wifiManager.scanResults ?: listOf() }.getOrDefault(listOf())
 
-    fun wiFiInfo(): WifiInfo? = runCatching { wifiManager.connectionInfo }.getOrNull()
+    @SuppressLint("MissingPermission")
+    fun wiFiInfo(): WifiInfo? =
+        runCatching {
+            @Suppress("DEPRECATION")
+            wifiManager.connectionInfo
+        }.getOrNull()
 
     fun is5GHzBandSupported(): Boolean = wifiManager.is5GHzBandSupported
 

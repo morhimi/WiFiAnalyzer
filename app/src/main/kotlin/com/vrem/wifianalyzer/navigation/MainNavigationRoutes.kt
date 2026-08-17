@@ -102,6 +102,7 @@ fun AccessPointsRoute(
         permissionEnabled = permissionService.enabled(),
         isScanning = scannerService.running(),
         isRefreshing = isRefreshing,
+        connectionViewType = settingsData.connectionViewType,
         onRefresh = {
             scope.launch {
                 isRefreshing = true
@@ -163,6 +164,7 @@ fun ChannelRatingRoute(
         permissionEnabled = permissionService.enabled(),
         isScanning = scannerService.running(),
         isRefreshing = isRefreshing,
+        connectionViewType = settingsData.connectionViewType,
         onRefresh = {
             scope.launch {
                 isRefreshing = true

@@ -7,22 +7,17 @@ ktlint = "14.2.0"
 jacoco = "0.8.14"
 foojayResolver = "1.0.0"
 
-# AndroidX & Material
+# AndroidX
 androidx-annotation = "1.10.0"
 androidx-appcompat = "1.8.0"
-androidx-collection = "1.6.0"
 androidx-core = "1.19.0"
 androidx-core-splashscreen = "1.2.0"
-androidx-fragment = "1.8.6"
 androidx-lifecycle = "2.11.0"
-androidx-media = "1.8.0"
-androidx-swiperefreshlayout = "1.2.0"
 androidx-savedstate = "1.5.0"
 androidx-navigation = "2.9.8"
 androidx-hilt-navigation-compose = "1.4.0"
 androidx-datastore = "1.2.1"
 androidx-activity = "1.13.0"
-material = "1.14.0"
 vico = "3.2.3"
 
 # Compose
@@ -46,15 +41,10 @@ slf4j = "2.0.18"
 # AndroidX & UI
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidx-annotation" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
-androidx-collection-ktx = { module = "androidx.collection:collection-ktx", version.ref = "androidx-collection" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-core-splashscreen" }
-androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidx-fragment" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
-androidx-media = { module = "androidx.media:media", version.ref = "androidx-media" }
-androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "androidx-swiperefreshlayout" }
-google-material = { module = "com.google.android.material:material", version.ref = "material" }
 vico-views = { module = "com.patrykandpatrick.vico:views", version.ref = "vico" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 

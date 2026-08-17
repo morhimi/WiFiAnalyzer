@@ -36,18 +36,12 @@ plugins {
 // dependencies -------------------------------------------------
 dependencies {
     // Compile Build Dependencies
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.collection.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.media)
-    implementation(libs.androidx.swiperefreshlayout)
-    implementation(libs.google.material)
     implementation(libs.vico.views)
     implementation(libs.kotlin.stdlib)
     // Hilt Dependencies

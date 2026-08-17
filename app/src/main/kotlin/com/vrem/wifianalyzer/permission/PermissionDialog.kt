@@ -18,9 +18,9 @@
 package com.vrem.wifianalyzer.permission
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.DialogInterface
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import com.vrem.util.buildMinVersionP
 import com.vrem.wifianalyzer.R
 

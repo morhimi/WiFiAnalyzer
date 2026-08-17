@@ -58,7 +58,7 @@ class WiFiDataTest {
     }
 
     @Test
-    fun connectionReturnsEmptyWhenNoMatch() {
+    fun connectionReturnsConnectionDetailWhenNoMatchInWiFiDetails() {
         // setup
         val wiFiData =
             WiFiData(
@@ -74,17 +74,19 @@ class WiFiDataTest {
         // execute
         val actual = wiFiData.connection()
         // validate
-        assertThat(actual).isEqualTo(WiFiDetail.EMPTY)
+        assertThat(actual.wiFiIdentifier).isEqualTo(wiFiIdentifier)
+        assertThat(actual.wiFiAdditional.wiFiConnection).isEqualTo(wiFiConnection)
     }
 
     @Test
-    fun connectionReturnsEmptyWhenWiFiDetailsIsEmpty() {
+    fun connectionReturnsConnectionDetailWhenWiFiDetailsIsEmpty() {
         // setup
         val wiFiData = WiFiData(emptyList(), wiFiConnection)
         // execute
         val actual = wiFiData.connection()
         // validate
-        assertThat(actual).isEqualTo(WiFiDetail.EMPTY)
+        assertThat(actual.wiFiIdentifier).isEqualTo(wiFiIdentifier)
+        assertThat(actual.wiFiAdditional.wiFiConnection).isEqualTo(wiFiConnection)
     }
 
     @Test

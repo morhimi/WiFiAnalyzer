@@ -64,6 +64,7 @@ fun WiFiGraphScreen(
                     scanThrottleEnabled = scanThrottleEnabled,
                     permissionEnabled = permissionEnabled,
                     isScanning = isScanning,
+                    connectionViewType = settingsData.connectionViewType,
                     onDetailClick = onDetailClick,
                 )
                 AndroidView(

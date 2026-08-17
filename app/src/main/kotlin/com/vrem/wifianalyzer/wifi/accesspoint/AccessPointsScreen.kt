@@ -42,6 +42,7 @@ fun AccessPointsScreen(
     permissionEnabled: Boolean,
     isScanning: Boolean,
     isRefreshing: Boolean,
+    connectionViewType: ConnectionViewType = ConnectionViewType.COMPACT,
     onRefresh: () -> Unit,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
@@ -61,6 +62,7 @@ fun AccessPointsScreen(
                     scanThrottleEnabled = scanThrottleEnabled,
                     permissionEnabled = permissionEnabled,
                     isScanning = isScanning,
+                    connectionViewType = connectionViewType,
                     onDetailClick = onDetailClick,
                 )
                 AccessPointsList(

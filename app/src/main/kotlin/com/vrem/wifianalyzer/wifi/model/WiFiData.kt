@@ -23,7 +23,16 @@ class WiFiData(
     val wiFiDetails: List<WiFiDetail>,
     val wiFiConnection: WiFiConnection,
 ) {
-    fun connection(): WiFiDetail = wiFiDetails.firstOrNull { connected(it) }?.let { copy(it) } ?: WiFiDetail.EMPTY
+    fun connection(): WiFiDetail =
+        wiFiDetails.firstOrNull { connected(it) }?.let { copy(it) }
+            ?: if (wiFiConnection.connected) {
+                WiFiDetail(
+                    wiFiIdentifier = wiFiConnection.wiFiIdentifier,
+                    wiFiAdditional = WiFiAdditional(wiFiConnection = wiFiConnection),
+                )
+            } else {
+                WiFiDetail.EMPTY
+            }
 
     fun wiFiDetails(
         predicate: Predicate,

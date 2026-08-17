@@ -59,13 +59,14 @@ fun ConnectionHeader(
     scanThrottleEnabled: Boolean,
     permissionEnabled: Boolean,
     isScanning: Boolean,
+    connectionViewType: ConnectionViewType = ConnectionViewType.COMPACT,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
     val connection = wiFiData.connection()
     val wiFiConnection = connection.wiFiAdditional.wiFiConnection
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        if (wiFiConnection.connected) {
+        if (wiFiConnection.connected && !connectionViewType.hide) {
             Column(
                 modifier =
                     Modifier
@@ -96,20 +97,22 @@ fun ConnectionHeader(
                     modifier = Modifier.padding(top = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = stringResource(id = connection.wiFiSignal.wiFiBand.textResource),
-                        color = Frequency,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                    Text(
-                        text = "CH ${connection.wiFiSignal.channelDisplay()}",
-                        color = ChannelNumber,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
+                    if (connection.wiFiSignal != com.vrem.wifianalyzer.wifi.model.WiFiSignal.EMPTY) {
+                        Text(
+                            text = stringResource(id = connection.wiFiSignal.wiFiBand.textResource),
+                            color = Frequency,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                        Text(
+                            text = "CH ${connection.wiFiSignal.channelDisplay()}",
+                            color = ChannelNumber,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(end = 8.dp),
+                        )
+                    }
                     if (wiFiConnection.linkSpeed != WiFiConnection.LINK_SPEED_INVALID) {
                         Text(
                             text = "${wiFiConnection.linkSpeed}${WifiInfo.LINK_SPEED_UNITS}",
