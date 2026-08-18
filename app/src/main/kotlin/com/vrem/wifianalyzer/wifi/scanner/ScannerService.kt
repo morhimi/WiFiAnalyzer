@@ -57,7 +57,7 @@ fun makeScannerService(
 ): ScannerService {
     val cache = Cache(settings)
     val transformer = Transformer(cache, apAliasService, vendorService)
-    val scanner = Scanner(wiFiManagerWrapper, settings, permissionService, transformer)
+    val scanner = Scanner(wiFiManagerWrapper, settings, permissionService, transformer, cache)
     scanner.periodicScan = PeriodicScan(scanner, settings)
     scanner.scannerCallback = ScannerCallback(wiFiManagerWrapper, cache)
     scanner.scanResultsReceiver = ScanResultsReceiver(context, scanner.scannerCallback)

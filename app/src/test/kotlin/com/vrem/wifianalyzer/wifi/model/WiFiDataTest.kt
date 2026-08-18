@@ -100,6 +100,40 @@ class WiFiDataTest {
     }
 
     @Test
+    fun connectionMatchesByBssidWhenSsidDiffers() {
+        val connIdentifier = WiFiIdentifier("DifferentSSIDName", bssid1)
+        val conn = WiFiConnection(connIdentifier, ipAddress, linkSpeed)
+        val wiFiData = WiFiData(wiFiDetails, conn)
+
+        val actual = wiFiData.connection()
+
+        assertThat(actual.wiFiIdentifier).isEqualTo(wiFiIdentifier)
+        assertThat(actual.wiFiAdditional.wiFiConnection.ipAddress).isEqualTo(ipAddress)
+    }
+
+    @Test
+    fun connectionMatchesBySsidWhenBssidEmpty() {
+        val connIdentifier = WiFiIdentifier(ssid1, "")
+        val conn = WiFiConnection(connIdentifier, ipAddress, linkSpeed)
+        val wiFiData =
+            WiFiData(
+                listOf(
+                    WiFiDetail(
+                        WiFiIdentifier(ssid1, "AnyBSSID"),
+                        WiFiSecurity.EMPTY,
+                        WiFiSignal(2412, 2412, WiFiWidth.MHZ_20, -50),
+                    ),
+                ),
+                conn,
+            )
+
+        val actual = wiFiData.connection()
+
+        assertThat(actual.wiFiIdentifier.ssid).isEqualTo(ssid1)
+        assertThat(actual.wiFiAdditional.wiFiConnection.ipAddress).isEqualTo(ipAddress)
+    }
+
+    @Test
     fun wiFiDetailsWithConfiguredNetwork() {
         // setup
         val predicate: Predicate = WiFiBand.GHZ2.predicate()

@@ -37,7 +37,11 @@ import com.vrem.wifianalyzer.wifi.model.WiFiWidth
 import com.vrem.wifianalyzer.wifi.model.convertIpV4Address
 import com.vrem.wifianalyzer.wifi.model.convertSSID
 
-fun WifiInfo.ipV4Address(): Int = ipAddress
+fun WifiInfo.ipV4Address(): Int =
+    runCatching {
+        @Suppress("DEPRECATION")
+        ipAddress
+    }.getOrDefault(0)
 
 internal class Transformer(
     private val cache: Cache,
@@ -45,16 +49,18 @@ internal class Transformer(
     private val vendorService: VendorService,
 ) {
     internal fun transformWifiInfo(): WiFiConnection {
-        val wifiInfo: WifiInfo? = cache.wifiInfo
-        return if (wifiInfo == null || wifiInfo.networkId == -1) {
-            WiFiConnection.EMPTY
-        } else {
-            val ssid = convertSSID(String.nullToEmpty(wifiInfo.ssid))
-            val bssid = String.nullToEmpty(wifiInfo.bssid)
-            val alias = apAliasService.getAlias(bssid)
-            val wiFiIdentifier = WiFiIdentifier(ssid, bssid, alias)
-            WiFiConnection(wiFiIdentifier, convertIpV4Address(wifiInfo.ipV4Address()), wifiInfo.linkSpeed)
+        val wifiInfo: WifiInfo = cache.wifiInfo ?: return WiFiConnection.EMPTY
+        val ssid = convertSSID(String.nullToEmpty(wifiInfo.ssid))
+        val bssid = String.nullToEmpty(wifiInfo.bssid)
+        val hasValidBssid = bssid.isNotEmpty() && bssid != "02:00:00:00:00:00" && bssid != "00:00:00:00:00:00"
+        val hasValidSsid = ssid.isNotEmpty() && ssid != "<unknown ssid>"
+        val hasValidNetworkId = wifiInfo.networkId != -1
+        if (!hasValidBssid && !hasValidSsid && !hasValidNetworkId) {
+            return WiFiConnection.EMPTY
         }
+        val alias = apAliasService.getAlias(bssid)
+        val wiFiIdentifier = WiFiIdentifier(ssid, bssid, alias)
+        return WiFiConnection(wiFiIdentifier, convertIpV4Address(wifiInfo.ipV4Address()), wifiInfo.linkSpeed)
     }
 
     internal fun transformCacheResults(): List<WiFiDetail> = cache.scanResults().map { transform(it) }

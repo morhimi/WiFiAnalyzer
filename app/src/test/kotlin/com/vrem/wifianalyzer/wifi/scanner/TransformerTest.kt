@@ -127,13 +127,41 @@ class TransformerTest {
     @Test
     fun transformWifiInfoNotConnected() {
         // setup
-        doReturn(wifiInfo).whenever(cache).wifiInfo
-        doReturn(-1).whenever(wifiInfo).networkId
+        val notConnected: WifiInfo = mock()
+        doReturn(-1).whenever(notConnected).networkId
+        doReturn("<unknown ssid>").whenever(notConnected).ssid
+        doReturn("02:00:00:00:00:00").whenever(notConnected).bssid
+        doReturn(notConnected).whenever(cache).wifiInfo
         // execute
         val actual = fixture.transformWifiInfo()
         // validate
         assertThat(actual).isEqualTo(WiFiConnection.EMPTY)
-        verify(wifiInfo).networkId
+        verify(notConnected).networkId
+        verify(notConnected).ssid
+        verify(notConnected).bssid
+        verify(cache).wifiInfo
+    }
+
+    @Test
+    fun transformWifiInfoConnectedOnAndroid12Plus() {
+        // setup
+        val android12WifiInfo: WifiInfo = mock()
+        val expected = WiFiConnection(WiFiIdentifier(SSID_1, BSSID_1), IP_ADDRESS, LINK_SPEED)
+        doReturn(-1).whenever(android12WifiInfo).networkId
+        doReturn(SSID_1).whenever(android12WifiInfo).ssid
+        doReturn(BSSID_1).whenever(android12WifiInfo).bssid
+        doReturn(IP_ADDRESS_VALUE).whenever(android12WifiInfo).ipV4Address()
+        doReturn(LINK_SPEED).whenever(android12WifiInfo).linkSpeed
+        doReturn(android12WifiInfo).whenever(cache).wifiInfo
+        // execute
+        val actual = fixture.transformWifiInfo()
+        // validate
+        assertThat(actual).isEqualTo(expected)
+        verify(android12WifiInfo).networkId
+        verify(android12WifiInfo).ssid
+        verify(android12WifiInfo).bssid
+        verify(android12WifiInfo).ipV4Address()
+        verify(android12WifiInfo).linkSpeed
         verify(cache).wifiInfo
     }
 

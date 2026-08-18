@@ -86,7 +86,16 @@ class WiFiData(
             else -> wiFiDetail
         }
 
-    private fun connected(it: WiFiDetail): Boolean = wiFiConnection.wiFiIdentifier.equals(it.wiFiIdentifier, true)
+    private fun connected(it: WiFiDetail): Boolean {
+        val connBssid = wiFiConnection.wiFiIdentifier.bssid
+        val detailBssid = it.wiFiIdentifier.bssid
+        val validBssid = connBssid.isNotEmpty() && connBssid != "02:00:00:00:00:00" && connBssid != "00:00:00:00:00:00"
+        return if (validBssid && detailBssid.isNotEmpty()) {
+            connBssid.equals(detailBssid, ignoreCase = true)
+        } else {
+            wiFiConnection.wiFiIdentifier.equals(it.wiFiIdentifier, ignoreCase = true)
+        }
+    }
 
     private fun copy(wiFiDetail: WiFiDetail): WiFiDetail {
         val wiFiAdditional = WiFiAdditional(wiFiDetail.wiFiAdditional.vendorName, wiFiConnection)

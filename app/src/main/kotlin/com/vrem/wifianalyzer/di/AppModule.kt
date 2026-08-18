@@ -19,6 +19,7 @@ package com.vrem.wifianalyzer.di
 
 import android.content.Context
 import android.content.res.Configuration
+import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -70,6 +71,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideConnectivityManager(
+        @ApplicationContext context: Context,
+    ): ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    @Provides
+    @Singleton
     fun provideWiFiSwitch(
         @ApplicationContext context: Context,
         wifiManager: WifiManager,
@@ -80,7 +87,8 @@ object AppModule {
     fun provideWiFiManagerWrapper(
         wifiManager: WifiManager,
         wiFiSwitch: WiFiSwitch,
-    ): WiFiManagerWrapper = WiFiManagerWrapper(wifiManager, wiFiSwitch)
+        connectivityManager: ConnectivityManager,
+    ): WiFiManagerWrapper = WiFiManagerWrapper(wifiManager, wiFiSwitch, connectivityManager)
 
     @Provides
     @Singleton

@@ -30,6 +30,7 @@ internal class Scanner(
     val settings: Settings,
     val permissionService: PermissionService,
     val transformer: Transformer,
+    val cache: Cache? = null,
 ) : ScannerService {
     private val _runningFlow = MutableStateFlow(false)
     override val runningFlow: StateFlow<Boolean> = _runningFlow.asStateFlow()
@@ -53,6 +54,7 @@ internal class Scanner(
                 scannerCallback.onSuccess()
                 initialScan = true
             }
+            cache?.wifiInfo = wiFiManagerWrapper.wiFiInfo()
         }
         wiFiData = transformer.transformToWiFiData()
         _wiFiDataFlow.value = wiFiData

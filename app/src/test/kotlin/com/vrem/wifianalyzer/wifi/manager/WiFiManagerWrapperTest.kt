@@ -17,6 +17,9 @@
  */
 package com.vrem.wifianalyzer.wifi.manager
 
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
@@ -34,13 +37,15 @@ import org.mockito.kotlin.whenever
 class WiFiManagerWrapperTest {
     private val wifiManager: WifiManager = mock()
     private val wiFiSwitch: WiFiSwitch = mock()
+    private val connectivityManager: ConnectivityManager = mock()
     private val wifiInfo: WifiInfo = mock()
-    private val fixture = spy(WiFiManagerWrapper(wifiManager, wiFiSwitch))
+    private val fixture = spy(WiFiManagerWrapper(wifiManager, wiFiSwitch, connectivityManager))
 
     @After
     fun tearDown() {
         verifyNoMoreInteractions(wifiManager)
         verifyNoMoreInteractions(wiFiSwitch)
+        verifyNoMoreInteractions(connectivityManager)
     }
 
     @Test
@@ -225,14 +230,111 @@ class WiFiManagerWrapperTest {
     }
 
     @Test
-    fun wiFiInfo() {
+    fun wiFiInfoLegacyWhenBelowAndroidS() {
         // setup
+        doReturn(false).whenever(fixture).minVersionS()
+        whenever(wifiInfo.ssid).thenReturn(null)
+        whenever(wifiInfo.bssid).thenReturn(null)
         whenever(wifiManager.connectionInfo).thenReturn(wifiInfo)
         // execute
         val actual = fixture.wiFiInfo()
         // validate
         assertThat(actual).isSameAs(wifiInfo)
         verify(wifiManager).connectionInfo
+        verify(wifiInfo).ssid
+        verify(wifiInfo).bssid
+        verify(fixture).minVersionS()
+    }
+
+    @Test
+    fun wiFiInfoWhenLegacyHasValidDetails() {
+        // setup
+        whenever(wifiInfo.ssid).thenReturn("TestSSID")
+        whenever(wifiManager.connectionInfo).thenReturn(wifiInfo)
+        // execute
+        val actual = fixture.wiFiInfo()
+        // validate
+        assertThat(actual).isSameAs(wifiInfo)
+        verify(wifiManager).connectionInfo
+        verify(wifiInfo).ssid
+    }
+
+    @Test
+    fun wiFiInfoOnAndroidSWithActiveNetworkAndTransportInfoWhenLegacyEmpty() {
+        // setup
+        val network: Network = mock()
+        val networkCapabilities: NetworkCapabilities = mock()
+        val transportWifiInfo: WifiInfo = mock()
+        doReturn(true).whenever(fixture).minVersionS()
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities)
+        whenever(networkCapabilities.transportInfo).thenReturn(transportWifiInfo)
+        whenever(transportWifiInfo.ssid).thenReturn("TransportSSID")
+        // execute
+        val actual = fixture.wiFiInfo()
+        // validate
+        assertThat(actual).isSameAs(transportWifiInfo)
+        verify(wifiManager).connectionInfo
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(networkCapabilities).transportInfo
+        verify(transportWifiInfo).ssid
+        verify(fixture).minVersionS()
+    }
+
+    @Test
+    fun wiFiInfoOnAndroidSWhenActiveNetworkIsNullFallsBackToConnectionInfo() {
+        // setup
+        doReturn(true).whenever(fixture).minVersionS()
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+        whenever(connectivityManager.activeNetwork).thenReturn(null)
+        // execute
+        val actual = fixture.wiFiInfo()
+        // validate
+        assertThat(actual).isNull()
+        verify(wifiManager).connectionInfo
+        verify(connectivityManager).activeNetwork
+        verify(fixture).minVersionS()
+    }
+
+    @Test
+    fun wiFiInfoOnAndroidSWhenCapabilitiesNullFallsBackToConnectionInfo() {
+        // setup
+        val network: Network = mock()
+        doReturn(true).whenever(fixture).minVersionS()
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(null)
+        // execute
+        val actual = fixture.wiFiInfo()
+        // validate
+        assertThat(actual).isNull()
+        verify(wifiManager).connectionInfo
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(fixture).minVersionS()
+    }
+
+    @Test
+    fun wiFiInfoOnAndroidSWhenTransportInfoNullFallsBackToConnectionInfo() {
+        // setup
+        val network: Network = mock()
+        val networkCapabilities: NetworkCapabilities = mock()
+        doReturn(true).whenever(fixture).minVersionS()
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities)
+        whenever(networkCapabilities.transportInfo).thenReturn(null)
+        // execute
+        val actual = fixture.wiFiInfo()
+        // validate
+        assertThat(actual).isNull()
+        verify(wifiManager).connectionInfo
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(networkCapabilities).transportInfo
+        verify(fixture).minVersionS()
     }
 
     @Test
@@ -244,6 +346,21 @@ class WiFiManagerWrapperTest {
         // validate
         assertThat(actual).isNull()
         verify(wifiManager).connectionInfo
+    }
+
+    @Test
+    fun wiFiInfoWhenConnectivityManagerIsNull() {
+        // setup
+        val localFixture = spy(WiFiManagerWrapper(wifiManager, wiFiSwitch, null))
+        doReturn(true).whenever(localFixture).minVersionS()
+        whenever(wifiInfo.ssid).thenReturn("TestSSID")
+        whenever(wifiManager.connectionInfo).thenReturn(wifiInfo)
+        // execute
+        val actual = localFixture.wiFiInfo()
+        // validate
+        assertThat(actual).isSameAs(wifiInfo)
+        verify(wifiManager).connectionInfo
+        verify(wifiInfo).ssid
     }
 
     @Test
@@ -305,5 +422,17 @@ class WiFiManagerWrapperTest {
         assertThat(actual).isTrue
         verify(wifiManager).isScanThrottleEnabled
         verify(fixture).minVersionR()
+    }
+
+    @Test
+    fun minVersionR() {
+        val actual = WiFiManagerWrapper(wifiManager, wiFiSwitch, connectivityManager).minVersionR()
+        assertThat(actual).isNotNull()
+    }
+
+    @Test
+    fun minVersionS() {
+        val actual = WiFiManagerWrapper(wifiManager, wiFiSwitch, connectivityManager).minVersionS()
+        assertThat(actual).isNotNull()
     }
 }

@@ -30,6 +30,7 @@ class BuildUtilsTest {
     @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
     fun minVersionTrueOnCurrentSdk() {
         assertThat(buildMinVersionT()).isTrue()
+        assertThat(buildMinVersionS()).isTrue()
         assertThat(buildMinVersionR()).isTrue()
         assertThat(buildMinVersionQ()).isTrue()
         assertThat(buildMinVersionP()).isTrue()
@@ -39,12 +40,21 @@ class BuildUtilsTest {
     @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
     fun minVersionTOnTiramisu() {
         assertThat(buildMinVersionT()).isTrue()
+        assertThat(buildMinVersionS()).isTrue()
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
     fun minVersionTFalseBelowTiramisu() {
         assertThat(buildMinVersionT()).isFalse()
+        assertThat(buildMinVersionS()).isTrue()
+        assertThat(buildMinVersionR()).isTrue()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    fun minVersionSFalseBelowS() {
+        assertThat(buildMinVersionS()).isFalse()
         assertThat(buildMinVersionR()).isTrue()
     }
 

@@ -169,6 +169,31 @@ class ScannerTest {
     }
 
     @Test
+    fun updateRefreshesCacheWiFiInfoWhenCacheProvided() {
+        val cache: Cache = mock()
+        val wifiInfo: android.net.wifi.WifiInfo = mock()
+        val scanner = Scanner(wiFiManagerWrapper, settings, permissionService, transformer, cache)
+        scanner.periodicScan = periodicScan
+        scanner.scanResultsReceiver = scanResultsReceiver
+        scanner.scannerCallback = scannerCallback
+        whenever(transformer.transformToWiFiData()).thenReturn(wiFiData)
+        whenever(permissionService.enabled()).thenReturn(true)
+        whenever(wiFiManagerWrapper.wiFiInfo()).thenReturn(wifiInfo)
+
+        scanner.update()
+
+        verify(cache).wifiInfo = wifiInfo
+        verify(wiFiManagerWrapper).enableWiFi()
+        verify(permissionService).enabled()
+        verify(scanResultsReceiver).register()
+        verify(wiFiManagerWrapper).startScan()
+        verify(scannerCallback).onSuccess()
+        verify(wiFiManagerWrapper).wiFiInfo()
+        verify(transformer).transformToWiFiData()
+        verifyNoMoreInteractions(cache)
+    }
+
+    @Test
     fun toggleWhenRunning() {
         // setup
         fixture.periodicScan = periodicScan
