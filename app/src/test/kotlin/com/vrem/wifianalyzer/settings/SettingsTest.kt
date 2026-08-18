@@ -291,9 +291,4 @@ class SettingsTest {
 
             verify(settingsRepository).resetToDefaults()
         }
-
-    @Test
-    fun initializeDefaultValuesIsNoOp() {
-        fixture.initializeDefaultValues()
-    }
 }

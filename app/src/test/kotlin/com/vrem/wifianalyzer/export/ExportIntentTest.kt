@@ -18,16 +18,22 @@
 package com.vrem.wifianalyzer.export
 
 import android.content.Intent
+import android.os.Build
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
+import org.robolectric.annotation.Config
 
+@RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class ExportIntentTest {
     private val intentSend: Intent = mock()
     private val intentChooser: Intent = mock()
@@ -60,5 +66,20 @@ class ExportIntentTest {
 
         verify(fixture).intentSend()
         verify(fixture).intentChooser(intentSend, title)
+    }
+
+    @Test
+    fun intentSendCreatesActionSendIntent() {
+        val nonSpyFixture = ExportIntent()
+        val intent = nonSpyFixture.intentSend()
+        assertThat(intent.action).isEqualTo(Intent.ACTION_SEND)
+    }
+
+    @Test
+    fun intentChooserCreatesChooserIntent() {
+        val nonSpyFixture = ExportIntent()
+        val sendIntent = Intent(Intent.ACTION_SEND)
+        val chooser = nonSpyFixture.intentChooser(sendIntent, "title")
+        assertThat(chooser.action).isEqualTo(Intent.ACTION_CHOOSER)
     }
 }

@@ -33,7 +33,6 @@ class BuildUtilsTest {
         assertThat(buildMinVersionR()).isTrue()
         assertThat(buildMinVersionQ()).isTrue()
         assertThat(buildMinVersionP()).isTrue()
-        assertThat(buildVersionP()).isFalse()
     }
 
     @Test
@@ -67,13 +66,11 @@ class BuildUtilsTest {
     fun minVersionQFalseBelowQ() {
         assertThat(buildMinVersionQ()).isFalse()
         assertThat(buildMinVersionP()).isTrue()
-        assertThat(buildVersionP()).isTrue()
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.O])
-    fun versionPFalseBelowP() {
+    fun minVersionPFalseBelowP() {
         assertThat(buildMinVersionP()).isFalse()
-        assertThat(buildVersionP()).isFalse()
     }
 }

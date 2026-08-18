@@ -57,7 +57,6 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var scannerService: ScannerService
 
-    internal lateinit var mainReload: MainReload
     private var showPermissionRationale by mutableStateOf(false)
 
     internal val permissionLauncher =
@@ -77,8 +76,6 @@ class MainActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        mainReload = MainReload(settings)
 
         setContent {
             val settingsData by settings.settingsData.collectAsStateWithLifecycle()
@@ -107,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
-            WiFiAnalyzerTheme(darkTheme = isDark) {
+            WiFiAnalyzerTheme(themeStyle = settingsData.themeStyle, darkTheme = isDark) {
                 val controller = rememberNavController()
                 WiFiAnalyzerApp(navController = controller)
             }
@@ -116,12 +113,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 settings.settingsData.collectLatest { _ ->
-                    if (mainReload.shouldReload(settings)) {
-                        scannerService.stop()
-                        recreate()
-                    } else {
-                        update()
-                    }
+                    update()
                 }
             }
         }

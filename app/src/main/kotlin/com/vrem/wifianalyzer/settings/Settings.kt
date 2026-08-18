@@ -189,10 +189,6 @@ class Settings(
         scope.launch { settingsRepository.resetToDefaults() }
     }
 
-    fun initializeDefaultValues() {
-        // No-op with DataStore defaults
-    }
-
     companion object {
         private const val GRAPH_Y_MULTIPLIER = -10
     }

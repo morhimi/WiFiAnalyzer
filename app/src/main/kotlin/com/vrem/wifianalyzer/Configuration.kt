@@ -17,13 +17,6 @@
  */
 package com.vrem.wifianalyzer
 
-const val SIZE_MIN = 1024
-const val SIZE_MAX = 4096
-
 class Configuration(
     val largeScreen: Boolean,
-) {
-    var size = SIZE_MAX
-
-    val sizeAvailable: Boolean get() = size == SIZE_MAX
-}
+)

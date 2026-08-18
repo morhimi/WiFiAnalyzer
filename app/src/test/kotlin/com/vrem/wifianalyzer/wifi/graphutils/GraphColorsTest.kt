@@ -99,6 +99,13 @@ class GraphColorsTest {
         assertThat(fixture.graphColor()).isEqualTo(graphColors[0])
     }
 
+    @Test
+    fun nullContextReturnsEmptyAndZeroConnectedColor() {
+        val nullContextColors = GraphColors(null)
+        assertThat(nullContextColors.connectedColor).isEqualTo(GraphColor(0, 0))
+        assertThat(fixture.graphColor()).isNotNull()
+    }
+
     private fun withColors(): Array<String> =
         arrayOf("#FB1554", "#33FB1554", "#74FF89", "#3374FF89", "#8B1EFC", "#338B1EFC")
 

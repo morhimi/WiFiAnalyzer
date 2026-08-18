@@ -26,7 +26,6 @@ import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
@@ -49,8 +48,7 @@ class AboutViewModelTest {
 
     private lateinit var fixture: AboutViewModel
 
-    @Before
-    fun setUp() {
+    private fun setupMocks(largeScreen: Boolean = false) {
         whenever(context.packageName).thenReturn("com.vrem.wifianalyzer")
         whenever(context.resources).thenReturn(resources)
         whenever(context.packageManager).thenReturn(packageManager)
@@ -60,8 +58,7 @@ class AboutViewModelTest {
         whenever(wiFiManagerWrapper.isScanThrottleEnabled()).thenReturn(true)
         whenever(wiFiManagerWrapper.is5GHzBandSupported()).thenReturn(true)
         whenever(wiFiManagerWrapper.is6GHzBandSupported()).thenReturn(false)
-        whenever(configuration.sizeAvailable).thenReturn(true)
-        whenever(configuration.largeScreen).thenReturn(false)
+        whenever(configuration.largeScreen).thenReturn(largeScreen)
 
         fixture =
             AboutViewModel(
@@ -82,17 +79,13 @@ class AboutViewModelTest {
         verify(wiFiManagerWrapper).isScanThrottleEnabled()
         verify(wiFiManagerWrapper).is5GHzBandSupported()
         verify(wiFiManagerWrapper).is6GHzBandSupported()
-        verify(configuration).sizeAvailable
         verify(configuration).largeScreen
-        verifyNoMoreInteractions(wiFiManagerWrapper)
-        verifyNoMoreInteractions(configuration)
-        verifyNoMoreInteractions(context)
-        verifyNoMoreInteractions(resources)
-        verifyNoMoreInteractions(packageManager)
+        verifyNoMoreInteractions(wiFiManagerWrapper, configuration, context, resources, packageManager)
     }
 
     @Test
     fun shouldPopulateUiState() {
+        setupMocks(largeScreen = false)
         val state = fixture.uiState
 
         assertThat(state.packageName).isEqualTo("com.vrem.wifianalyzer")
@@ -101,5 +94,14 @@ class AboutViewModelTest {
         assertThat(state.is6GHzBandSupported).isFalse
         assertThat(state.copyright).startsWith("Copyright (C) 2015 - ")
         assertThat(state.device).isNotBlank
+        assertThat(state.versionInfo).doesNotContain("L (")
+    }
+
+    @Test
+    fun versionWithLargeScreen() {
+        setupMocks(largeScreen = true)
+        val state = fixture.uiState
+
+        assertThat(state.versionInfo).contains("L (")
     }
 }

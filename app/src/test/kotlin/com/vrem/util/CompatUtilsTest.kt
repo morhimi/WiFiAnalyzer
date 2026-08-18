@@ -18,23 +18,15 @@
 package com.vrem.util
 
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PackageInfoFlags
-import android.content.res.Configuration
-import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiSsid
 import android.os.Build
-import android.util.DisplayMetrics
-import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.RobolectricUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
@@ -44,60 +36,23 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
-import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class CompatUtilsTest {
     private val context: Context = mock()
-    private val contextWrapper: ContextWrapper = mock()
-    private val resources: Resources = mock()
-    private val configuration: Configuration = mock()
-    private val displayMetrics: DisplayMetrics = mock()
-    private val drawable: Drawable = mock()
     private val packageManager: PackageManager = mock()
     private val packageInfo: PackageInfo = mock()
     private val scanResult: ScanResult = mock()
     private val wifiSsid: WifiSsid = mock()
 
-    private lateinit var newLocale: Locale
-
-    @Before
-    fun setUp() {
-        newLocale = Locale.US
-    }
-
     @After
     fun tearDown() {
         verifyNoMoreInteractions(context)
-        verifyNoMoreInteractions(contextWrapper)
-        verifyNoMoreInteractions(resources)
-        verifyNoMoreInteractions(configuration)
-        verifyNoMoreInteractions(displayMetrics)
-        verifyNoMoreInteractions(drawable)
         verifyNoMoreInteractions(packageManager)
         verifyNoMoreInteractions(packageInfo)
         verifyNoMoreInteractions(scanResult)
         verifyNoMoreInteractions(wifiSsid)
-    }
-
-    @Test
-    fun createContext() {
-        // setup
-        whenever(context.resources).thenReturn(resources)
-        whenever(resources.configuration).thenReturn(configuration)
-        whenever(context.createConfigurationContext(configuration)).thenReturn(contextWrapper)
-        whenever(contextWrapper.baseContext).thenReturn(context)
-        // execute
-        val actual: Context = context.createContext(newLocale)
-        // validate
-        assertThat(actual).isEqualTo(contextWrapper)
-        assertThat((actual as ContextWrapper).baseContext).isEqualTo(context)
-        verify(configuration).setLocale(newLocale)
-        verify(context).createConfigurationContext(configuration)
-        verify(context).resources
-        verify(contextWrapper).baseContext
-        verify(resources).configuration
     }
 
     @Test
@@ -192,41 +147,5 @@ class CompatUtilsTest {
         val actual = scanResult.ssid()
         // validate
         assertThat(actual).isEqualTo(String.EMPTY)
-    }
-
-    @Test
-    fun findActivityFromContextWrapper() {
-        val activity = RobolectricUtil.INSTANCE.activity
-        val wrapper = ContextWrapper(activity)
-        assertThat(wrapper.findActivity()).isEqualTo(activity)
-        assertThat(activity.findActivity()).isEqualTo(activity)
-    }
-
-    @Test
-    fun findActivityFromNonActivityContext() {
-        val appContext = RobolectricUtil.INSTANCE.activity.applicationContext
-        assertThat(appContext.findActivity()).isNull()
-    }
-
-    @Test
-    fun findActivityFromView() {
-        val activity = RobolectricUtil.INSTANCE.activity
-        val view = View(activity)
-        assertThat(view.findActivity()).isEqualTo(activity)
-    }
-
-    @Test
-    fun findActivityFromChildViewWithParentActivity() {
-        val activity = RobolectricUtil.INSTANCE.activity
-        val parent = android.widget.FrameLayout(activity)
-        val child = View(activity.applicationContext)
-        parent.addView(child)
-        assertThat(child.findActivity()).isEqualTo(activity)
-    }
-
-    @Test
-    fun findActivityFromOrphanViewWithNonActivityContext() {
-        val view = View(RobolectricUtil.INSTANCE.activity.applicationContext)
-        assertThat(view.findActivity()).isNull()
     }
 }

@@ -123,4 +123,13 @@ class WiFiDetailTest {
         assertThat(detail.noChildren).isFalse()
         assertThat(detail.hasChildren).isTrue()
     }
+
+    @Test
+    fun wiFiDetailChildrenCopyConstructor() {
+        val child = WiFiDetail(WiFiIdentifier("childSSID", "childBSSID"), wiFiSecurity, wiFiSignal, wiFiAdditional)
+        val copy = WiFiDetail(fixture, listOf(child))
+        assertThat(copy.children).containsExactly(child)
+        assertThat(copy.hasChildren).isTrue()
+        assertThat(copy.wiFiIdentifier).isEqualTo(fixture.wiFiIdentifier)
+    }
 }

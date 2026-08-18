@@ -17,38 +17,12 @@
  */
 package com.vrem.util
 
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager.PackageInfoFlags
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.net.wifi.ScanResult
 import android.os.Build
-import android.view.View
 import androidx.annotation.RequiresApi
-import java.util.Locale
-
-fun Context.findActivity(): Activity? {
-    var ctx: Context? = this
-    while (ctx is ContextWrapper) {
-        if (ctx is Activity) return ctx
-        ctx = ctx.baseContext
-    }
-    return null
-}
-
-fun View.findActivity(): Activity? =
-    context.findActivity()
-        ?: (parent as? View)?.findActivity()
-
-fun Context.createContext(newLocale: Locale): Context {
-    val resources: Resources = resources
-    val configuration: Configuration = resources.configuration
-    configuration.setLocale(newLocale)
-    return createConfigurationContext(configuration)
-}
 
 fun Context.packageInfo(): PackageInfo =
     if (buildMinVersionT()) {

@@ -47,7 +47,7 @@ class VendorsViewModel
                 .stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5_000),
-                    initialValue = vendorService.findVendors(""),
+                    initialValue = emptyList(),
                 )
 
         fun onSearchQueryChange(query: String) {

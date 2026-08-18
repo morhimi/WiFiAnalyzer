@@ -73,7 +73,6 @@ class AboutViewModel
                 configuration: Configuration,
             ): String =
                 applicationVersion(context) +
-                    (if (configuration.sizeAvailable) "S" else "") +
                     (if (configuration.largeScreen) "L" else "") +
                     " (" + Build.VERSION.RELEASE + "-" + Build.VERSION.SDK_INT + ")"
 

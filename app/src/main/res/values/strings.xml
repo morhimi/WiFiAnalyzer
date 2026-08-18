@@ -18,9 +18,6 @@
   -->
 
 <resources>
-    <bool name="cache_off_default" translatable="false">false</bool>
-    <bool name="keep_screen_on_default" translatable="false">false</bool>
-    <bool name="wifi_off_on_exit_default" translatable="false">false</bool>
     <string name="about_contributor_title">"Contributors"</string>
     <string name="about_description_text">"Optimize your Wi-Fi network, by checking Wi-Fi network status, signal strength and identifying crowded channels using an open-source WiFiAnalyzer for Android"</string>
     <string name="about_description_title">"Description:"</string>
@@ -57,7 +54,6 @@
     <string name="ap_alias_title">"Access Point Name"</string>
     <string name="ap_view_compact">"Compact"</string>
     <string name="ap_view_complete">"Complete"</string>
-    <string name="ap_view_default" translatable="false">"0"</string>
     <string name="ap_view_key" translatable="false">"view"</string>
     <string name="ap_view_summary" translatable="false">"%s"</string>
     <string name="ap_view_title">"Access Point Display"</string>
@@ -78,7 +74,6 @@
     <string name="channel_short_name">"CH"</string>
     <string name="connection_view_compact">"Compact"</string>
     <string name="connection_view_complete">"Complete"</string>
-    <string name="connection_view_default" translatable="false">"1"</string>
     <string name="connection_view_hide">"Hide"</string>
     <string name="connection_view_key" translatable="false">"connection"</string>
     <string name="connection_view_summary" translatable="false">"%s"</string>
@@ -111,13 +106,11 @@
     <string name="gpl_url" translatable="false">"http://www.gnu.org/licenses/gpl-3.0.html"</string>
     <string name="graph_axis_y">"Signal Strength (dBm)"</string>
     <string name="graph_channel_axis_x">"Wi-Fi Channels"</string>
-    <string name="graph_maximum_y_default" translatable="false">"2"</string>
     <string name="graph_maximum_y_key" translatable="false">"graph_maximum_y"</string>
     <string name="graph_maximum_y_summary" translatable="false">"%s"</string>
     <string name="graph_maximum_y_title">"Graph Maximum Signal Strength"</string>
     <string name="graph_time_axis_x">"Scan Count"</string>
     <string name="group_by_channel">"Channel"</string>
-    <string name="group_by_default" translatable="false">"0"</string>
     <string name="group_by_key" translatable="false">"group_by"</string>
     <string name="group_by_none">"None"</string>
     <string name="group_by_ssid" translatable="false">"SSID"</string>
@@ -139,7 +132,6 @@
     <string name="permission_msg">"As of Android Marshmallow, location permissions are required to perform a Wi-Fi scan. You will be prompted to enable location services/permissions. Since this app does not require internet access, you can be confident that this app cannot transmit your location!"</string>
     <string name="reset_key" translatable="false">"reset"</string>
     <string name="reset_title">"Reset"</string>
-    <string name="scan_speed_default" translatable="false">"5"</string>
     <string name="scan_speed_key" translatable="false">"scan_speed"</string>
     <string name="scan_speed_summary">"%s seconds between each scan"</string>
     <string name="scan_speed_title">"Scan Interval"</string>
@@ -170,7 +162,6 @@
     <string name="security_wps" translatable="false">"WPS"</string>
     <string name="selected_menu_key" translatable="false">"selected_menu"</string>
     <string name="sort_by_channel">"Channel"</string>
-    <string name="sort_by_default" translatable="false">"0"</string>
     <string name="sort_by_key" translatable="false">"sort_by"</string>
     <string name="sort_by_signal_strength">"Signal Strength"</string>
     <string name="sort_by_ssid" translatable="false">"SSID"</string>
@@ -178,7 +169,6 @@
     <string name="sort_by_title">"Sort Access Points By"</string>
     <string name="theme_black">"Black"</string>
     <string name="theme_dark">"Dark"</string>
-    <string name="theme_default" translatable="false">"0"</string>
     <string name="theme_key" translatable="false">"theme"</string>
     <string name="theme_light">"Light"</string>
     <string name="theme_summary" translatable="false">"%s"</string>

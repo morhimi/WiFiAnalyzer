@@ -26,8 +26,6 @@ import com.patrykandpatrick.vico.views.cartesian.ScrollHandler
 import com.patrykandpatrick.vico.views.cartesian.ZoomHandler
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.vrem.wifianalyzer.RobolectricUtil
-import com.vrem.wifianalyzer.SIZE_MAX
-import com.vrem.wifianalyzer.SIZE_MIN
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.model.WiFiAdditional
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
@@ -224,26 +222,6 @@ class GraphWrapperTest {
         fixture.gone()
         // Assert
         verify(chartView).visibility = View.GONE
-    }
-
-    @Test
-    fun calculateGraphType() {
-        // Arrange
-        doReturn(mainActivity).whenever(chartView).context
-        // Act
-        val actual = fixture.calculateGraphType()
-        // Assert
-        assertThat(actual).isGreaterThan(0)
-        verify(chartView).context
-    }
-
-    @Test
-    fun getSize() {
-        // Act & assert
-        assertThat(fixture.size(TYPE1)).isEqualTo(SIZE_MAX)
-        assertThat(fixture.size(TYPE2)).isEqualTo(SIZE_MAX)
-        assertThat(fixture.size(TYPE3)).isEqualTo(SIZE_MAX)
-        assertThat(fixture.size(TYPE4)).isEqualTo(SIZE_MIN)
     }
 
     @Test

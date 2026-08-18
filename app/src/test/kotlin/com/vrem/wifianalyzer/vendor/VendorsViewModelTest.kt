@@ -19,7 +19,6 @@ package com.vrem.wifianalyzer.vendor
 
 import com.vrem.wifianalyzer.vendor.model.VendorService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -37,13 +36,11 @@ class VendorsViewModelTest {
 
     @Before
     fun setUp() {
-        whenever(vendorService.findVendors("")).thenReturn(initialVendors)
         fixture = VendorsViewModel(vendorService)
     }
 
     @After
     fun tearDown() {
-        verify(vendorService).findVendors("")
         verifyNoMoreInteractions(vendorService)
     }
 
@@ -53,10 +50,9 @@ class VendorsViewModelTest {
     }
 
     @Test
-    fun shouldInitializeWithDefaultVendors() =
-        runTest {
-            assertThat(fixture.vendors.value).isEqualTo(initialVendors)
-        }
+    fun shouldInitializeWithEmptyVendors() {
+        assertThat(fixture.vendors.value).isEmpty()
+    }
 
     @Test
     fun shouldUpdateSearchQuery() {

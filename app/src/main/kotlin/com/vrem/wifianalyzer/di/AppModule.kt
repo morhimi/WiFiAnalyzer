@@ -121,7 +121,6 @@ object AppModule {
         settings: Settings,
         apAliasService: ApAliasService,
         vendorService: VendorService,
-        configuration: WiFiConfiguration,
     ): ScannerService =
         makeScannerService(
             context,
@@ -130,7 +129,6 @@ object AppModule {
             settings,
             apAliasService,
             vendorService,
-            configuration,
         )
 
     @Provides

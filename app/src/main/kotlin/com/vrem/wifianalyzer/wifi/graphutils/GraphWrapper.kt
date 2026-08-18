@@ -25,15 +25,12 @@ import com.patrykandpatrick.vico.views.cartesian.ZoomHandler
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.views.cartesian.data.lineModel
-import com.vrem.wifianalyzer.SIZE_MAX
-import com.vrem.wifianalyzer.SIZE_MIN
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.security.MessageDigest
 
 data class GraphViewport(
     val rangeProvider: CartesianLayerRangeProvider,
@@ -165,18 +162,6 @@ class GraphWrapper(
 
     fun newSeries(wiFiDetail: WiFiDetail): Boolean = !seriesExists(wiFiDetail)
 
-    fun calculateGraphType(): Int =
-        runCatching {
-            with(MessageDigest.getInstance("MD5")) {
-                update(
-                    chartView.context.packageName
-                        .toByteArray(),
-                )
-                val digest: ByteArray = digest()
-                digest.contentHashCode()
-            }
-        }.getOrDefault(TYPE1)
-
     fun show() {
         chartView.visibility = View.VISIBLE
     }
@@ -184,8 +169,6 @@ class GraphWrapper(
     fun gone() {
         chartView.visibility = View.GONE
     }
-
-    fun size(value: Int): Int = if (value == TYPE1 || value == TYPE2 || value == TYPE3) SIZE_MAX else SIZE_MIN
 
     private fun updateConnectionColor(
         seriesData: SeriesData,

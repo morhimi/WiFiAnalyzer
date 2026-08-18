@@ -80,6 +80,24 @@ class ExportTest {
     }
 
     @Test
+    fun exportWithDefaultDate() {
+        val wiFiDetails = withWiFiDetails()
+        val count = wiFiDetails.size
+        doReturn(name).whenever(context).getString(R.string.action_access_points)
+        doReturn("802.11AC").whenever(context).getString(WiFiStandard.AC.fullResource)
+        doReturn("802.11R").whenever(context).getString(FastRoaming.FR_802_11R.textResource)
+        whenever(exportIntent.intent(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(intent)
+
+        val actual = fixture.export(context, wiFiDetails)
+
+        assertThat(actual).isEqualTo(intent)
+        verify(context).getString(R.string.action_access_points)
+        verify(context, times(count)).getString(WiFiStandard.AC.fullResource)
+        verify(context, times(count)).getString(FastRoaming.FR_802_11R.textResource)
+        verify(exportIntent).intent(org.mockito.kotlin.any(), org.mockito.kotlin.any())
+    }
+
+    @Test
     fun timestamp() {
         // setup
         val expected = timestamp(date)

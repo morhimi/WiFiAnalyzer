@@ -58,6 +58,13 @@ class GraphBuilderTest {
     }
 
     @Test
+    fun buildWithXStep() {
+        val fixture = GraphBuilder(MAX_Y_DEFAULT, ThemeStyle.DARK, xStep = 2.0)
+        val actual = fixture.build(mainActivity, false)
+        assertThat(actual).isNotNull()
+    }
+
+    @Test
     fun buildWithCustomFormatters() {
         // setup
         val xFormatter = CartesianValueFormatter { _, value, _ -> value.toInt().toString() }

@@ -23,6 +23,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.vrem.wifianalyzer.settings.ThemeStyle
 
 private val DarkColorScheme =
     darkColorScheme(
@@ -31,6 +32,22 @@ private val DarkColorScheme =
         tertiary = SuccessColor,
         background = Color(0xFF121212),
         surface = Color(0xFF1E1E1E),
+        onPrimary = Color.White,
+        onSecondary = Color.Black,
+        onTertiary = Color.White,
+        onBackground = Color.White,
+        onSurface = Color.White,
+        onSurfaceVariant = Color.LightGray,
+        error = ErrorColor,
+    )
+
+private val BlackColorScheme =
+    darkColorScheme(
+        primary = Selected,
+        secondary = ChannelNumber,
+        tertiary = SuccessColor,
+        background = Color.Black,
+        surface = Color.Black,
         onPrimary = Color.White,
         onSecondary = Color.Black,
         onTertiary = Color.White,
@@ -58,14 +75,16 @@ private val LightColorScheme =
 
 @Composable
 fun WiFiAnalyzerTheme(
+    themeStyle: ThemeStyle = ThemeStyle.SYSTEM,
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     val colorScheme =
-        if (darkTheme) {
-            DarkColorScheme
-        } else {
-            LightColorScheme
+        when (themeStyle) {
+            ThemeStyle.BLACK -> BlackColorScheme
+            ThemeStyle.DARK -> DarkColorScheme
+            ThemeStyle.LIGHT -> LightColorScheme
+            ThemeStyle.SYSTEM -> if (darkTheme) DarkColorScheme else LightColorScheme
         }
 
     MaterialTheme(

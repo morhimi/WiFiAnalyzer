@@ -17,11 +17,15 @@
  */
 package com.vrem.wifianalyzer.wifi.channelrating
 
-import android.content.res.ColorStateList
-import android.widget.RatingBar
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,9 +34,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
-import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.compose.ChannelNumber
 import com.vrem.wifianalyzer.compose.Selected
 import com.vrem.wifianalyzer.wifi.band.WiFiChannel
@@ -52,22 +53,23 @@ fun ChannelRatingItem(
                 .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Rating Stars (using legacy RatingBar for visual consistency)
-        AndroidView(
+        // Rating Stars
+        Row(
             modifier = Modifier.weight(1f).padding(end = 8.dp),
-            factory = { context ->
-                RatingBar(context, null, android.R.attr.ratingBarStyleSmall).apply {
-                    numStars = 5
-                    stepSize = 1f
-                }
-            },
-            update = { ratingBar ->
-                val rating = Strength.reverse(strength).ordinal + 1f
-                ratingBar.rating = rating
-                val color = ContextCompat.getColor(ratingBar.context, Strength.reverse(strength).colorResource)
-                ratingBar.progressTintList = ColorStateList.valueOf(color)
-            },
-        )
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val rating = Strength.reverse(strength).ordinal + 1
+            val activeColor = colorResource(Strength.reverse(strength).colorResource)
+            val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+            for (star in 1..5) {
+                Icon(
+                    imageVector = if (star <= rating) Icons.Filled.Star else Icons.Outlined.Star,
+                    contentDescription = null,
+                    tint = if (star <= rating) activeColor else inactiveColor,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+        }
 
         // Channel and Width
         Row(

@@ -18,14 +18,12 @@
 package com.vrem.wifianalyzer.wifi.scanner
 
 import android.net.wifi.ScanResult
-import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.wifi.band.WiFiRange
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -38,18 +36,16 @@ class CacheTest {
     private val scanResult5: ScanResult = mock()
     private val scanResult6: ScanResult = mock()
     private val settings: Settings = mock()
-    private val configuration: Configuration = mock()
-    private val fixture = Cache(settings, configuration)
+    private val fixture = Cache(settings)
 
     @Before
     fun setUp() {
         whenever(settings.scanSpeed()).thenReturn(5)
         whenever(settings.cacheOff()).thenReturn(false)
-        whenever(configuration.sizeAvailable).thenReturn(true)
     }
 
     @Test
-    fun addWithSizeAvailable() {
+    fun add() {
         // setup
         val scanResults = listOf<ScanResult>()
         // execute
@@ -59,7 +55,7 @@ class CacheTest {
     }
 
     @Test
-    fun addCompliesToMaxCacheSizeWithSizeAvailable() {
+    fun addCompliesToMaxCacheSize() {
         // setup
         val cacheSize = 2
         val expected: MutableList<List<ScanResult>> = mutableListOf()
@@ -76,7 +72,7 @@ class CacheTest {
     }
 
     @Test
-    fun scanResultsWithSizeAvailable() {
+    fun scanResults() {
         // setup
         withScanResults()
         // execute
@@ -89,7 +85,7 @@ class CacheTest {
     }
 
     @Test
-    fun sizeWithSizeAvailable() {
+    fun size() {
         // setup
         val values: List<WiFiRange> =
             listOf(
@@ -181,74 +177,6 @@ class CacheTest {
     }
 
     @Test
-    fun add() {
-        // setup
-        whenever(configuration.sizeAvailable).thenReturn(false)
-        val scanResults = listOf<ScanResult>()
-        // execute
-        fixture.add(scanResults)
-        // validate
-        assertThat(fixture.first()).isEqualTo(scanResults)
-    }
-
-    @Test
-    fun addCompliesToMaxCacheSize() {
-        // setup
-        val cacheSize = 2
-        whenever(configuration.sizeAvailable).thenReturn(false)
-        val expected: MutableList<List<ScanResult>> = mutableListOf()
-        // execute
-        repeat(cacheSize) {
-            val scanResults = listOf<ScanResult>()
-            expected.add(scanResults)
-            fixture.add(scanResults)
-        }
-        // validate
-        assertThat(expected).hasSize(cacheSize)
-        assertThat(fixture.first()).isEqualTo(expected[1])
-        assertThat(fixture.last()).isEqualTo(expected[0])
-    }
-
-    @Test
-    fun scanResultsWhenSingle() {
-        // setup
-        whenever(configuration.sizeAvailable).thenReturn(false)
-        withScanResults()
-        // execute
-        val actual = fixture.scanResults()
-        // validate
-        assertThat(actual).hasSize(2)
-        validate(scanResult3, -47, actual[0])
-        validate(scanResult6, -27, actual[1])
-    }
-
-    @Test
-    fun scanResultsWhenMultiple() {
-        // setup
-        whenever(configuration.sizeAvailable).thenReturn(false)
-        withScanResults()
-        withScanResults()
-        // execute
-        val actual = fixture.scanResults()
-        // validate
-        assertThat(actual).hasSize(2)
-        validate(scanResult3, -55, actual[0])
-        validate(scanResult6, -35, actual[1])
-    }
-
-    @Test
-    fun size() {
-        // setup
-        val expected = 1
-        whenever(configuration.sizeAvailable).thenReturn(false)
-        // execute
-        val actual = fixture.size()
-        // validate
-        assertThat(actual).isEqualTo(expected)
-        verify(settings, never()).scanSpeed()
-    }
-
-    @Test
     fun cacheKey() {
         // setup
         val bssid = "BSSID"
@@ -258,29 +186,6 @@ class CacheTest {
         // validate
         assertThat(fixture.bssid).isEqualTo(bssid)
         assertThat(fixture.ssid).isEqualTo(ssid)
-    }
-
-    @Test
-    fun addResetsCountWhenMaximumIsReached() {
-        // setup
-        whenever(configuration.sizeAvailable).thenReturn(false)
-        val scanResults = listOf(scanResult1)
-        whenSsid(scanResult1, "SSID1")
-        scanResult1.BSSID = "BSSID1"
-        scanResult1.level = -50
-        // execute & validate
-        repeat(10) {
-            fixture.add(scanResults)
-        }
-        var actual = fixture.scanResults()
-        assertThat(actual).hasSize(1)
-        validate(scanResult1, -80, actual[0])
-        // execute & validate
-        // call add again, count is reset to 2
-        fixture.add(scanResults)
-        actual = fixture.scanResults()
-        assertThat(actual).hasSize(1)
-        validate(scanResult1, -60, actual[0])
     }
 
     private fun validate(

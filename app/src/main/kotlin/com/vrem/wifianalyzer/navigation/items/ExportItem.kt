@@ -17,6 +17,7 @@
  */
 package com.vrem.wifianalyzer.navigation.items
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.widget.Toast
 import com.vrem.wifianalyzer.MainActivity
@@ -41,20 +42,12 @@ internal class ExportItem(
             return
         }
         val intent: Intent = export.export(mainActivity, wiFiDetails)
-        if (!exportAvailable(mainActivity, intent)) {
+        try {
+            mainActivity.startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
             Toast.makeText(mainActivity, R.string.export_not_available, Toast.LENGTH_LONG).show()
-            return
+        } catch (e: Exception) {
+            Toast.makeText(mainActivity, e.localizedMessage, Toast.LENGTH_LONG).show()
         }
-        runCatching { mainActivity.startActivity(intent) }
-            .getOrElse {
-                Toast
-                    .makeText(mainActivity, it.localizedMessage, Toast.LENGTH_LONG)
-                    .show()
-            }
     }
-
-    private fun exportAvailable(
-        mainActivity: MainActivity,
-        chooser: Intent,
-    ): Boolean = chooser.resolveActivity(mainActivity.packageManager) != null
 }

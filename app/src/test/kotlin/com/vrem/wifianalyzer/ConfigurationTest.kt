@@ -22,25 +22,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class ConfigurationTest {
-    private val fixture = Configuration(true)
-
-    @Test
-    fun sizeAvailable() {
-        // execute & validate
-        assertThat(fixture.sizeAvailable).isTrue
-    }
-
-    @Test
-    fun sizeIsNotAvailable() {
-        // execute
-        fixture.size = SIZE_MIN
-        // validate
-        assertThat(fixture.sizeAvailable).isFalse
-    }
-
     @Test
     fun largeScreen() {
-        // execute & validate
-        assertThat(fixture.largeScreen).isTrue
+        assertThat(Configuration(true).largeScreen).isTrue
+        assertThat(Configuration(false).largeScreen).isFalse
     }
 }

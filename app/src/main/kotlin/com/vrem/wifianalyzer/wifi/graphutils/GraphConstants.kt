@@ -28,7 +28,3 @@ const val MIN_Y_HALF = MIN_Y / 2
 const val TEXT_SIZE_ADJUSTMENT = 0.80f
 const val THICKNESS_CONNECTED_DP = 4f
 const val THICKNESS_REGULAR_DP = 2f
-const val TYPE1 = 1147798476
-const val TYPE2 = 535509942
-const val TYPE3 = 1256180258
-const val TYPE4 = 1546740952

@@ -20,7 +20,6 @@ package com.vrem.wifianalyzer.wifi.scanner
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
 import com.vrem.util.ssid
-import com.vrem.wifianalyzer.Configuration
 import com.vrem.wifianalyzer.settings.Settings
 
 internal class CacheResult(
@@ -35,10 +34,8 @@ internal data class CacheKey(
 
 internal class Cache(
     private val settings: Settings,
-    private val configuration: Configuration,
 ) {
     private val scanResults: ArrayDeque<List<ScanResult>> = ArrayDeque(MAXIMUM)
-    private var count: Int = COUNT_MIN
     var wifiInfo: WifiInfo? = null
 
     fun scanResults(): List<CacheResult> =
@@ -50,7 +47,6 @@ internal class Cache(
             .toList()
 
     fun add(scanResults: List<ScanResult>) {
-        count = if (count >= MAXIMUM * FACTOR) COUNT_MIN else count + 1
         val size = size()
         while (this.scanResults.size >= size) {
             this.scanResults.removeLastOrNull()
@@ -64,21 +60,17 @@ internal class Cache(
     fun last(): List<ScanResult> = scanResults.last()
 
     fun size(): Int =
-        if (sizeAvailable) {
-            if (settings.cacheOff()) {
-                MINIMUM
-            } else {
-                with(settings.scanSpeed()) {
-                    when {
-                        this < 2 -> MAXIMUM
-                        this < 5 -> MAXIMUM - 1
-                        this < 10 -> MAXIMUM - 2
-                        else -> MINIMUM
-                    }
+        if (settings.cacheOff()) {
+            MINIMUM
+        } else {
+            with(settings.scanSpeed()) {
+                when {
+                    this < 2 -> MAXIMUM
+                    this < 5 -> MAXIMUM - 1
+                    this < 10 -> MAXIMUM - 2
+                    else -> MINIMUM
                 }
             }
-        } else {
-            MINIMUM
         }
 
     private fun calculate(
@@ -87,8 +79,7 @@ internal class Cache(
         accumulator: CacheResult?,
     ): Int {
         val average: Int = if (first) element.level else (accumulator!!.average + element.level) / DENOMINATOR
-        return (if (sizeAvailable) average else average - SIZE * (count + count % FACTOR) / DENOMINATOR)
-            .coerceIn(LEVEL_MINIMUM, LEVEL_MAXIMUM)
+        return average.coerceIn(LEVEL_MINIMUM, LEVEL_MAXIMUM)
     }
 
     private fun combineCache(): List<ScanResult> = scanResults.flatten().sortedWith(comparator())
@@ -98,16 +89,11 @@ internal class Cache(
             it.BSSID
         }.thenBy { it.ssid() }.thenBy { it.level }
 
-    private val sizeAvailable: Boolean get() = configuration.sizeAvailable
-
     companion object {
         private const val MINIMUM: Int = 1
         private const val MAXIMUM: Int = 4
-        private const val SIZE: Int = MINIMUM + MAXIMUM
         private const val LEVEL_MINIMUM: Int = -100
         private const val LEVEL_MAXIMUM: Int = -1
-        private const val FACTOR: Int = 3
         private const val DENOMINATOR: Int = 2
-        private const val COUNT_MIN: Int = 2
     }
 }
