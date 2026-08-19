@@ -233,53 +233,54 @@ class WiFiManagerWrapperTest {
     fun wiFiInfoLegacyWhenBelowAndroidS() {
         // setup
         doReturn(false).whenever(fixture).minVersionS()
-        whenever(wifiInfo.ssid).thenReturn(null)
-        whenever(wifiInfo.bssid).thenReturn(null)
         whenever(wifiManager.connectionInfo).thenReturn(wifiInfo)
         // execute
         val actual = fixture.wiFiInfo()
         // validate
         assertThat(actual).isSameAs(wifiInfo)
         verify(wifiManager).connectionInfo
-        verify(wifiInfo).ssid
-        verify(wifiInfo).bssid
         verify(fixture).minVersionS()
     }
 
     @Test
-    fun wiFiInfoWhenLegacyHasValidDetails() {
-        // setup
-        whenever(wifiInfo.ssid).thenReturn("TestSSID")
-        whenever(wifiManager.connectionInfo).thenReturn(wifiInfo)
-        // execute
-        val actual = fixture.wiFiInfo()
-        // validate
-        assertThat(actual).isSameAs(wifiInfo)
-        verify(wifiManager).connectionInfo
-        verify(wifiInfo).ssid
-    }
-
-    @Test
-    fun wiFiInfoOnAndroidSWithActiveNetworkAndTransportInfoWhenLegacyEmpty() {
+    fun wiFiInfoOnAndroidSWithActiveNetworkAndTransportInfo() {
         // setup
         val network: Network = mock()
         val networkCapabilities: NetworkCapabilities = mock()
         val transportWifiInfo: WifiInfo = mock()
         doReturn(true).whenever(fixture).minVersionS()
-        whenever(wifiManager.connectionInfo).thenReturn(null)
         whenever(connectivityManager.activeNetwork).thenReturn(network)
         whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities)
         whenever(networkCapabilities.transportInfo).thenReturn(transportWifiInfo)
-        whenever(transportWifiInfo.ssid).thenReturn("TransportSSID")
         // execute
         val actual = fixture.wiFiInfo()
         // validate
         assertThat(actual).isSameAs(transportWifiInfo)
-        verify(wifiManager).connectionInfo
+        verify(wifiManager, never()).connectionInfo
         verify(connectivityManager).activeNetwork
         verify(connectivityManager).getNetworkCapabilities(network)
         verify(networkCapabilities).transportInfo
-        verify(transportWifiInfo).ssid
+        verify(fixture).minVersionS()
+    }
+
+    @Test
+    fun wiFiInfoOnAndroidSFallsBackToLegacyWhenConnectivityTransportInfoNull() {
+        // setup
+        val network: Network = mock()
+        val networkCapabilities: NetworkCapabilities = mock()
+        doReturn(true).whenever(fixture).minVersionS()
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities)
+        whenever(networkCapabilities.transportInfo).thenReturn(null)
+        whenever(wifiManager.connectionInfo).thenReturn(wifiInfo)
+        // execute
+        val actual = fixture.wiFiInfo()
+        // validate
+        assertThat(actual).isSameAs(wifiInfo)
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(networkCapabilities).transportInfo
+        verify(wifiManager).connectionInfo
         verify(fixture).minVersionS()
     }
 
@@ -360,7 +361,6 @@ class WiFiManagerWrapperTest {
         // validate
         assertThat(actual).isSameAs(wifiInfo)
         verify(wifiManager).connectionInfo
-        verify(wifiInfo).ssid
     }
 
     @Test

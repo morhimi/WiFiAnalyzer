@@ -69,6 +69,29 @@ class ExportIntentTest {
     }
 
     @Test
+    fun intentWithCustomMimeType() {
+        // setup
+        val title = "title"
+        val data = "data"
+        val mimeType = "text/csv"
+        doReturn(intentSend).whenever(fixture).intentSend()
+        doReturn(intentChooser).whenever(fixture).intentChooser(intentSend, title)
+        // execute
+        val actual = fixture.intent(title, data, mimeType)
+        // validate
+        assertThat(actual).isEqualTo(intentChooser)
+
+        verify(intentSend).flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        verify(intentSend).type = mimeType
+        verify(intentSend).putExtra(Intent.EXTRA_TITLE, title)
+        verify(intentSend).putExtra(Intent.EXTRA_SUBJECT, title)
+        verify(intentSend).putExtra(Intent.EXTRA_TEXT, data)
+
+        verify(fixture).intentSend()
+        verify(fixture).intentChooser(intentSend, title)
+    }
+
+    @Test
     fun intentSendCreatesActionSendIntent() {
         val nonSpyFixture = ExportIntent()
         val intent = nonSpyFixture.intentSend()

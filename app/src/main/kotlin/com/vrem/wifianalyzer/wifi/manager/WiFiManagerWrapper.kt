@@ -46,24 +46,17 @@ class WiFiManagerWrapper(
     @SuppressLint("MissingPermission")
     fun wiFiInfo(): WifiInfo? =
         runCatching {
-            val legacy =
-                runCatching {
-                    @Suppress("DEPRECATION")
-                    wifiManager.connectionInfo
-                }.getOrNull()
-
-            if (legacy != null && legacy.hasValidDetails()) {
-                legacy
-            } else if (minVersionS() && connectivityManager != null) {
-                val fromConnectivity = wiFiInfoFromConnectivityManager()
-                if (fromConnectivity != null && fromConnectivity.hasValidDetails()) {
-                    fromConnectivity
-                } else {
-                    legacy ?: fromConnectivity
-                }
+            if (minVersionS() && connectivityManager != null) {
+                wiFiInfoFromConnectivityManager() ?: legacyWiFiInfo()
             } else {
-                legacy
+                legacyWiFiInfo()
             }
+        }.getOrNull()
+
+    @Suppress("DEPRECATION")
+    private fun legacyWiFiInfo(): WifiInfo? =
+        runCatching {
+            wifiManager.connectionInfo
         }.getOrNull()
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -71,14 +64,6 @@ class WiFiManagerWrapper(
         val activeNetwork = connectivityManager?.activeNetwork ?: return null
         val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return null
         return capabilities.transportInfo as? WifiInfo
-    }
-
-    private fun WifiInfo.hasValidDetails(): Boolean {
-        val s = ssid?.removeSurrounding("\"")
-        val b = bssid
-        val hasSsid = !s.isNullOrEmpty() && s != "<unknown ssid>" && s != WifiManager.UNKNOWN_SSID
-        val hasBssid = !b.isNullOrEmpty() && b != "02:00:00:00:00:00" && b != "00:00:00:00:00:00"
-        return hasSsid || hasBssid
     }
 
     fun is5GHzBandSupported(): Boolean = wifiManager.is5GHzBandSupported

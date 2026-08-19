@@ -23,6 +23,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.export.Export
+import com.vrem.wifianalyzer.export.ExportFormat
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
@@ -66,19 +67,51 @@ class MainViewModel
             scannerService.update()
         }
 
-        fun export(context: Context) {
+        fun export(
+            context: Context,
+            format: ExportFormat = ExportFormat.CSV,
+        ) = shareExport(context, format)
+
+        fun shareExport(
+            context: Context,
+            format: ExportFormat,
+        ) {
             val wiFiDetails = scannerService.wiFiData().wiFiDetails
             if (wiFiDetails.isEmpty()) {
                 Toast.makeText(context, R.string.no_data, Toast.LENGTH_LONG).show()
                 return
             }
-            val intent = export.export(context, wiFiDetails)
+            val intent = export.export(context, wiFiDetails, format)
             try {
                 context.startActivity(intent)
             } catch (_: ActivityNotFoundException) {
                 Toast.makeText(context, R.string.export_not_available, Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
                 Toast.makeText(context, e.localizedMessage, Toast.LENGTH_LONG).show()
+            }
+        }
+
+        fun saveExportToFile(
+            context: Context,
+            uri: android.net.Uri,
+            format: ExportFormat,
+        ): Boolean {
+            val wiFiDetails = scannerService.wiFiData().wiFiDetails
+            if (wiFiDetails.isEmpty()) {
+                Toast.makeText(context, R.string.no_data, Toast.LENGTH_LONG).show()
+                return false
+            }
+            return try {
+                val data = export.data(context, wiFiDetails, format)
+                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(data.toByteArray(Charsets.UTF_8))
+                }
+                Toast.makeText(context, R.string.export_save_success, Toast.LENGTH_SHORT).show()
+                true
+            } catch (e: Exception) {
+                val errorMsg = context.getString(R.string.export_save_failed) + ": " + (e.localizedMessage ?: "")
+                Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
+                false
             }
         }
     }

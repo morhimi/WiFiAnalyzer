@@ -84,7 +84,16 @@
     <string name="current_connection">"Current connection"</string>
     <string name="experimental_key" translatable="false">"experimental_key"</string>
     <string name="experimental_title" translatable="false">"Experimental"</string>
+    <string name="export_action_save">"Save to File"</string>
+    <string name="export_action_share">"Share"</string>
+    <string name="export_cancel">"Cancel"</string>
+    <string name="export_format_csv" translatable="false">"CSV"</string>
+    <string name="export_format_json" translatable="false">"JSON"</string>
+    <string name="export_format_text">"Plain Text"</string>
+    <string name="export_format_title">"Export Format"</string>
     <string name="export_not_available">"Export not available"</string>
+    <string name="export_save_failed">"Failed to save export"</string>
+    <string name="export_save_success">"Export saved successfully"</string>
     <string name="fast_roaming_k" translatable="false">"802.11k"</string>
     <string name="fast_roaming_okc" translatable="false">"OKC"</string>
     <string name="fast_roaming_r" translatable="false">"802.11r"</string>

@@ -99,8 +99,36 @@ fun WiFiAnalyzerApp(
     val isAccessPoints = currentDestination?.hasRoute(Screen.AccessPoints::class) == true
     val context = LocalContext.current
     var showFilterDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
+    var pendingExportFormat by remember { mutableStateOf(com.vrem.wifianalyzer.export.ExportFormat.CSV) }
     var activeDetailList by remember { mutableStateOf<List<WiFiDetail>?>(null) }
     var aliasEditDetail by remember { mutableStateOf<WiFiDetail?>(null) }
+
+    val createDocumentLauncher =
+        androidx.activity.compose.rememberLauncherForActivityResult(
+            contract =
+                androidx.activity.result.contract.ActivityResultContracts.CreateDocument(
+                    pendingExportFormat.mimeType,
+                ),
+        ) { uri ->
+            uri?.let {
+                mainViewModel.saveExportToFile(context, it, pendingExportFormat)
+            }
+        }
+
+    if (showExportDialog) {
+        com.vrem.wifianalyzer.export.ExportDialog(
+            onDismiss = { showExportDialog = false },
+            onShare = { format ->
+                mainViewModel.shareExport(context, format)
+            },
+            onSaveToFile = { format ->
+                pendingExportFormat = format
+                val defaultFilename = mainViewModel.export.filename(context, format)
+                createDocumentLauncher.launch(defaultFilename)
+            },
+        )
+    }
 
     BackHandler(enabled = !isAccessPoints) {
         navController.navigate(Screen.AccessPoints) {
@@ -169,7 +197,7 @@ fun WiFiAnalyzerApp(
                 onMenuSelected = { menu ->
                     scope.launch { drawerState.close() }
                     if (menu == NavigationMenu.EXPORT) {
-                        mainViewModel.export(context)
+                        showExportDialog = true
                     } else if (menu.screen != null) {
                         navController.navigate(menu.screen) {
                             popUpTo(navController.graph.findStartDestination().id) {

@@ -27,10 +27,11 @@ class ExportIntent
         internal fun intent(
             title: String,
             data: String,
+            mimeType: String = "text/plain",
         ): Intent {
             val intentSend: Intent = intentSend()
             intentSend.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            intentSend.type = "text/plain"
+            intentSend.type = mimeType
             intentSend.putExtra(Intent.EXTRA_TITLE, title)
             intentSend.putExtra(Intent.EXTRA_SUBJECT, title)
             intentSend.putExtra(Intent.EXTRA_TEXT, data)
