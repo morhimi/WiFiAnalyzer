@@ -44,7 +44,7 @@
     <style name="ThemeOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="ThemeSplash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_inset</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
         <item name="windowSplashScreenAnimationDuration">500</item>
         <item name="postSplashScreenTheme">@style/ThemeSystemNoActionBar</item>
     </style>
