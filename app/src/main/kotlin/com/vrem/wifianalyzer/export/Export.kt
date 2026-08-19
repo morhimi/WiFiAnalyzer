@@ -27,88 +27,93 @@ import com.vrem.wifianalyzer.wifi.model.WiFiSignal.Companion.FREQUENCY_UNITS
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
-class Export(
-    private val exportIntent: ExportIntent = ExportIntent(),
-) {
-    private val header =
-        "Time Stamp|" +
-            "SSID|" +
-            "BSSID|" +
-            "Alias|" +
-            "Strength|" +
-            "Primary Channel|" +
-            "Primary Frequency|" +
-            "Center Channel|" +
-            "Center Frequency|" +
-            "Width (Range)|" +
-            "Distance|" +
-            "802.11mc|" +
-            "Security|" +
-            "Standard|" +
-            "FastRoaming" +
-            "\n"
+class Export
+    @Inject
+    constructor(
+        private val exportIntent: ExportIntent,
+    ) {
+        constructor() : this(ExportIntent())
 
-    fun export(
-        context: Context,
-        wiFiDetails: List<WiFiDetail>,
-    ): Intent = export(context, wiFiDetails, Date())
+        private val header =
+            "Time Stamp|" +
+                "SSID|" +
+                "BSSID|" +
+                "Alias|" +
+                "Strength|" +
+                "Primary Channel|" +
+                "Primary Frequency|" +
+                "Center Channel|" +
+                "Center Frequency|" +
+                "Width (Range)|" +
+                "Distance|" +
+                "802.11mc|" +
+                "Security|" +
+                "Standard|" +
+                "FastRoaming" +
+                "\n"
 
-    fun export(
-        context: Context,
-        wiFiDetails: List<WiFiDetail>,
-        date: Date,
-    ): Intent {
-        val timestamp: String = timestamp(date)
-        val title: String = title(context, timestamp)
-        val data: String = data(context, wiFiDetails, timestamp)
-        return exportIntent.intent(title, data)
-    }
+        fun export(
+            context: Context,
+            wiFiDetails: List<WiFiDetail>,
+        ): Intent = export(context, wiFiDetails, Date())
 
-    internal fun data(
-        context: Context,
-        wiFiDetails: List<WiFiDetail>,
-        timestamp: String,
-    ): String =
-        header + wiFiDetails.joinToString(separator = String.EMPTY, transform = toExportString(context, timestamp))
-
-    internal fun title(
-        context: Context,
-        timestamp: String,
-    ): String {
-        val title: String = context.getString(R.string.action_access_points)
-        return "$title-$timestamp"
-    }
-
-    internal fun timestamp(date: Date): String = SimpleDateFormat(TIME_STAMP_FORMAT, Locale.US).format(date)
-
-    private fun toExportString(
-        context: Context,
-        timestamp: String,
-    ): (WiFiDetail) -> String =
-        {
-            with(it) {
-                "$timestamp|" +
-                    "${wiFiIdentifier.ssid}|" +
-                    "${wiFiIdentifier.bssid}|" +
-                    "${wiFiIdentifier.alias}|" +
-                    "${wiFiSignal.level}dBm|" +
-                    "${wiFiSignal.primaryWiFiChannel.channel}|" +
-                    "${wiFiSignal.primaryFrequency}$FREQUENCY_UNITS|" +
-                    "${wiFiSignal.centerWiFiChannel.channel}|" +
-                    "${wiFiSignal.centerFrequency}$FREQUENCY_UNITS|" +
-                    "${wiFiSignal.wiFiWidth.frequencyWidth}$FREQUENCY_UNITS " +
-                    "(${wiFiSignal.wiFiChannelStart.frequency} - ${wiFiSignal.wiFiChannelEnd.frequency})|" +
-                    "${wiFiSignal.distance}|" +
-                    "${wiFiSignal.extra.is80211mc}|" +
-                    wiFiSecurity.capabilities + "|" +
-                    wiFiSignal.extra.wiFiStandardDisplay(context) + "|" +
-                    wiFiSignal.extra.fastRoamingDisplay(context) +
-                    "\n"
-            }
+        fun export(
+            context: Context,
+            wiFiDetails: List<WiFiDetail>,
+            date: Date,
+        ): Intent {
+            val timestamp: String = timestamp(date)
+            val title: String = title(context, timestamp)
+            val data: String = data(context, wiFiDetails, timestamp)
+            return exportIntent.intent(title, data)
         }
 
-    companion object {
-        private const val TIME_STAMP_FORMAT = "yyyy/MM/dd-HH:mm:ss"
+        internal fun data(
+            context: Context,
+            wiFiDetails: List<WiFiDetail>,
+            timestamp: String,
+        ): String =
+            header + wiFiDetails.joinToString(separator = String.EMPTY, transform = toExportString(context, timestamp))
+
+        internal fun title(
+            context: Context,
+            timestamp: String,
+        ): String {
+            val title: String = context.getString(R.string.action_access_points)
+            return "$title-$timestamp"
+        }
+
+        internal fun timestamp(date: Date): String = SimpleDateFormat(TIME_STAMP_FORMAT, Locale.US).format(date)
+
+        private fun toExportString(
+            context: Context,
+            timestamp: String,
+        ): (WiFiDetail) -> String =
+            {
+                with(it) {
+                    "$timestamp|" +
+                        "${wiFiIdentifier.ssid}|" +
+                        "${wiFiIdentifier.bssid}|" +
+                        "${wiFiIdentifier.alias}|" +
+                        "${wiFiSignal.level}dBm|" +
+                        "${wiFiSignal.primaryWiFiChannel.channel}|" +
+                        "${wiFiSignal.primaryFrequency}$FREQUENCY_UNITS|" +
+                        "${wiFiSignal.centerWiFiChannel.channel}|" +
+                        "${wiFiSignal.centerFrequency}$FREQUENCY_UNITS|" +
+                        "${wiFiSignal.wiFiWidth.frequencyWidth}$FREQUENCY_UNITS " +
+                        "(${wiFiSignal.wiFiChannelStart.frequency} - ${wiFiSignal.wiFiChannelEnd.frequency})|" +
+                        "${wiFiSignal.distance}|" +
+                        "${wiFiSignal.extra.is80211mc}|" +
+                        wiFiSecurity.capabilities + "|" +
+                        wiFiSignal.extra.wiFiStandardDisplay(context) + "|" +
+                        wiFiSignal.extra.fastRoamingDisplay(context) +
+                        "\n"
+                }
+            }
+
+        companion object {
+            private const val TIME_STAMP_FORMAT = "yyyy/MM/dd-HH:mm:ss"
+        }
     }
-}

@@ -19,18 +19,7 @@ package com.vrem.wifianalyzer.navigation
 
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
-import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.R
-import com.vrem.wifianalyzer.navigation.items.NavigationItem
-import com.vrem.wifianalyzer.navigation.items.navigationItemAbout
-import com.vrem.wifianalyzer.navigation.items.navigationItemAccessPoints
-import com.vrem.wifianalyzer.navigation.items.navigationItemChannelAvailable
-import com.vrem.wifianalyzer.navigation.items.navigationItemChannelGraph
-import com.vrem.wifianalyzer.navigation.items.navigationItemChannelRating
-import com.vrem.wifianalyzer.navigation.items.navigationItemExport
-import com.vrem.wifianalyzer.navigation.items.navigationItemSettings
-import com.vrem.wifianalyzer.navigation.items.navigationItemTimeGraph
-import com.vrem.wifianalyzer.navigation.items.navigationItemVendors
 
 val MAIN_NAVIGATION =
     listOf(
@@ -43,44 +32,39 @@ val MAIN_NAVIGATION =
 enum class NavigationMenu(
     val title: Int,
     val icon: Int,
-    val navigationItem: NavigationItem,
     val screen: Screen?,
     val showWiFiBandSelector: Boolean = false,
     val showFilter: Boolean = false,
     val showScanner: Boolean = false,
 ) {
     ACCESS_POINTS(
-        R.string.action_access_points,
-        R.drawable.ic_network_wifi,
-        navigationItemAccessPoints,
-        Screen.AccessPoints,
+        title = R.string.action_access_points,
+        icon = R.drawable.ic_network_wifi,
+        screen = Screen.AccessPoints,
         showWiFiBandSelector = false,
         showFilter = true,
         showScanner = true,
     ),
     CHANNEL_RATING(
-        R.string.action_channel_rating,
-        R.drawable.ic_wifi_tethering,
-        navigationItemChannelRating,
-        Screen.ChannelRating,
+        title = R.string.action_channel_rating,
+        icon = R.drawable.ic_wifi_tethering,
+        screen = Screen.ChannelRating,
         showWiFiBandSelector = true,
         showFilter = false,
         showScanner = true,
     ),
     CHANNEL_GRAPH(
-        R.string.action_channel_graph,
-        R.drawable.ic_insert_chart,
-        navigationItemChannelGraph,
-        Screen.ChannelGraph,
+        title = R.string.action_channel_graph,
+        icon = R.drawable.ic_insert_chart,
+        screen = Screen.ChannelGraph,
         showWiFiBandSelector = true,
         showFilter = true,
         showScanner = true,
     ),
     TIME_GRAPH(
-        R.string.action_time_graph,
-        R.drawable.ic_show_chart,
-        navigationItemTimeGraph,
-        Screen.TimeGraph,
+        title = R.string.action_time_graph,
+        icon = R.drawable.ic_show_chart,
+        screen = Screen.TimeGraph,
         showWiFiBandSelector = true,
         showFilter = true,
         showScanner = true,
@@ -88,36 +72,29 @@ enum class NavigationMenu(
     EXPORT(
         title = R.string.action_export,
         icon = R.drawable.ic_import_export,
-        navigationItem = navigationItemExport,
         screen = null,
     ),
     CHANNEL_AVAILABLE(
         title = R.string.action_channel_available,
         icon = R.drawable.ic_location_on,
-        navigationItem = navigationItemChannelAvailable,
         screen = Screen.ChannelAvailable,
     ),
     VENDORS(
         title = R.string.action_vendors,
         icon = R.drawable.ic_list,
-        navigationItem = navigationItemVendors,
         screen = Screen.Vendors,
     ),
     SETTINGS(
         title = R.string.action_settings,
         icon = R.drawable.ic_settings,
-        navigationItem = navigationItemSettings,
         screen = Screen.Settings,
     ),
     ABOUT(
         title = R.string.action_about,
         icon = R.drawable.ic_info_outline,
-        navigationItem = navigationItemAbout,
         screen = Screen.About,
     ),
     ;
-
-    fun activateNavigationMenu(mainActivity: MainActivity) = navigationItem.activate(mainActivity, this)
 
     companion object {
         fun findByDestination(destination: NavDestination?): NavigationMenu =

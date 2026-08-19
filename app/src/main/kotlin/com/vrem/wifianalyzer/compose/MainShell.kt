@@ -69,7 +69,6 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.navigation.MAIN_NAVIGATION
 import com.vrem.wifianalyzer.navigation.MainNavigationGraph
@@ -99,7 +98,6 @@ fun WiFiAnalyzerApp(
     val currentMenu = NavigationMenu.findByDestination(currentDestination)
     val isAccessPoints = currentDestination?.hasRoute(Screen.AccessPoints::class) == true
     val context = LocalContext.current
-    val mainActivity = context as? MainActivity
     var showFilterDialog by remember { mutableStateOf(false) }
     var activeDetailList by remember { mutableStateOf<List<WiFiDetail>?>(null) }
     var aliasEditDetail by remember { mutableStateOf<WiFiDetail?>(null) }
@@ -171,7 +169,7 @@ fun WiFiAnalyzerApp(
                 onMenuSelected = { menu ->
                     scope.launch { drawerState.close() }
                     if (menu == NavigationMenu.EXPORT) {
-                        mainActivity?.let { menu.activateNavigationMenu(it) }
+                        mainViewModel.export(context)
                     } else if (menu.screen != null) {
                         navController.navigate(menu.screen) {
                             popUpTo(navController.graph.findStartDestination().id) {

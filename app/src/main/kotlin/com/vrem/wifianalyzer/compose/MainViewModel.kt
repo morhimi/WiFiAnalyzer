@@ -17,7 +17,12 @@
  */
 package com.vrem.wifianalyzer.compose
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import com.vrem.wifianalyzer.R
+import com.vrem.wifianalyzer.export.Export
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.filter.adapter.FiltersAdapter
@@ -35,6 +40,7 @@ class MainViewModel
         val scannerService: ScannerService,
         val apAliasService: ApAliasService,
         val filtersAdapter: FiltersAdapter,
+        val export: Export,
     ) : ViewModel() {
         val settingsData: StateFlow<SettingsData> = settings.settingsData
         val isScanning: StateFlow<Boolean> = scannerService.runningFlow
@@ -58,5 +64,21 @@ class MainViewModel
         fun removeAlias(bssid: String) {
             apAliasService.removeAlias(bssid)
             scannerService.update()
+        }
+
+        fun export(context: Context) {
+            val wiFiDetails = scannerService.wiFiData().wiFiDetails
+            if (wiFiDetails.isEmpty()) {
+                Toast.makeText(context, R.string.no_data, Toast.LENGTH_LONG).show()
+                return
+            }
+            val intent = export.export(context, wiFiDetails)
+            try {
+                context.startActivity(intent)
+            } catch (_: ActivityNotFoundException) {
+                Toast.makeText(context, R.string.export_not_available, Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, e.localizedMessage, Toast.LENGTH_LONG).show()
+            }
         }
     }
