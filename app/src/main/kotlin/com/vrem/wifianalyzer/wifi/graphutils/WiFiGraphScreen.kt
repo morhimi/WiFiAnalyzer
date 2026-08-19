@@ -47,7 +47,7 @@ fun WiFiGraphScreen(
     onRefresh: () -> Unit,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
-    LaunchedEffect(wiFiData, settingsData) {
+    LaunchedEffect(wiFiData, settingsData, graphAdapter, displayedChild) {
         graphAdapter.update(wiFiData, settingsData)
     }
 

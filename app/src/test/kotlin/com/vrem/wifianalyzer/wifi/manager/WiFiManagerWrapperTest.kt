@@ -243,7 +243,7 @@ class WiFiManagerWrapperTest {
     }
 
     @Test
-    fun wiFiInfoOnAndroidSWithActiveNetworkAndTransportInfo() {
+    fun wiFiInfoOnAndroidSWithValidTransportInfo() {
         // setup
         val network: Network = mock()
         val networkCapabilities: NetworkCapabilities = mock()
@@ -252,6 +252,7 @@ class WiFiManagerWrapperTest {
         whenever(connectivityManager.activeNetwork).thenReturn(network)
         whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities)
         whenever(networkCapabilities.transportInfo).thenReturn(transportWifiInfo)
+        whenever(transportWifiInfo.ssid).thenReturn("\"TransportSSID\"")
         // execute
         val actual = fixture.wiFiInfo()
         // validate
@@ -260,6 +261,35 @@ class WiFiManagerWrapperTest {
         verify(connectivityManager).activeNetwork
         verify(connectivityManager).getNetworkCapabilities(network)
         verify(networkCapabilities).transportInfo
+        verify(transportWifiInfo).ssid
+        verify(fixture).minVersionS()
+    }
+
+    @Test
+    fun wiFiInfoOnAndroidSFallsBackToLegacyWhenTransportInfoRedacted() {
+        // setup
+        val network: Network = mock()
+        val networkCapabilities: NetworkCapabilities = mock()
+        val transportWifiInfo: WifiInfo = mock()
+        doReturn(true).whenever(fixture).minVersionS()
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(networkCapabilities)
+        whenever(networkCapabilities.transportInfo).thenReturn(transportWifiInfo)
+        whenever(transportWifiInfo.ssid).thenReturn("<unknown ssid>")
+        whenever(transportWifiInfo.bssid).thenReturn("02:00:00:00:00:00")
+        whenever(wifiInfo.ssid).thenReturn("LegacySSID")
+        whenever(wifiManager.connectionInfo).thenReturn(wifiInfo)
+        // execute
+        val actual = fixture.wiFiInfo()
+        // validate
+        assertThat(actual).isSameAs(wifiInfo)
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(networkCapabilities).transportInfo
+        verify(transportWifiInfo).ssid
+        verify(transportWifiInfo).bssid
+        verify(wifiManager).connectionInfo
+        verify(wifiInfo).ssid
         verify(fixture).minVersionS()
     }
 

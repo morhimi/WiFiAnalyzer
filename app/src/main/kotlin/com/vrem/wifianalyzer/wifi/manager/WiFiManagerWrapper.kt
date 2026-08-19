@@ -47,7 +47,17 @@ class WiFiManagerWrapper(
     fun wiFiInfo(): WifiInfo? =
         runCatching {
             if (minVersionS() && connectivityManager != null) {
-                wiFiInfoFromConnectivityManager() ?: legacyWiFiInfo()
+                val cmInfo = wiFiInfoFromConnectivityManager()
+                if (cmInfo != null && cmInfo.hasValidDetails()) {
+                    cmInfo
+                } else {
+                    val legacyInfo = legacyWiFiInfo()
+                    if (legacyInfo != null && legacyInfo.hasValidDetails()) {
+                        legacyInfo
+                    } else {
+                        cmInfo ?: legacyInfo
+                    }
+                }
             } else {
                 legacyWiFiInfo()
             }
@@ -64,6 +74,14 @@ class WiFiManagerWrapper(
         val activeNetwork = connectivityManager?.activeNetwork ?: return null
         val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return null
         return capabilities.transportInfo as? WifiInfo
+    }
+
+    private fun WifiInfo.hasValidDetails(): Boolean {
+        val s = ssid?.removeSurrounding("\"")
+        val b = bssid
+        val hasSsid = !s.isNullOrEmpty() && s != "<unknown ssid>" && s != WifiManager.UNKNOWN_SSID
+        val hasBssid = !b.isNullOrEmpty() && b != "02:00:00:00:00:00" && b != "00:00:00:00:00:00"
+        return hasSsid || hasBssid
     }
 
     fun is5GHzBandSupported(): Boolean = wifiManager.is5GHzBandSupported

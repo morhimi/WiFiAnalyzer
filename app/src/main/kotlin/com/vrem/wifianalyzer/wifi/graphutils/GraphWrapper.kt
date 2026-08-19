@@ -34,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 data class GraphViewport(
@@ -76,7 +77,14 @@ class GraphWrapper(
     }
 
     internal val modelProducer: CartesianChartModelProducer = CartesianChartModelProducer()
-    internal val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+    internal var coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+
+    private fun ensureActiveScope(): CoroutineScope {
+        if (!coroutineScope.isActive) {
+            coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+        }
+        return coroutineScope
+    }
 
     var isVisible: Boolean by mutableStateOf(true)
         internal set
@@ -161,7 +169,7 @@ class GraphWrapper(
             lines = updatedLines
         }
         val snapshot = populatedData.toCoordinates()
-        coroutineScope.launch {
+        ensureActiveScope().launch {
             modelProducer.runTransaction {
                 lineModel {
                     snapshot.forEach { (x, y) ->
