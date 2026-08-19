@@ -43,7 +43,8 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.vico.views)
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.serialization.json)
     // Hilt Dependencies

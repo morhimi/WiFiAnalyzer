@@ -17,13 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.patrykandpatrick.vico.views.cartesian.CartesianChart
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
-import com.patrykandpatrick.vico.views.cartesian.marker.DefaultCartesianMarker
-import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
-import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
-import com.patrykandpatrick.vico.views.common.Point
+import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.marker.Interaction
+import com.patrykandpatrick.vico.compose.cartesian.marker.LineCartesianLayerMarkerTarget
+import com.patrykandpatrick.vico.compose.common.Point
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 class MarkerHandler(
@@ -34,14 +31,22 @@ class MarkerHandler(
         thresholdPx: Float,
         dataPointToDetail: Map<Long, MutableList<WiFiDetail>>,
         targets: List<CartesianMarker.Target>,
+        seriesList: List<WiFiDetail> = emptyList(),
     ): Boolean {
-        val lineTarget =
-            targets.firstOrNull { it is LineCartesianLayerMarkerTarget } as? LineCartesianLayerMarkerTarget
-                ?: return false
-        val points = lineTarget.points
-        if (points.isEmpty()) return false
-        val markerPoints = points.map { MarkerPoint(DataPoint(it.entry.x.toInt(), it.entry.y.toInt()), it.canvasY) }
-        val wiFiDetails = matchDetails(markerPoints, lineTarget.canvasX, touch, thresholdPx, dataPointToDetail)
+        val lineTargets = targets.filterIsInstance<LineCartesianLayerMarkerTarget>()
+        if (lineTargets.isEmpty()) return false
+        val markerPoints =
+            lineTargets.flatMap { target ->
+                target.points.map {
+                    MarkerPoint(
+                        DataPoint(Math.round(it.entry.x).toInt(), Math.round(it.entry.y).toInt()),
+                        it.canvasY,
+                    )
+                }
+            }
+        if (markerPoints.isEmpty()) return false
+        val canvasX = lineTargets.first().canvasX
+        val wiFiDetails = matchDetails(markerPoints, canvasX, touch, thresholdPx, dataPointToDetail, seriesList)
         if (wiFiDetails.isNotEmpty()) {
             onShowWiFiDetails(wiFiDetails)
             return true
@@ -51,45 +56,44 @@ class MarkerHandler(
 }
 
 class MarkerInteraction(
-    chartView: CartesianChartView,
     private val markerHandler: MarkerHandler = MarkerHandler(),
+    private val thresholdPx: Float = DEFAULT_THRESHOLD_PX,
 ) {
     constructor(
-        chartView: CartesianChartView,
         onShowWiFiDetails: (List<WiFiDetail>) -> Unit,
+        thresholdPx: Float = DEFAULT_THRESHOLD_PX,
     ) : this(
-        chartView = chartView,
         markerHandler = MarkerHandler(onShowWiFiDetails),
+        thresholdPx = thresholdPx,
     )
 
     private var dataPointToDetail: Map<Long, MutableList<WiFiDetail>> = emptyMap()
-    private val thresholdPx: Float = 24f * chartView.resources.displayMetrics.density
+    private var seriesList: List<WiFiDetail> = emptyList()
 
-    internal val marker: DefaultCartesianMarker = createMarker()
+    companion object {
+        const val DEFAULT_THRESHOLD_PX: Float = 96f
+    }
 
-    internal val markerController: MarkerControllerWrapper =
+    val markerController: MarkerControllerWrapper =
         MarkerControllerWrapper(thresholdPx) { interaction, targets ->
-            if (interaction is Interaction.Tap) {
-                markerHandler.event(interaction.point, thresholdPx, dataPointToDetail, targets)
+            if (interaction is Interaction.Press || interaction is Interaction.Tap) {
+                markerHandler.event(interaction.point, thresholdPx, dataPointToDetail, targets, seriesList)
             }
         }
 
-    fun applyTo(chart: CartesianChart): CartesianChart =
-        chart.copy(
-            marker = marker,
-            markerController = markerController,
-        )
-
     fun updatePointMap(entries: List<SeriesEntry>) {
         val pointMap = mutableMapOf<Long, MutableList<WiFiDetail>>()
+        val list = mutableListOf<WiFiDetail>()
         entries
             .filter { it.key != PLACEHOLDER_DETAIL }
             .forEach { entry ->
                 val wiFiDetail = entry.value.wiFiDetail
+                list.add(wiFiDetail)
                 entry.value.dataPoints.forEach { dataPoint ->
                     pointMap.getOrPut(dataPoint.key) { mutableListOf() }.add(wiFiDetail)
                 }
             }
         dataPointToDetail = pointMap
+        seriesList = list
     }
 }

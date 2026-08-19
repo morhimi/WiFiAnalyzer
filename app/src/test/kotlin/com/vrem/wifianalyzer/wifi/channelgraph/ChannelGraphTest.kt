@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
@@ -81,20 +80,6 @@ class ChannelGraphTest {
     }
 
     @Test
-    fun graph() {
-        // Arrange
-        val expected: CartesianChartView = mock()
-        doReturn(expected).whenever(graphWrapper).chartView
-
-        // Act
-        val actual = fixture.graph()
-
-        // Assert
-        assertThat(actual).isEqualTo(expected)
-        verify(graphWrapper).chartView
-    }
-
-    @Test
     fun destroy() {
         // Act
         fixture.destroy()
@@ -112,6 +97,6 @@ class ChannelGraphTest {
         val actual = fixture.predicate(settingsData)
 
         // Assert
-        assertThat(actual).isNotNull()
+        assertThat(actual).isNotNull
     }
 }

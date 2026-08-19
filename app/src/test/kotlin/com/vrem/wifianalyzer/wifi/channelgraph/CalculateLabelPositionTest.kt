@@ -18,12 +18,12 @@
 package com.vrem.wifianalyzer.wifi.channelgraph
 
 import android.graphics.Paint
-import android.graphics.RectF
 import android.os.Build
+import androidx.compose.ui.geometry.Rect
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
-import com.patrykandpatrick.vico.views.cartesian.data.MutableCartesianChartRanges
-import com.patrykandpatrick.vico.views.cartesian.layer.MutableCartesianLayerDimensions
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.data.MutableCartesianChartRanges
+import com.patrykandpatrick.vico.compose.cartesian.layer.MutableCartesianLayerDimensions
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphColor
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
@@ -44,7 +44,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class CalculateLabelPositionTest {
     private val context: CartesianDrawingContext = mock()
-    private val layerBounds = RectF(0f, 0f, 500f, 200f)
+    private val layerBounds = Rect(0f, 0f, 500f, 200f)
 
     @After
     fun tearDown() {

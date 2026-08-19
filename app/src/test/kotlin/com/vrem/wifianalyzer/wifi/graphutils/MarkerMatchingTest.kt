@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.patrykandpatrick.vico.views.common.Point
+import com.patrykandpatrick.vico.compose.common.Point
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import org.assertj.core.api.Assertions.assertThat
@@ -109,7 +109,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
     }
 
     @Test
@@ -119,7 +119,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
     }
 
     @Test
@@ -129,7 +129,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 
     @Test
@@ -139,7 +139,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 
     @Test
@@ -149,7 +149,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
     }
 
     @Test
@@ -160,7 +160,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 
     @Test
@@ -170,7 +170,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
     }
 
     @Test
@@ -180,7 +180,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
     }
 
     @Test
@@ -190,7 +190,7 @@ class WithinProximityTest {
         // Act
         val actual = touch.withinProximity(CANVAS_X, CANVAS_Y, THRESHOLD)
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
     }
 }
 

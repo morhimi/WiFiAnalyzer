@@ -19,22 +19,18 @@ package com.vrem.wifianalyzer.wifi.timegraph
 
 import android.content.Context
 import android.graphics.Paint
-import android.view.View
-import com.patrykandpatrick.vico.views.cartesian.AutoScrollCondition
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
-import com.patrykandpatrick.vico.views.cartesian.Scroll
-import com.patrykandpatrick.vico.views.cartesian.ScrollHandler
-import com.patrykandpatrick.vico.views.cartesian.Zoom
-import com.patrykandpatrick.vico.views.cartesian.axis.HorizontalAxis
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
-import com.patrykandpatrick.vico.views.common.data.ExtraStore
-import com.vrem.wifianalyzer.R
+import androidx.compose.ui.unit.sp
+import com.patrykandpatrick.vico.compose.cartesian.AutoScrollCondition
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.Scroll
+import com.patrykandpatrick.vico.compose.cartesian.Zoom
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
-import com.vrem.wifianalyzer.wifi.graphutils.GraphBuilder
+import com.vrem.wifianalyzer.wifi.graphutils.GraphColors
 import com.vrem.wifianalyzer.wifi.graphutils.GraphNotifier
 import com.vrem.wifianalyzer.wifi.graphutils.GraphViewport
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
@@ -90,21 +86,10 @@ internal fun calculateLabelPosition(
     val point = seriesData.dataPoints.last()
     if (point.y <= MIN_Y) return null
     return with(context) {
-        val canvasX = layerBounds.right - spToPx(2f)
+        val canvasX = layerBounds.right - with(density) { 2.sp.toPx() }
         LabelPosition(canvasX, canvasY(point), Paint.Align.RIGHT)
     }
 }
-
-internal fun makeGraph(
-    graphMaximumY: Int,
-    themeStyle: ThemeStyle,
-    context: Context,
-): CartesianChartView =
-    GraphBuilder(graphMaximumY, themeStyle)
-        .setItemPlacer(HorizontalAxis.ItemPlacer.aligned(spacing = { 2 }, shiftExtremeLines = false))
-        .setVerticalTitle(context.getString(R.string.graph_axis_y))
-        .setHorizontalTitle(context.getString(R.string.graph_time_axis_x))
-        .build(context, false)
 
 internal fun makeGraphWrapper(
     context: Context,
@@ -112,20 +97,20 @@ internal fun makeGraphWrapper(
     themeStyle: ThemeStyle = ThemeStyle.DARK,
     onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
 ): GraphWrapper {
-    val chartView = makeGraph(graphMaximumY, themeStyle, context)
     val seriesLabel = SeriesLabel(::calculateLabelPosition)
-    val scrollHandler = ScrollHandler(true, Scroll.Absolute.End, Scroll.Absolute.End, AutoScrollCondition.OnModelGrowth)
     val graphViewport =
         GraphViewport(
             rangeProvider = TimeLayerRangeProvider(graphMaximumY),
-            scrollHandler = scrollHandler,
             placeholderDataPoints = (0..NUM_X_TIME).map { DataPoint(it, MIN_Y) },
+            scrollEnabled = true,
+            initialScroll = Scroll.Absolute.End,
+            autoScrollCondition = AutoScrollCondition.OnModelGrowth,
             initialZoom = Zoom.x(NUM_X_TIME.toDouble()),
         )
     return GraphWrapper(
         graphViewport = graphViewport,
-        chartView = chartView,
         seriesLabel = seriesLabel,
+        graphColors = GraphColors(context),
         onShowWiFiDetails = onShowWiFiDetails,
     )
 }
@@ -133,7 +118,7 @@ internal fun makeGraphWrapper(
 internal class TimeGraph(
     private val wiFiBand: WiFiBand,
     private val dataManager: DataManager = DataManager(),
-    private val graphWrapper: GraphWrapper,
+    internal val graphWrapper: GraphWrapper,
 ) : GraphNotifier {
     constructor(
         wiFiBand: WiFiBand,
@@ -172,8 +157,6 @@ internal class TimeGraph(
     fun predicate(settingsData: SettingsData): Predicate = makeOtherPredicate(settingsData)
 
     private fun selected(settingsData: SettingsData): Boolean = wiFiBand == settingsData.wiFiBand
-
-    override fun graph(): View = graphWrapper.chartView
 
     override fun destroy() = graphWrapper.destroy()
 }

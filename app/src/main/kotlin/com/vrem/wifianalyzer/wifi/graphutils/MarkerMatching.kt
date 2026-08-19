@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.patrykandpatrick.vico.views.common.Point
+import com.patrykandpatrick.vico.compose.common.Point
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import kotlin.math.hypot
 
@@ -53,22 +53,28 @@ internal fun matchDetails(
     touch: Point,
     thresholdPx: Float,
     pointMap: Map<Long, List<WiFiDetail>>,
+    seriesList: List<WiFiDetail> = emptyList(),
 ): List<WiFiDetail> =
     points
         .asSequence()
         .filter { touch.withinProximity(canvasX, it.canvasY, thresholdPx) }
-        .filter { pointMap.containsKey(it.entry.key) }
-        .map {
+        .map { point ->
+            val details =
+                pointMap[point.entry.key]
+                    ?: seriesList.filter { it.wiFiSignal.inRange(point.entry.x) }
+            point to details
+        }.filter { it.second.isNotEmpty() }
+        .map { (point, details) ->
             val dist =
-                if (touch.y.isNaN() || touch.y < it.canvasY) {
-                    touch.distanceTo(canvasX, it.canvasY)
+                if (touch.y.isNaN() || touch.y < point.canvasY) {
+                    touch.distanceTo(canvasX, point.canvasY)
                 } else {
                     val distX = if (touch.x.isNaN()) 0f else kotlin.math.abs(touch.x - canvasX)
-                    distX + (touch.y - it.canvasY) * 0.1f
+                    distX + (touch.y - point.canvasY) * 0.1f
                 }
-            it to dist
-        }.flatMap { (point, dist) ->
-            pointMap.getValue(point.entry.key).map { it to dist }
+            details to dist
+        }.flatMap { (details, dist) ->
+            details.map { it to dist }
         }.sortedBy { it.second }
         .map { it.first }
         .distinct()

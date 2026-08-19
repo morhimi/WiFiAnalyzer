@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.roundAwayFromZero
 

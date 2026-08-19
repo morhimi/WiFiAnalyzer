@@ -19,20 +19,15 @@
 package com.vrem.wifianalyzer.wifi.channelgraph
 
 import android.content.Context
-import android.view.View
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
-import com.patrykandpatrick.vico.views.cartesian.ScrollHandler
-import com.patrykandpatrick.vico.views.cartesian.Zoom
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
-import com.patrykandpatrick.vico.views.common.data.ExtraStore
-import com.vrem.wifianalyzer.R
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.Zoom
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.settings.ThemeStyle
-import com.vrem.wifianalyzer.wifi.band.FREQUENCY_SPREAD
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
-import com.vrem.wifianalyzer.wifi.graphutils.GraphBuilder
+import com.vrem.wifianalyzer.wifi.graphutils.GraphColors
 import com.vrem.wifianalyzer.wifi.graphutils.GraphNotifier
 import com.vrem.wifianalyzer.wifi.graphutils.GraphViewport
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
@@ -95,20 +90,6 @@ internal fun calculateLabelPosition(
     }
 }
 
-internal fun makeGraph(
-    graphMaximumY: Int,
-    themeStyle: ThemeStyle,
-    wiFiBand: WiFiBand,
-    scalable: Boolean,
-    context: Context,
-): CartesianChartView =
-    GraphBuilder(graphMaximumY, themeStyle, FREQUENCY_SPREAD.toDouble())
-        .setXAxisFormatter(channelXAxisFormatter(wiFiBand))
-        .setItemPlacer(channelItemPlacer(wiFiBand))
-        .setVerticalTitle(context.getString(R.string.graph_axis_y))
-        .setHorizontalTitle(context.getString(R.string.graph_channel_axis_x))
-        .build(context, scalable)
-
 internal fun makeGraphWrapper(
     wiFiBand: WiFiBand,
     context: Context,
@@ -117,7 +98,6 @@ internal fun makeGraphWrapper(
     onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
 ): GraphWrapper {
     val scalable = !wiFiBand.ghz2
-    val chartView = makeGraph(graphMaximumY, themeStyle, wiFiBand, scalable, context)
     val seriesLabel = SeriesLabel(::calculateLabelPosition)
     val wiFiChannels = wiFiBand.wiFiChannels.wiFiChannels()
     val minX = wiFiChannels.first().frequency
@@ -126,24 +106,24 @@ internal fun makeGraphWrapper(
     val graphViewport =
         GraphViewport(
             rangeProvider = rangeProvider,
-            scrollHandler = ScrollHandler(scalable),
             placeholderDataPoints = listOf(DataPoint(minX, MIN_Y), DataPoint(maxX, MIN_Y)),
+            scrollEnabled = scalable,
             zoomEnabled = scalable,
             maxZoom = Zoom.x(MIN_VISIBLE_FREQUENCY_RANGE),
             scalable = scalable,
         )
     return GraphWrapper(
         graphViewport = graphViewport,
-        chartView = chartView,
         seriesLabel = seriesLabel,
+        graphColors = GraphColors(context),
         onShowWiFiDetails = onShowWiFiDetails,
     )
 }
 
 internal class ChannelGraph(
-    private val wiFiBand: WiFiBand,
+    internal val wiFiBand: WiFiBand,
     private var dataManager: DataManager = DataManager(),
-    private var graphWrapper: GraphWrapper,
+    internal var graphWrapper: GraphWrapper,
 ) : GraphNotifier {
     constructor(
         wiFiBand: WiFiBand,
@@ -182,8 +162,6 @@ internal class ChannelGraph(
     private fun selected(settingsData: SettingsData): Boolean = wiFiBand == settingsData.wiFiBand
 
     fun predicate(settingsData: SettingsData): Predicate = makeOtherPredicate(settingsData)
-
-    override fun graph(): View = graphWrapper.chartView
 
     override fun destroy() = graphWrapper.destroy()
 }

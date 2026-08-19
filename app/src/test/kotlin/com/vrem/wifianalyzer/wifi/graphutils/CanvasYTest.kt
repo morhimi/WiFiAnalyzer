@@ -17,12 +17,12 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.graphics.RectF
 import android.os.Build
+import androidx.compose.ui.geometry.Rect
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianChartRanges
-import com.patrykandpatrick.vico.views.cartesian.data.MutableCartesianChartRanges
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartRanges
+import com.patrykandpatrick.vico.compose.cartesian.data.MutableCartesianChartRanges
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -42,7 +42,7 @@ class CanvasYTest {
     private val context: CartesianDrawingContext = mock()
     private val ranges: CartesianChartRanges = mock()
     private val yRange = MutableCartesianChartRanges.MutableYRange(-100.0, 0.0)
-    private val layerBounds = RectF(0f, 0f, 100f, 200f)
+    private val layerBounds = Rect(0f, 0f, 100f, 200f)
 
     @Before
     fun setUp() {

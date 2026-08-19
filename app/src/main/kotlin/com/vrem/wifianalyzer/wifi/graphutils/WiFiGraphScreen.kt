@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.widget.ViewFlipper
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,8 +24,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionHeader
 import com.vrem.wifianalyzer.wifi.model.WiFiData
@@ -48,6 +47,10 @@ fun WiFiGraphScreen(
     onRefresh: () -> Unit,
     onDetailClick: (WiFiDetail) -> Unit,
 ) {
+    LaunchedEffect(wiFiData, settingsData) {
+        graphAdapter.update(wiFiData, settingsData)
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
@@ -67,18 +70,12 @@ fun WiFiGraphScreen(
                     connectionViewType = settingsData.connectionViewType,
                     onDetailClick = onDetailClick,
                 )
-                AndroidView(
-                    modifier = Modifier.weight(1f),
-                    factory = { context ->
-                        ViewFlipper(context).apply {
-                            graphAdapter.graphs().forEach { addView(it) }
-                        }
-                    },
-                    update = { flipper ->
-                        flipper.displayedChild = displayedChild
-                        graphAdapter.update(wiFiData, settingsData)
-                    },
-                )
+                val currentGraph = graphAdapter.graphNotifiers.getOrNull(displayedChild)
+                if (currentGraph != null) {
+                    currentGraph.Content(
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
     }

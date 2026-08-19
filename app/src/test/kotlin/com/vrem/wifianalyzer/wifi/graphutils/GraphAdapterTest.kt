@@ -17,23 +17,18 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.view.View
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.model.WiFiData
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.whenever
 
 class GraphAdapterTest {
     private val graphNotifier1: GraphNotifier = mock()
     private val graphNotifier2: GraphNotifier = mock()
-    private val view1: View = mock()
-    private val view2: View = mock()
     private val wiFiData: WiFiData = mock()
     private val settingsData: SettingsData = mock()
 
@@ -41,23 +36,12 @@ class GraphAdapterTest {
 
     @Before
     fun setUp() {
-        whenever(graphNotifier1.graph()).thenReturn(view1)
-        whenever(graphNotifier2.graph()).thenReturn(view2)
         fixture = GraphAdapter(listOf(graphNotifier1, graphNotifier2))
     }
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(graphNotifier1, graphNotifier2, view1, view2, wiFiData, settingsData)
-    }
-
-    @Test
-    fun graphsReturnsViewsFromNotifiers() {
-        val actual = fixture.graphs()
-
-        assertThat(actual).containsExactly(view1, view2)
-        verify(graphNotifier1).graph()
-        verify(graphNotifier2).graph()
+        verifyNoMoreInteractions(graphNotifier1, graphNotifier2, wiFiData, settingsData)
     }
 
     @Test

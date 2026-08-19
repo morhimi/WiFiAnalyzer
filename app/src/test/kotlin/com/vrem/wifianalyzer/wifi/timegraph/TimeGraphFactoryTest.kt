@@ -20,7 +20,6 @@ package com.vrem.wifianalyzer.wifi.timegraph
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vrem.wifianalyzer.RobolectricUtil
-import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -33,19 +32,11 @@ class TimeGraphFactoryTest {
     private val context = RobolectricUtil.INSTANCE.activity
 
     @Test
-    fun makeGraphShouldNotBeNull() {
-        // Act
-        val actual = makeGraph(10, ThemeStyle.DARK, context)
-        // Assert
-        assertThat(actual).isNotNull()
-    }
-
-    @Test
     fun makeGraphWrapperShouldNotBeNull() {
         // Act
         val actual = makeGraphWrapper(context)
         // Assert
-        assertThat(actual).isNotNull()
+        assertThat(actual).isNotNull
     }
 
     @Test
@@ -53,7 +44,6 @@ class TimeGraphFactoryTest {
         // Act
         val actual = TimeGraph(WiFiBand.GHZ2, context)
         // Assert
-        assertThat(actual).isNotNull()
-        assertThat(actual.graph()).isNotNull()
+        assertThat(actual).isNotNull
     }
 }

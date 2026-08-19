@@ -17,33 +17,28 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.patrykandpatrick.vico.views.cartesian.CartesianChart
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
-import com.patrykandpatrick.vico.views.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 
 class ChartUpdater(
-    private val chartView: CartesianChartView,
     private val seriesLabel: SeriesLabel,
     seriesCache: SeriesCache,
     private val lineStyleTracker: LineStyleTracker = LineStyleTracker(),
     private val lineLayerFactory: LineLayerFactory = LineLayerFactory(),
     onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
-    private val markerInteraction: MarkerInteraction = MarkerInteraction(chartView, onShowWiFiDetails),
+    val markerInteraction: MarkerInteraction = MarkerInteraction(onShowWiFiDetails),
 ) {
-    fun sync(
-        entries: List<SeriesEntry>,
-        existingChart: CartesianChart,
-        rangeProvider: CartesianLayerRangeProvider,
-    ): List<SeriesData> {
+    fun sync(entries: List<SeriesEntry>): Pair<List<SeriesData>, List<LineCartesianLayer.Line>?> {
         val populatedData = entries.map { it.value }
         seriesLabel.seriesSnapshot = populatedData
-        if (lineStyleTracker.changed(populatedData)) {
-            swap(lineLayerFactory.create(populatedData, rangeProvider), existingChart)
-        }
+        val updatedLines =
+            if (lineStyleTracker.changed(populatedData)) {
+                lineLayerFactory.lines(populatedData)
+            } else {
+                null
+            }
         markerInteraction.updatePointMap(entries)
-        return populatedData
+        return Pair(populatedData, updatedLines)
     }
 
     fun resetStyles() {
@@ -52,15 +47,5 @@ class ChartUpdater(
 
     fun syncPointMap(entries: List<SeriesEntry>) {
         markerInteraction.updatePointMap(entries)
-    }
-
-    private fun swap(
-        lineLayer: LineCartesianLayer,
-        existingChart: CartesianChart,
-    ) {
-        chartView.chart =
-            markerInteraction.applyTo(
-                existingChart.copy(lineLayer, decorations = listOf(seriesLabel)),
-            )
     }
 }

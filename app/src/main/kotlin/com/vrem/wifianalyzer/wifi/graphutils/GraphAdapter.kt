@@ -17,15 +17,12 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.view.View
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 
 open class GraphAdapter(
-    internal val graphNotifiers: List<GraphNotifier>,
+    val graphNotifiers: List<GraphNotifier>,
 ) {
-    fun graphs(): List<View> = graphNotifiers.map { it.graph() }
-
     fun update(
         wiFiData: WiFiData,
         settingsData: SettingsData,

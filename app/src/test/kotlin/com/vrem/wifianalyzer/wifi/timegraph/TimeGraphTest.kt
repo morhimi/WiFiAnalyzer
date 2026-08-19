@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.wifi.timegraph
 
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.GraphWrapper
@@ -113,21 +112,6 @@ class TimeGraphTest {
     }
 
     @Test
-    fun graph() {
-        // Arrange
-        val expected: CartesianChartView = mock()
-        doReturn(expected).whenever(graphWrapper).chartView
-
-        // Act
-        val actual = fixture.graph()
-
-        // Assert
-        assertThat(actual).isEqualTo(expected)
-        verify(graphWrapper).chartView
-        verifyNoMoreInteractions(expected)
-    }
-
-    @Test
     fun destroy() {
         // Act
         fixture.destroy()
@@ -145,6 +129,6 @@ class TimeGraphTest {
         val actual = fixture.predicate(settingsData)
 
         // Assert
-        assertThat(actual).isNotNull()
+        assertThat(actual).isNotNull
     }
 }

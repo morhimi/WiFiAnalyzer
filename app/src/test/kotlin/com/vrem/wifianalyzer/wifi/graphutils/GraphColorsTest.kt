@@ -19,16 +19,23 @@ package com.vrem.wifianalyzer.wifi.graphutils
 
 import android.content.Context
 import android.content.res.Resources
+import android.os.Build
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vrem.wifianalyzer.R
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
+import org.robolectric.annotation.Config
 
+@RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class GraphColorsTest {
     private val resources: Resources = mock()
     private val context: Context = mock()
@@ -103,6 +110,14 @@ class GraphColorsTest {
     fun nullContextReturnsEmptyAndZeroConnectedColor() {
         val nullContextColors = GraphColors(null)
         assertThat(nullContextColors.connectedColor).isEqualTo(GraphColor(0, 0))
+        assertThat(fixture.graphColor()).isNotNull()
+    }
+
+    @Test
+    fun connectedColorWithRealContext() {
+        val realContext = ApplicationProvider.getApplicationContext<Context>()
+        val realColors = GraphColors(realContext)
+        assertThat(realColors.connectedColor).isNotEqualTo(GraphColor(0, 0))
         assertThat(fixture.graphColor()).isNotNull()
     }
 

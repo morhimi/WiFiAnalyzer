@@ -17,9 +17,11 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
-import com.patrykandpatrick.vico.views.cartesian.layer.LineCartesianLayer
-import com.patrykandpatrick.vico.views.common.Fill
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.compose.common.Fill
 
 private data class LineStyle(
     val primaryColor: Int,
@@ -71,11 +73,11 @@ class LineLayerFactory {
         seriesData.map { line(it.toLineStyle()) }
 
     private fun line(lineStyle: LineStyle): LineCartesianLayer.Line {
-        val fill = LineCartesianLayer.LineFill.single(Fill(lineStyle.primaryColor))
-        val stroke = LineCartesianLayer.LineStroke.Continuous(thicknessDp = lineStyle.thicknessDp)
+        val fill = LineCartesianLayer.LineFill.single(Fill(Color(lineStyle.primaryColor)))
+        val stroke = LineCartesianLayer.LineStroke.Continuous(thickness = lineStyle.thicknessDp.dp)
         val areaFill =
             lineStyle.backgroundColor?.let {
-                LineCartesianLayer.AreaFill.single(Fill(it), splitY = { MIN_Y })
+                LineCartesianLayer.AreaFill.single(Fill(Color(it)), splitY = { MIN_Y })
             }
         return LineCartesianLayer.Line(fill = fill, stroke = stroke, areaFill = areaFill)
     }

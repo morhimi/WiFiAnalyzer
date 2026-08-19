@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.patrykandpatrick.vico.views.common.data.ExtraStore
+import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After

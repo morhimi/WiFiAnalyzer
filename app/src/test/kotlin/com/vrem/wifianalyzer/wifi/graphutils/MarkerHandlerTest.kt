@@ -19,10 +19,10 @@ package com.vrem.wifianalyzer.wifi.graphutils
 
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.data.LineCartesianLayerModel
-import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
-import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
-import com.patrykandpatrick.vico.views.common.Point
+import com.patrykandpatrick.vico.compose.cartesian.data.LineCartesianLayerModel
+import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.marker.LineCartesianLayerMarkerTarget
+import com.patrykandpatrick.vico.compose.common.Point
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import org.assertj.core.api.Assertions.assertThat
@@ -61,7 +61,7 @@ class MarkerHandlerTest {
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, emptyMap(), targets)
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 
     @Test
@@ -73,7 +73,7 @@ class MarkerHandlerTest {
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, emptyMap(), listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
         verify(lineCartesianLayerMarkerTarget).points
     }
 
@@ -88,10 +88,43 @@ class MarkerHandlerTest {
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
         verify(this.lineCartesianLayerMarkerTarget).canvasX
         verify(this.lineCartesianLayerMarkerTarget).points
         assertThat(capturedDetails).isEqualTo(wiFiDetails)
+    }
+
+    @Test
+    fun eventInvokesCallbackWhenDetailsMatchViaSeriesList() {
+        // Arrange
+        val wiFiDetail =
+            WiFiDetail(
+                wiFiIdentifier = WiFiIdentifier("SSID1", "AA:BB:CC:DD:EE:01"),
+                wiFiSignal =
+                    com.vrem.wifianalyzer.wifi.model.WiFiSignal(
+                        2412,
+                        2412,
+                        com.vrem.wifianalyzer.wifi.model.WiFiWidth.MHZ_20,
+                        -50,
+                    ),
+            )
+        val targetPoint = withTargetPoint(2412, -50)
+        doReturn(CANVAS_X).whenever(lineCartesianLayerMarkerTarget).canvasX
+        doReturn(listOf(targetPoint)).whenever(lineCartesianLayerMarkerTarget).points
+        // Act
+        val actual =
+            fixture.event(
+                lastTouch,
+                THRESHOLD_PX,
+                emptyMap(),
+                listOf(lineCartesianLayerMarkerTarget),
+                listOf(wiFiDetail),
+            )
+        // Assert
+        assertThat(actual).isTrue
+        verify(this.lineCartesianLayerMarkerTarget).canvasX
+        verify(this.lineCartesianLayerMarkerTarget).points
+        assertThat(capturedDetails).containsExactly(wiFiDetail)
     }
 
     @Test
@@ -103,7 +136,7 @@ class MarkerHandlerTest {
         // Act
         val actual = fixture.event(lastTouch, THRESHOLD_PX, emptyMap(), listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
         assertThat(capturedDetails).isNull()
@@ -121,7 +154,7 @@ class MarkerHandlerTest {
         // Act
         val actual = fixture.event(touchFarInY, THRESHOLD_PX, pointMap, listOf(lineCartesianLayerMarkerTarget))
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
         verify(lineCartesianLayerMarkerTarget).canvasX
         verify(lineCartesianLayerMarkerTarget).points
         assertThat(capturedDetails).isNull()
@@ -153,7 +186,7 @@ class MarkerHandlerTest {
         x: Int,
         y: Int,
     ): LineCartesianLayerMarkerTarget.Point {
-        val entry = LineCartesianLayerModel.Entry(x, y)
-        return LineCartesianLayerMarkerTarget.Point(entry, CANVAS_Y, 0)
+        val entry = LineCartesianLayerModel.Entry(x.toDouble(), y.toDouble())
+        return LineCartesianLayerMarkerTarget.Point(entry, CANVAS_Y, androidx.compose.ui.graphics.Color.Black)
     }
 }

@@ -17,13 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.view.View
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 
 interface GraphNotifier {
-    fun graph(): View
-
     fun update(
         wiFiData: WiFiData,
         settingsData: SettingsData,

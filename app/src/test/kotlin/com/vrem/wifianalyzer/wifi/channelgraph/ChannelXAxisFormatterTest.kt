@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.patrykandpatrick.vico.views.cartesian.CartesianMeasuringContext
+import com.patrykandpatrick.vico.compose.cartesian.CartesianMeasuringContext
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test

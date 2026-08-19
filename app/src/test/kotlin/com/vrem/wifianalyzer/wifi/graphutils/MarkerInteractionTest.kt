@@ -18,15 +18,13 @@
 package com.vrem.wifianalyzer.wifi.graphutils
 
 import android.os.Build
+import androidx.compose.ui.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.patrykandpatrick.vico.views.cartesian.data.LineCartesianLayerModel
-import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
-import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
-import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
-import com.patrykandpatrick.vico.views.common.Point
-import com.vrem.wifianalyzer.RobolectricUtil
-import com.vrem.wifianalyzer.settings.ThemeStyle
+import com.patrykandpatrick.vico.compose.cartesian.data.LineCartesianLayerModel
+import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.marker.Interaction
+import com.patrykandpatrick.vico.compose.cartesian.marker.LineCartesianLayerMarkerTarget
+import com.patrykandpatrick.vico.compose.common.Point
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiIdentifier
 import com.vrem.wifianalyzer.wifi.model.WiFiSecurity
@@ -36,10 +34,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -49,15 +45,12 @@ import java.util.AbstractMap
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class MarkerInteractionTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
-    private val chartView: CartesianChartView =
-        GraphBuilder(MAX_Y_DEFAULT, ThemeStyle.DARK).build(mainActivity, false)
     private val markerHandler: MarkerHandler = mock()
-    private val expectedThresholdPx = 24f * chartView.resources.displayMetrics.density
+    private val thresholdPx = 48f
     private val tapPoint = Point(100f, 200f)
     private val lineTarget: LineCartesianLayerMarkerTarget = mock()
-    private val entry = LineCartesianLayerModel.Entry(10, -50)
-    private val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, 0)
+    private val entry = LineCartesianLayerModel.Entry(10.0, -50.0)
+    private val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, Color.Black)
     private val wiFiDetail1 =
         WiFiDetail(
             wiFiIdentifier = WiFiIdentifier("SSID1", "AA:BB:CC:DD:EE:01"),
@@ -70,7 +63,7 @@ class MarkerInteractionTest {
             wiFiSecurity = WiFiSecurity.EMPTY,
             wiFiSignal = WiFiSignal(2437, 2437, WiFiWidth.MHZ_20, -60),
         )
-    private val fixture = MarkerInteraction(chartView, markerHandler)
+    private val fixture = MarkerInteraction(markerHandler, thresholdPx)
 
     @After
     fun tearDown() {
@@ -78,40 +71,24 @@ class MarkerInteractionTest {
     }
 
     @Test
-    fun applyToWiresMarkerController() {
-        // Arrange
-        val existing = chartView.chart!!
-        // Act
-        val applied = fixture.applyTo(existing)
-        // Assert
-        assertThat(applied.markerController).isSameAs(fixture.markerController)
-    }
-
-    @Test
-    fun markerIsDefaultCartesianMarker() {
-        // Act & Assert
-        assertThat(fixture.marker).usingRecursiveComparison().isEqualTo(createMarker())
-    }
-
-    @Test
     fun secondaryConstructorInstantiatesSuccessfully() {
         // Act
-        val custom = MarkerInteraction(chartView) { _ -> }
+        val custom = MarkerInteraction({ _ -> }, thresholdPx)
         // Assert
-        assertThat(custom.marker).isNotNull
+        assertThat(custom.markerController).isNotNull
     }
 
     @Test
     fun updatePointMapWithEmptyEntriesPassesEmptyMapToHandlerOnTap() {
         // Arrange
         val targets = withMatchingTargets()
-        doReturn(false).whenever(markerHandler).event(tapPoint, expectedThresholdPx, emptyMap(), targets)
+        doReturn(false).whenever(markerHandler).event(tapPoint, thresholdPx, emptyMap(), targets, emptyList())
         // Act
         fixture.updatePointMap(emptyList())
         val accepted = fixture.markerController.shouldAcceptInteraction(Interaction.Tap(tapPoint), targets)
         // Assert
-        assertThat(accepted).isTrue()
-        verify(markerHandler).event(tapPoint, expectedThresholdPx, emptyMap(), targets)
+        assertThat(accepted).isTrue
+        verify(markerHandler).event(tapPoint, thresholdPx, emptyMap(), targets, emptyList())
         verify(lineTarget).points
         verify(lineTarget).canvasX
     }
@@ -123,13 +100,14 @@ class MarkerInteractionTest {
         val entries = listOf(withEntry(wiFiDetail1, listOf(dataPoint)))
         val targets = withMatchingTargets()
         val expectedMap = mapOf(dataPoint.key to mutableListOf(wiFiDetail1))
-        doReturn(true).whenever(markerHandler).event(tapPoint, expectedThresholdPx, expectedMap, targets)
+        val expectedList = listOf(wiFiDetail1)
+        doReturn(true).whenever(markerHandler).event(tapPoint, thresholdPx, expectedMap, targets, expectedList)
         // Act
         fixture.updatePointMap(entries)
         val accepted = fixture.markerController.shouldAcceptInteraction(Interaction.Tap(tapPoint), targets)
         // Assert
-        assertThat(accepted).isTrue()
-        verify(markerHandler).event(tapPoint, expectedThresholdPx, expectedMap, targets)
+        assertThat(accepted).isTrue
+        verify(markerHandler).event(tapPoint, thresholdPx, expectedMap, targets, expectedList)
         verify(lineTarget).points
         verify(lineTarget).canvasX
     }
@@ -145,13 +123,14 @@ class MarkerInteractionTest {
             )
         val targets = withMatchingTargets()
         val expectedMap = mapOf(dataPoint.key to mutableListOf(wiFiDetail1, wiFiDetail2))
-        doReturn(true).whenever(markerHandler).event(tapPoint, expectedThresholdPx, expectedMap, targets)
+        val expectedList = listOf(wiFiDetail1, wiFiDetail2)
+        doReturn(true).whenever(markerHandler).event(tapPoint, thresholdPx, expectedMap, targets, expectedList)
         // Act
         fixture.updatePointMap(entries)
         val accepted = fixture.markerController.shouldAcceptInteraction(Interaction.Tap(tapPoint), targets)
         // Assert
-        assertThat(accepted).isTrue()
-        verify(markerHandler).event(tapPoint, expectedThresholdPx, expectedMap, targets)
+        assertThat(accepted).isTrue
+        verify(markerHandler).event(tapPoint, thresholdPx, expectedMap, targets, expectedList)
         verify(lineTarget).points
         verify(lineTarget).canvasX
     }
@@ -168,13 +147,14 @@ class MarkerInteractionTest {
                 dataPoint1.key to mutableListOf(wiFiDetail1),
                 dataPoint2.key to mutableListOf(wiFiDetail1),
             )
-        doReturn(true).whenever(markerHandler).event(tapPoint, expectedThresholdPx, expectedMap, targets)
+        val expectedList = listOf(wiFiDetail1)
+        doReturn(true).whenever(markerHandler).event(tapPoint, thresholdPx, expectedMap, targets, expectedList)
         // Act
         fixture.updatePointMap(entries)
         val accepted = fixture.markerController.shouldAcceptInteraction(Interaction.Tap(tapPoint), targets)
         // Assert
-        assertThat(accepted).isTrue()
-        verify(markerHandler).event(tapPoint, expectedThresholdPx, expectedMap, targets)
+        assertThat(accepted).isTrue
+        verify(markerHandler).event(tapPoint, thresholdPx, expectedMap, targets, expectedList)
         verify(lineTarget).points
         verify(lineTarget).canvasX
     }
@@ -191,26 +171,28 @@ class MarkerInteractionTest {
             )
         val targets = withMatchingTargets()
         val expectedMap = mapOf(realPoint.key to mutableListOf(wiFiDetail1))
-        doReturn(true).whenever(markerHandler).event(tapPoint, expectedThresholdPx, expectedMap, targets)
+        val expectedList = listOf(wiFiDetail1)
+        doReturn(true).whenever(markerHandler).event(tapPoint, thresholdPx, expectedMap, targets, expectedList)
         // Act
         fixture.updatePointMap(entries)
         val accepted = fixture.markerController.shouldAcceptInteraction(Interaction.Tap(tapPoint), targets)
         // Assert
-        assertThat(accepted).isTrue()
-        verify(markerHandler).event(tapPoint, expectedThresholdPx, expectedMap, targets)
+        assertThat(accepted).isTrue
+        verify(markerHandler).event(tapPoint, thresholdPx, expectedMap, targets, expectedList)
         verify(lineTarget).points
         verify(lineTarget).canvasX
     }
 
     @Test
-    fun pressInteractionDoesNotInvokeMarkerHandlerEvent() {
+    fun pressInteractionInvokesMarkerHandlerEvent() {
         // Arrange
         val targets = withMatchingTargets()
+        doReturn(true).whenever(markerHandler).event(tapPoint, thresholdPx, emptyMap(), targets, emptyList())
         // Act
         val accepted = fixture.markerController.shouldAcceptInteraction(Interaction.Press(tapPoint), targets)
         // Assert
-        assertThat(accepted).isTrue()
-        verify(markerHandler, never()).event(any(), any(), any(), any())
+        assertThat(accepted).isTrue
+        verify(markerHandler).event(tapPoint, thresholdPx, emptyMap(), targets, emptyList())
         verify(lineTarget).points
         verify(lineTarget).canvasX
     }

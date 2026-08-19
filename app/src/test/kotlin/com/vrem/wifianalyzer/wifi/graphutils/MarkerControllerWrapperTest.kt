@@ -17,19 +17,14 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.graphics.Color
 import android.os.Build
+import androidx.compose.ui.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.data.LineCartesianLayerModel
-import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
-import com.patrykandpatrick.vico.views.cartesian.marker.DefaultCartesianMarker
-import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
-import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
-import com.patrykandpatrick.vico.views.common.Fill
-import com.patrykandpatrick.vico.views.common.Point
-import com.patrykandpatrick.vico.views.common.component.ShapeComponent
-import com.patrykandpatrick.vico.views.common.component.TextComponent
-import com.patrykandpatrick.vico.views.common.shape.CorneredShape
+import com.patrykandpatrick.vico.compose.cartesian.data.LineCartesianLayerModel
+import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.marker.Interaction
+import com.patrykandpatrick.vico.compose.cartesian.marker.LineCartesianLayerMarkerTarget
+import com.patrykandpatrick.vico.compose.common.Point
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,26 +33,6 @@ import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
 private const val THRESHOLD_PX = 50f
-
-@RunWith(AndroidJUnit4::class)
-@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
-class CreateMarkerTest {
-    @Test
-    fun createsDefaultCartesianMarker() {
-        // Arrange
-        val expected =
-            DefaultCartesianMarker(
-                label = TextComponent(color = Color.TRANSPARENT, textSizeSp = 0f),
-                indicator = MARKER_INDICATOR,
-            )
-        // Act
-        val actual = createMarker()
-        // Assert
-        assertThat(actual).usingRecursiveComparison().isEqualTo(expected)
-        val expectedIndicator = ShapeComponent(fill = Fill(0xFF0000), shape = CorneredShape.Pill)
-        assertThat(MARKER_INDICATOR(0xFF0000)).usingRecursiveComparison().isEqualTo(expectedIndicator)
-    }
-}
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
@@ -73,7 +48,7 @@ class MarkerControllerWrapperTest {
     @Test
     fun acceptsLongPress() {
         // Act & Assert
-        assertThat(controller.acceptsLongPress).isFalse()
+        assertThat(controller.acceptsLongPress).isFalse
     }
 
     @Test
@@ -81,7 +56,7 @@ class MarkerControllerWrapperTest {
         // Act
         val actual = controller.shouldAcceptInteraction(Interaction.Release(Point(0f, 0f)), emptyList())
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
     }
 
     @Test
@@ -89,7 +64,7 @@ class MarkerControllerWrapperTest {
         // Act
         val actual = controller.shouldAcceptInteraction(Interaction.Move(Point(0f, 0f)), emptyList())
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isTrue
     }
 
     @Test
@@ -97,7 +72,7 @@ class MarkerControllerWrapperTest {
         // Act
         val actual = controller.shouldAcceptInteraction(Interaction.Press(Point(0f, 0f)), emptyList())
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 
     @Test
@@ -107,7 +82,7 @@ class MarkerControllerWrapperTest {
         // Act
         val actual = controller.shouldAcceptInteraction(Interaction.Press(Point(0f, 0f)), listOf(target))
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 
     @Test
@@ -115,8 +90,8 @@ class MarkerControllerWrapperTest {
         // Arrange
         val point = Point(100f, 200f)
         val lineTarget: LineCartesianLayerMarkerTarget = mock()
-        val entry = LineCartesianLayerModel.Entry(1, -50)
-        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, 0)
+        val entry = LineCartesianLayerModel.Entry(1.0, -50.0)
+        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, Color.Black)
         whenever(lineTarget.canvasX).thenReturn(100f)
         whenever(lineTarget.points).thenReturn(listOf(markerPoint))
 
@@ -124,7 +99,7 @@ class MarkerControllerWrapperTest {
         val actual = controller.shouldAcceptInteraction(Interaction.Press(point), listOf(lineTarget))
 
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
         assertThat(capturedInteraction).isEqualTo(Interaction.Press(point))
         assertThat(capturedTargets).isEqualTo(listOf(lineTarget))
     }
@@ -134,8 +109,8 @@ class MarkerControllerWrapperTest {
         // Arrange
         val point = Point(100f, 200f)
         val lineTarget: LineCartesianLayerMarkerTarget = mock()
-        val entry = LineCartesianLayerModel.Entry(1, -50)
-        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, 0)
+        val entry = LineCartesianLayerModel.Entry(1.0, -50.0)
+        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, Color.Black)
         whenever(lineTarget.canvasX).thenReturn(100f)
         whenever(lineTarget.points).thenReturn(listOf(markerPoint))
 
@@ -143,7 +118,7 @@ class MarkerControllerWrapperTest {
         val actual = controller.shouldAcceptInteraction(Interaction.Tap(point), listOf(lineTarget))
 
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
         assertThat(capturedInteraction).isEqualTo(Interaction.Tap(point))
         assertThat(capturedTargets).isEqualTo(listOf(lineTarget))
     }
@@ -153,8 +128,8 @@ class MarkerControllerWrapperTest {
         // Arrange
         val point = Point(100f, 100f)
         val lineTarget: LineCartesianLayerMarkerTarget = mock()
-        val entry = LineCartesianLayerModel.Entry(1, -50)
-        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, 0)
+        val entry = LineCartesianLayerModel.Entry(1.0, -50.0)
+        val markerPoint = LineCartesianLayerMarkerTarget.Point(entry, 200f, Color.Black)
         whenever(lineTarget.canvasX).thenReturn(100f)
         whenever(lineTarget.points).thenReturn(listOf(markerPoint))
 
@@ -162,7 +137,7 @@ class MarkerControllerWrapperTest {
         val actual = controller.shouldAcceptInteraction(Interaction.Press(point), listOf(lineTarget))
 
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 
     @Test
@@ -170,7 +145,7 @@ class MarkerControllerWrapperTest {
         // Act
         val actual = controller.shouldShowMarker(Interaction.Press(Point(0f, 0f)), emptyList())
         // Assert
-        assertThat(actual).isTrue()
+        assertThat(actual).isTrue
     }
 
     @Test
@@ -178,6 +153,6 @@ class MarkerControllerWrapperTest {
         // Act
         val actual = controller.shouldShowMarker(Interaction.Release(Point(0f, 0f)), emptyList())
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 }

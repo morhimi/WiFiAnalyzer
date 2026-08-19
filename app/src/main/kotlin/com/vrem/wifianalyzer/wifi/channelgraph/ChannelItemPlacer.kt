@@ -17,10 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
-import com.patrykandpatrick.vico.views.cartesian.CartesianMeasuringContext
-import com.patrykandpatrick.vico.views.cartesian.axis.HorizontalAxis
-import com.patrykandpatrick.vico.views.cartesian.layer.CartesianLayerDimensions
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.CartesianMeasuringContext
+import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.compose.cartesian.layer.CartesianLayerDimensions
 import com.vrem.wifianalyzer.wifi.band.FREQUENCY_SPREAD
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import kotlin.math.max

@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 
 val signalYAxisFormatter =
     CartesianValueFormatter { _, value, _ ->

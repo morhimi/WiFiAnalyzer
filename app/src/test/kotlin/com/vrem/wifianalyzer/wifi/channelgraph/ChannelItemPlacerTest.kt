@@ -17,10 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
-import com.patrykandpatrick.vico.views.cartesian.CartesianMeasuringContext
-import com.patrykandpatrick.vico.views.cartesian.data.MutableCartesianChartRanges
-import com.patrykandpatrick.vico.views.cartesian.layer.MutableCartesianLayerDimensions
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.CartesianMeasuringContext
+import com.patrykandpatrick.vico.compose.cartesian.data.MutableCartesianChartRanges
+import com.patrykandpatrick.vico.compose.cartesian.layer.MutableCartesianLayerDimensions
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
@@ -162,7 +162,7 @@ class ChannelItemPlacerTest {
         // Act
         val actual = fixture.getShiftExtremeLines(drawingContext)
         // Assert
-        assertThat(actual).isFalse()
+        assertThat(actual).isFalse
     }
 
     private fun stubRanges(

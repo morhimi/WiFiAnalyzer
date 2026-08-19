@@ -18,9 +18,10 @@
 package com.vrem.wifianalyzer.wifi.graphutils
 
 import android.os.Build
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
-import com.patrykandpatrick.vico.views.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,13 +42,13 @@ class LineLayerFactoryTest {
     fun linesMapsSeriesDataToLineProperties() {
         // Arrange
         val seriesData = withSeriesData()
-        val expectedThickness = listOf(THICKNESS_CONNECTED_DP, THICKNESS_REGULAR_DP, THICKNESS_CONNECTED_DP)
+        val expectedThickness = listOf(THICKNESS_CONNECTED_DP.dp, THICKNESS_REGULAR_DP.dp, THICKNESS_CONNECTED_DP.dp)
         // Act
         val actual = fixture.lines(seriesData)
         // Assert
         assertThat(actual).hasSize(3)
         assertThat(
-            actual.map { (it.stroke as LineCartesianLayer.LineStroke.Continuous).thicknessDp },
+            actual.map { (it.stroke as LineCartesianLayer.LineStroke.Continuous).thickness },
         ).containsExactlyElementsOf(expectedThickness)
     }
 

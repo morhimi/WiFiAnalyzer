@@ -17,7 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.timegraph
 
-import com.patrykandpatrick.vico.views.common.data.ExtraStore
+import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.vrem.wifianalyzer.wifi.graphutils.MAX_SCAN_COUNT
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
 import org.assertj.core.api.Assertions.assertThat

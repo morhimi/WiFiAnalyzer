@@ -17,14 +17,18 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.view.View
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.patrykandpatrick.vico.views.cartesian.ScrollHandler
-import com.patrykandpatrick.vico.views.cartesian.Zoom
-import com.patrykandpatrick.vico.views.cartesian.ZoomHandler
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianChartModelProducer
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
-import com.patrykandpatrick.vico.views.cartesian.data.lineModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import com.patrykandpatrick.vico.compose.cartesian.AutoScrollCondition
+import com.patrykandpatrick.vico.compose.cartesian.Scroll
+import com.patrykandpatrick.vico.compose.cartesian.Zoom
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.compose.cartesian.data.lineModel
+import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.compose.common.Fill
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,8 +38,10 @@ import kotlinx.coroutines.launch
 
 data class GraphViewport(
     val rangeProvider: CartesianLayerRangeProvider,
-    val scrollHandler: ScrollHandler,
     val placeholderDataPoints: List<DataPoint>,
+    val scrollEnabled: Boolean = true,
+    val initialScroll: Scroll.Absolute = Scroll.Absolute.Start,
+    val autoScrollCondition: AutoScrollCondition = AutoScrollCondition.Never,
     val initialZoom: Zoom = Zoom.Content,
     val zoomEnabled: Boolean = false,
     val minZoom: Zoom = Zoom.Content,
@@ -47,22 +53,38 @@ private const val ZOOM_MAX: Float = 10f
 
 class GraphWrapper(
     val graphViewport: GraphViewport,
-    val chartView: CartesianChartView,
     val seriesLabel: SeriesLabel,
     private val seriesCache: SeriesCache = SeriesCache(graphViewport.placeholderDataPoints),
-    private val graphColors: GraphColors = GraphColors(chartView.context),
-    onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
+    private val graphColors: GraphColors = GraphColors(),
+    val onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
     private val chartUpdater: ChartUpdater =
-        ChartUpdater(chartView, seriesLabel, seriesCache, onShowWiFiDetails = onShowWiFiDetails),
+        ChartUpdater(seriesLabel, seriesCache, onShowWiFiDetails = onShowWiFiDetails),
 ) {
+    var chartWidth: Float = 0f
+    var chartHeight: Float = 0f
+
+    fun handleTap(
+        x: Float,
+        y: Float,
+    ): Boolean {
+        val details = seriesLabel.findDetailsAt(x, y, chartWidth, chartHeight)
+        if (details.isNotEmpty()) {
+            onShowWiFiDetails(details)
+            return true
+        }
+        return false
+    }
+
     internal val modelProducer: CartesianChartModelProducer = CartesianChartModelProducer()
     internal val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
-    init {
-        chartView.modelProducer = modelProducer
-        chartView.scrollHandler = graphViewport.scrollHandler
-        chartView.zoomHandler = buildZoomHandler()
-    }
+    var isVisible: Boolean by mutableStateOf(true)
+        internal set
+
+    var lines: List<LineCartesianLayer.Line> by mutableStateOf(
+        listOf(LineCartesianLayer.Line(fill = LineCartesianLayer.LineFill.single(Fill(Color.Transparent)))),
+    )
+        internal set
 
     fun removeSeries(newSeries: Set<WiFiDetail>) {
         val removed = seriesCache.remove(differenceSeries(newSeries))
@@ -79,19 +101,7 @@ class GraphWrapper(
     fun reset() {
         removeSeries(emptySet())
         flushData()
-        if (graphViewport.scalable) {
-            chartView.scrollHandler = graphViewport.scrollHandler
-            chartView.zoomHandler = buildZoomHandler()
-        }
     }
-
-    private fun buildZoomHandler(): ZoomHandler =
-        ZoomHandler(
-            zoomEnabled = graphViewport.zoomEnabled,
-            initialZoom = graphViewport.initialZoom,
-            minZoom = graphViewport.minZoom,
-            maxZoom = graphViewport.maxZoom,
-        )
 
     fun differenceSeries(newSeries: Set<WiFiDetail>): List<WiFiDetail> = seriesCache.difference(newSeries)
 
@@ -146,8 +156,10 @@ class GraphWrapper(
     fun flushData() {
         val populatedEntries = seriesCache.populatedEntries()
         if (populatedEntries.isEmpty()) return
-        val existingChart = chartView.chart ?: return
-        val populatedData = chartUpdater.sync(populatedEntries, existingChart, graphViewport.rangeProvider)
+        val (populatedData, updatedLines) = chartUpdater.sync(populatedEntries)
+        if (updatedLines != null) {
+            lines = updatedLines
+        }
         val snapshot = populatedData.toCoordinates()
         coroutineScope.launch {
             modelProducer.runTransaction {
@@ -163,12 +175,15 @@ class GraphWrapper(
     fun newSeries(wiFiDetail: WiFiDetail): Boolean = !seriesExists(wiFiDetail)
 
     fun show() {
-        chartView.visibility = View.VISIBLE
+        isVisible = true
     }
 
     fun gone() {
-        chartView.visibility = View.GONE
+        isVisible = false
     }
+
+    val markerController: MarkerControllerWrapper
+        get() = chartUpdater.markerInteraction.markerController
 
     private fun updateConnectionColor(
         seriesData: SeriesData,

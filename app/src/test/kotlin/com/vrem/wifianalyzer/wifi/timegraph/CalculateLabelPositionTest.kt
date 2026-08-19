@@ -18,11 +18,12 @@
 package com.vrem.wifianalyzer.wifi.timegraph
 
 import android.graphics.Paint
-import android.graphics.RectF
 import android.os.Build
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
-import com.patrykandpatrick.vico.views.cartesian.data.MutableCartesianChartRanges
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.data.MutableCartesianChartRanges
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphColor
 import com.vrem.wifianalyzer.wifi.graphutils.MIN_Y
@@ -43,7 +44,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class CalculateLabelPositionTest {
     private val context: CartesianDrawingContext = mock()
-    private val layerBounds = RectF(0f, 0f, 500f, 200f)
+    private val layerBounds = Rect(0f, 0f, 500f, 200f)
 
     @After
     fun tearDown() {
@@ -88,7 +89,7 @@ class CalculateLabelPositionTest {
         // Act
         val actual = calculateLabelPosition(context, series)!!
         // Assert
-        // canvasX = layerBounds.right - spToPx(2f) = 500 - 4 = 496
+        // canvasX = layerBounds.right - with(density) { 2.dp.toPx() } = 500 - 4 = 496
         assertThat(actual.x).isEqualTo(496f)
         verifyContext()
     }
@@ -141,14 +142,14 @@ class CalculateLabelPositionTest {
         val actual = calculateLabelPosition(context, series)
         // Assert
         // last point has y == -50 which is valid
-        assertThat(actual).isNotNull()
+        assertThat(actual).isNotNull
         verifyContext()
     }
 
     private fun verifyContext() {
         verify(context, atLeastOnce()).ranges
         verify(context, atLeastOnce()).layerBounds
-        verify(context, atLeastOnce()).spToPx(2f)
+        verify(context, atLeastOnce()).density
     }
 
     private fun stubContext() {
@@ -158,7 +159,7 @@ class CalculateLabelPositionTest {
             }
         doReturn(ranges).whenever(context).ranges
         doReturn(layerBounds).whenever(context).layerBounds
-        doReturn(4f).whenever(context).spToPx(2f)
+        doReturn(Density(2f, 1f)).whenever(context).density
     }
 
     private fun withSeriesData(

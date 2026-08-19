@@ -20,8 +20,11 @@ package com.vrem.wifianalyzer.wifi.graphutils
 import android.graphics.Canvas
 import android.graphics.RectF
 import android.os.Build
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -36,28 +39,31 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 
-private const val Y_OFFSET = 8
+private const val Y_OFFSET = 12f
 
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class SeriesLabelTest {
     private val context: CartesianDrawingContext = mock()
-    private val canvas: Canvas = mock()
+    private val nativeCanvas: Canvas = mock()
+    private val composeCanvas: androidx.compose.ui.graphics.Canvas =
+        androidx.compose.ui.graphics
+            .Canvas(nativeCanvas)
     private val calculateLabelPosition: CalculateLabelPosition = mock()
     private val configureLabel: ConfigureLabel = mock()
-    private val layerBounds: RectF = RectF(0f, 0f, 200f, 200f)
+    private val layerBounds = Rect(0f, 0f, 200f, 200f)
 
     private val fixture = SeriesLabel(calculateLabelPosition, configureLabel)
 
     @After
     fun tearDown() {
-        verifyNoMoreInteractions(context, canvas, calculateLabelPosition, configureLabel)
+        verifyNoMoreInteractions(context, nativeCanvas, calculateLabelPosition, configureLabel)
     }
 
     @Test
     fun paintIsAntiAliased() {
         // Assert
-        assertThat(fixture.paint.isAntiAlias).isTrue()
+        assertThat(fixture.paint.isAntiAlias).isTrue
     }
 
     @Test
@@ -65,8 +71,8 @@ class SeriesLabelTest {
         // Act
         fixture.drawOverLayers(context)
         // Assert
-        verify(context, never()).spToPx(any())
-        verify(canvas, never()).drawText(any<String>(), any(), any(), any())
+        verify(context, never()).density
+        verify(nativeCanvas, never()).drawText(any<String>(), any(), any(), any())
     }
 
     @Test
@@ -85,7 +91,7 @@ class SeriesLabelTest {
         verify(configureLabel, never()).invoke(any(), any(), any(), any())
         series.forEach { seriesData ->
             verify(calculateLabelPosition).invoke(context, seriesData)
-            verify(canvas, never()).drawText(eq(seriesData.title), any(), any(), any())
+            verify(nativeCanvas, never()).drawText(eq(seriesData.title), any(), any(), any())
         }
     }
 
@@ -106,8 +112,135 @@ class SeriesLabelTest {
         series.forEach { seriesData ->
             verify(calculateLabelPosition).invoke(context, seriesData)
             verify(configureLabel).invoke(context, labelPosition, seriesData, fixture.paint)
-            verify(canvas).drawText(seriesData.title, labelPosition.x, labelPosition.y - Y_OFFSET, fixture.paint)
+            verify(nativeCanvas).drawText(seriesData.title, labelPosition.x, labelPosition.y - Y_OFFSET, fixture.paint)
         }
+    }
+
+    @Test
+    fun findDetailsAtWhenSeriesEmptyReturnsEmptyList() {
+        // Arrange
+        fixture.seriesSnapshot = emptyList()
+        // Act
+        val actual = fixture.findDetailsAt(100f, 100f)
+        // Assert
+        assertThat(actual).isEmpty()
+    }
+
+    @Test
+    fun findDetailsAtChannelGraphMatchesInRangeWiFiDetail() {
+        // Arrange
+        val wiFiDetail =
+            com.vrem.wifianalyzer.wifi.model.WiFiDetail(
+                wiFiIdentifier =
+                    com.vrem.wifianalyzer.wifi.model
+                        .WiFiIdentifier("SSID1", "00:11:22:33:44:55"),
+                wiFiSignal =
+                    com.vrem.wifianalyzer.wifi.model.WiFiSignal(
+                        2412,
+                        2412,
+                        com.vrem.wifianalyzer.wifi.model.WiFiWidth.MHZ_20,
+                        -50,
+                    ),
+            )
+        val seriesData = SeriesData(wiFiDetail = wiFiDetail, dataPoints = listOf(DataPoint(2412, -50)))
+        fixture.seriesSnapshot = listOf(seriesData)
+        // Act - center of 2400..2500 MHz on a 1000px width chart corresponds to 2412 around x=120px
+        val actual = fixture.findDetailsAt(120f, 400f, chartWidth = 1000f, chartHeight = 800f)
+        // Assert
+        assertThat(actual).containsExactly(wiFiDetail)
+    }
+
+    @Test
+    fun findDetailsAtTimeGraphMatchesNearbyDataPoint() {
+        // Arrange
+        val wiFiDetail =
+            com.vrem.wifianalyzer.wifi.model.WiFiDetail(
+                wiFiIdentifier =
+                    com.vrem.wifianalyzer.wifi.model
+                        .WiFiIdentifier("SSID1", "00:11:22:33:44:55"),
+            )
+        val seriesData = SeriesData(wiFiDetail = wiFiDetail, dataPoints = listOf(DataPoint(2450, -60)))
+        fixture.seriesSnapshot = listOf(seriesData)
+        // Act - at center of chart x=500px, y=400px (dataX=2450, dataY=-60)
+        val actual = fixture.findDetailsAt(500f, 400f, chartWidth = 1000f, chartHeight = 800f)
+        // Assert
+        assertThat(actual).containsExactly(wiFiDetail)
+    }
+
+    @Test
+    fun findDetailsAtOutsideRangeReturnsEmptyList() {
+        // Arrange
+        val wiFiDetail =
+            com.vrem.wifianalyzer.wifi.model.WiFiDetail(
+                wiFiIdentifier =
+                    com.vrem.wifianalyzer.wifi.model
+                        .WiFiIdentifier("SSID1", "00:11:22:33:44:55"),
+                wiFiSignal =
+                    com.vrem.wifianalyzer.wifi.model.WiFiSignal(
+                        2412,
+                        2412,
+                        com.vrem.wifianalyzer.wifi.model.WiFiWidth.MHZ_20,
+                        -50,
+                    ),
+            )
+        val seriesData = SeriesData(wiFiDetail = wiFiDetail, dataPoints = listOf(DataPoint(2412, -50)))
+        fixture.seriesSnapshot = listOf(seriesData)
+        // Act - tap far away at x=900px (around 2490 MHz)
+        val actual = fixture.findDetailsAt(900f, 400f, chartWidth = 1000f, chartHeight = 800f)
+        // Assert
+        assertThat(actual).isEmpty()
+    }
+
+    @Test
+    fun findDetailsAtWithDrawingContext() {
+        // Arrange
+        val ranges =
+            com.patrykandpatrick.vico.compose.cartesian.data
+                .MutableCartesianChartRanges()
+                .apply {
+                    tryUpdate(2400.0, 2500.0, -100.0, -20.0, null)
+                }
+        doReturn(ranges).whenever(context).ranges
+        doReturn(layerBounds).whenever(context).layerBounds
+        fixture.lastDrawingContext = context
+
+        val wiFiDetail =
+            com.vrem.wifianalyzer.wifi.model.WiFiDetail(
+                wiFiIdentifier =
+                    com.vrem.wifianalyzer.wifi.model
+                        .WiFiIdentifier("SSID1", "00:11:22:33:44:55"),
+                wiFiSignal =
+                    com.vrem.wifianalyzer.wifi.model.WiFiSignal(
+                        2412,
+                        2412,
+                        com.vrem.wifianalyzer.wifi.model.WiFiWidth.MHZ_20,
+                        -50,
+                    ),
+            )
+        val seriesData = SeriesData(wiFiDetail = wiFiDetail, dataPoints = listOf(DataPoint(2412, -50)))
+        fixture.seriesSnapshot = listOf(seriesData)
+        // Act - on a 200px width chart, 2412 is around 24px
+        val actual = fixture.findDetailsAt(24f, 100f)
+        // Assert
+        assertThat(actual).containsExactly(wiFiDetail)
+        verify(context, org.mockito.Mockito.atLeastOnce()).ranges
+        verify(context).layerBounds
+    }
+
+    @Test
+    fun findDetailsAtWhenZeroDimensionsReturnsEmptyList() {
+        // Arrange
+        val wiFiDetail =
+            com.vrem.wifianalyzer.wifi.model.WiFiDetail(
+                wiFiIdentifier =
+                    com.vrem.wifianalyzer.wifi.model
+                        .WiFiIdentifier("SSID1", "00:11:22:33:44:55"),
+            )
+        fixture.seriesSnapshot = listOf(SeriesData(wiFiDetail = wiFiDetail, dataPoints = listOf(DataPoint(1, 1))))
+        // Act
+        val actual = fixture.findDetailsAt(100f, 100f, chartWidth = -1f, chartHeight = -1f)
+        // Assert
+        assertThat(actual).isEmpty()
     }
 
     private fun withSeries(): List<SeriesData> =
@@ -118,17 +251,17 @@ class SeriesLabelTest {
         )
 
     private fun verifyContext() {
-        verify(context).spToPx(6f)
+        verify(context).density
         verify(context).canvas
         verify(context).layerBounds
-        verify(canvas).save()
-        verify(canvas).clipRect(layerBounds)
-        verify(canvas).restoreToCount(0)
+        verify(nativeCanvas).save()
+        verify(nativeCanvas).clipRect(RectF(0f, 0f, 200f, 200f))
+        verify(nativeCanvas).restoreToCount(0)
     }
 
     private fun withContext() {
-        doReturn(8f).whenever(context).spToPx(6f)
-        doReturn(canvas).whenever(context).canvas
+        doReturn(Density(2f, 1f)).whenever(context).density
+        doReturn(composeCanvas).whenever(context).canvas
         doReturn(layerBounds).whenever(context).layerBounds
     }
 }

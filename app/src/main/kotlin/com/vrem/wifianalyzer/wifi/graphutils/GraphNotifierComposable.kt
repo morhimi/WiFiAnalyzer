@@ -17,21 +17,18 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import com.patrykandpatrick.vico.compose.cartesian.CartesianMeasuringContext
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
-import org.mockito.kotlin.mock
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.vrem.wifianalyzer.wifi.channelgraph.ChannelGraph
+import com.vrem.wifianalyzer.wifi.channelgraph.Content
+import com.vrem.wifianalyzer.wifi.timegraph.Content
+import com.vrem.wifianalyzer.wifi.timegraph.TimeGraph
 
-class SignalYAxisFormatterTest {
-    private val context: CartesianMeasuringContext = mock()
-
-    private fun format(value: Double): String = signalYAxisFormatter.format(context, value, null).toString()
-
-    @Test
-    fun yAxis() {
-        assertThat(format(MIN_Y.toDouble())).isEqualTo("-100")
-        assertThat(format(MIN_Y + 1.toDouble())).isEqualTo("-99")
-        assertThat(format(MAX_Y.toDouble())).isEqualTo("0")
-        assertThat(format(MAX_Y + 1.toDouble())).isEqualTo("1")
+@Composable
+internal fun GraphNotifier.Content(modifier: Modifier = Modifier) {
+    when (this) {
+        is ChannelGraph -> Content(modifier)
+        is TimeGraph -> Content(modifier)
+        else -> Unit
     }
 }

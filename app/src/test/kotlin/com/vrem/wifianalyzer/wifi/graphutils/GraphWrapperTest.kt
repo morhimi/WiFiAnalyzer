@@ -18,15 +18,10 @@
 package com.vrem.wifianalyzer.wifi.graphutils
 
 import android.os.Build
-import android.view.View
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.CartesianChart
-import com.patrykandpatrick.vico.views.cartesian.CartesianChartView
-import com.patrykandpatrick.vico.views.cartesian.ScrollHandler
-import com.patrykandpatrick.vico.views.cartesian.ZoomHandler
-import com.patrykandpatrick.vico.views.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
+import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
 import com.vrem.wifianalyzer.RobolectricUtil
-import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.model.WiFiAdditional
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -53,11 +48,9 @@ import java.util.AbstractMap.SimpleEntry
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class GraphWrapperTest {
     private val mainActivity = RobolectricUtil.INSTANCE.activity
-    private val chartView: CartesianChartView = mock()
     private val seriesCache: SeriesCache = mock()
     private val seriesLabel: SeriesLabel = mock()
     private val chartUpdater: ChartUpdater = mock()
-    private val chart: CartesianChart = mock()
     private val graphColors: GraphColors = GraphColors(mainActivity)
     private val seriesData: SeriesData = SeriesData()
     private val dataPoint: DataPoint = DataPoint(1, 2)
@@ -66,13 +59,11 @@ class GraphWrapperTest {
     private val graphViewport =
         GraphViewport(
             rangeProvider = rangeProvider,
-            scrollHandler = ScrollHandler(),
             placeholderDataPoints = emptyList(),
         )
     private val fixture =
         GraphWrapper(
             graphViewport = graphViewport,
-            chartView = chartView,
             seriesLabel = seriesLabel,
             seriesCache = seriesCache,
             graphColors = graphColors,
@@ -81,15 +72,10 @@ class GraphWrapperTest {
 
     @After
     fun tearDown() {
-        verify(chartView).modelProducer = fixture.modelProducer
-        verify(chartView).scrollHandler = graphViewport.scrollHandler
-        verify(chartView).zoomHandler = any<ZoomHandler>()
         verifyNoMoreInteractions(
-            chartView,
             seriesCache,
             seriesLabel,
             chartUpdater,
-            chart,
         )
     }
 
@@ -97,12 +83,13 @@ class GraphWrapperTest {
     fun removeSeries() {
         // Arrange
         val newSeries: Set<WiFiDetail> = setOf()
-        val difference: List<WiFiDetail> = listOf()
+        val difference: List<WiFiDetail> = listOf(wiFiDetail)
         val removed = listOf(seriesData)
         val populatedEntries: List<SeriesEntry> = listOf(SimpleEntry(wiFiDetail, seriesData))
         doReturn(difference).whenever(seriesCache).difference(newSeries)
         doReturn(removed).whenever(seriesCache).remove(difference)
         doReturn(populatedEntries).whenever(seriesCache).populatedEntries()
+        doReturn(Pair(listOf(seriesData), null)).whenever(chartUpdater).sync(populatedEntries)
         // Act
         fixture.removeSeries(newSeries)
         // Assert
@@ -111,7 +98,7 @@ class GraphWrapperTest {
         verify(seriesCache, times(2)).populatedEntries()
         verify(chartUpdater).resetStyles()
         verify(chartUpdater).syncPointMap(populatedEntries)
-        verify(chartView).chart
+        verify(chartUpdater).sync(populatedEntries)
     }
 
     @Test
@@ -213,7 +200,7 @@ class GraphWrapperTest {
         // Act
         fixture.show()
         // Assert
-        verify(chartView).visibility = View.VISIBLE
+        assertThat(fixture.isVisible).isTrue
     }
 
     @Test
@@ -221,7 +208,7 @@ class GraphWrapperTest {
         // Act
         fixture.gone()
         // Assert
-        verify(chartView).visibility = View.GONE
+        assertThat(fixture.isVisible).isFalse
     }
 
     @Test
@@ -266,71 +253,6 @@ class GraphWrapperTest {
     }
 
     @Test
-    fun resetScalable() {
-        // Arrange
-        val chartView = GraphBuilder(MAX_Y_DEFAULT, ThemeStyle.DARK).build(mainActivity, true)
-        val viewport =
-            GraphViewport(
-                rangeProvider = rangeProvider,
-                scrollHandler = ScrollHandler(true),
-                placeholderDataPoints = listOf(),
-                scalable = true,
-            )
-        val fixture = GraphWrapper(viewport, chartView, seriesLabel)
-        val zoomHandlerAfterInit = chartView.zoomHandler
-        val externallyAssignedZoomHandler = ZoomHandler()
-        chartView.scrollHandler = ScrollHandler()
-        chartView.zoomHandler = externallyAssignedZoomHandler
-        // Act
-        fixture.reset()
-        // Assert
-        assertThat(chartView.scrollHandler).isEqualTo(viewport.scrollHandler)
-        assertThat(chartView.zoomHandler).isNotEqualTo(externallyAssignedZoomHandler)
-        assertThat(chartView.zoomHandler).isNotEqualTo(zoomHandlerAfterInit)
-    }
-
-    @Test
-    fun resetScalableBuildsFreshZoomHandlerEachInvocation() {
-        // Arrange
-        val chartView = GraphBuilder(MAX_Y_DEFAULT, ThemeStyle.DARK).build(mainActivity, true)
-        val viewport =
-            GraphViewport(
-                rangeProvider = rangeProvider,
-                scrollHandler = ScrollHandler(true),
-                placeholderDataPoints = listOf(),
-                scalable = true,
-            )
-        val fixture = GraphWrapper(viewport, chartView, seriesLabel)
-        val afterInit = chartView.zoomHandler
-        // Act
-        fixture.reset()
-        val afterFirstReset = chartView.zoomHandler
-        fixture.reset()
-        val afterSecondReset = chartView.zoomHandler
-        // Assert
-        assertThat(afterInit).isNotEqualTo(afterFirstReset)
-        assertThat(afterFirstReset).isNotEqualTo(afterSecondReset)
-    }
-
-    @Test
-    fun resetNonScalableDoesNotReassignZoomHandler() {
-        // Arrange
-        val chartView = GraphBuilder(MAX_Y_DEFAULT, ThemeStyle.DARK).build(mainActivity, false)
-        val viewport =
-            GraphViewport(
-                rangeProvider = rangeProvider,
-                scrollHandler = ScrollHandler(),
-                placeholderDataPoints = listOf(),
-            )
-        val fixture = GraphWrapper(viewport, chartView, seriesLabel)
-        val zoomHandlerAfterInit = chartView.zoomHandler
-        // Act
-        fixture.reset()
-        // Assert
-        assertThat(chartView.zoomHandler).isEqualTo(zoomHandlerAfterInit)
-    }
-
-    @Test
     fun flushDataWithEmptySeries() {
         // Arrange
         doReturn(emptyList<SeriesEntry>()).whenever(seriesCache).populatedEntries()
@@ -338,12 +260,11 @@ class GraphWrapperTest {
         fixture.flushData()
         // Assert
         verify(seriesCache).populatedEntries()
-        verify(chartView, never()).chart
-        verify(chartUpdater, never()).sync(any(), any(), any())
+        verify(chartUpdater, never()).sync(any())
     }
 
     @Test
-    fun flushDataWithNoChart() {
+    fun flushDataWithValidDataSyncsLines() {
         // Arrange
         val seriesData =
             SeriesData(
@@ -351,39 +272,17 @@ class GraphWrapperTest {
                 graphColor = GraphColor(0xFF0000, 0x00FF00),
             )
         val entry = SimpleEntry(wiFiDetail, seriesData)
-        doReturn(listOf(entry)).whenever(seriesCache).populatedEntries()
-        doReturn(null).whenever(chartView).chart
-        // Act
-        fixture.flushData()
-        // Assert
-        verify(seriesCache).populatedEntries()
-        verify(chartView).chart
-        verify(chartUpdater, never()).sync(any(), any(), any())
-    }
-
-    @Test
-    fun flushDataWithValidDataSyncsChart() {
-        // Arrange
-        val seriesData =
-            SeriesData(
-                dataPoints = listOf(DataPoint(1, -50)),
-                graphColor = GraphColor(0xFF0000, 0x00FF00),
-            )
-        val entry = SimpleEntry(wiFiDetail, seriesData)
-        val rangeProviderCaptor = argumentCaptor<CartesianLayerRangeProvider>()
         val entries = listOf(entry)
         val series = listOf(seriesData)
+        val mockLines = listOf<LineCartesianLayer.Line>(mock())
         doReturn(entries).whenever(seriesCache).populatedEntries()
-        doReturn(chart).whenever(chartView).chart
-        doReturn(series).whenever(chartUpdater).sync(eq(entries), eq(chart), rangeProviderCaptor.capture())
+        doReturn(Pair(series, mockLines)).whenever(chartUpdater).sync(eq(entries))
         // Act
         fixture.flushData()
         // Assert
-        val rangeProvider = rangeProviderCaptor.firstValue
-        assertThat(rangeProvider).isNotNull
+        assertThat(fixture.lines).isEqualTo(mockLines)
         verify(seriesCache).populatedEntries()
-        verify(chartView).chart
-        verify(chartUpdater).sync(entries, chart, rangeProvider)
+        verify(chartUpdater).sync(entries)
     }
 
     @Test
@@ -476,5 +375,39 @@ class GraphWrapperTest {
         assertThat(actual).isTrue
         assertThat(existingData.dataPoints).hasSize(count + 1)
         verify(seriesCache)[wiFiDetail]
+    }
+
+    @Test
+    fun handleTapInvokesCallbackWhenDetailsFound() {
+        // Arrange
+        var capturedDetails: List<WiFiDetail>? = null
+        val customFixture =
+            GraphWrapper(
+                graphViewport = graphViewport,
+                seriesLabel = seriesLabel,
+                seriesCache = seriesCache,
+                graphColors = graphColors,
+                onShowWiFiDetails = { capturedDetails = it },
+                chartUpdater = chartUpdater,
+            )
+        val expected = listOf(wiFiDetail)
+        doReturn(expected).whenever(seriesLabel).findDetailsAt(100f, 200f, 0f, 0f)
+        // Act
+        val actual = customFixture.handleTap(100f, 200f)
+        // Assert
+        assertThat(actual).isTrue
+        assertThat(capturedDetails).isEqualTo(expected)
+        verify(seriesLabel).findDetailsAt(100f, 200f, 0f, 0f)
+    }
+
+    @Test
+    fun handleTapReturnsFalseWhenNoDetailsFound() {
+        // Arrange
+        doReturn(emptyList<WiFiDetail>()).whenever(seriesLabel).findDetailsAt(100f, 200f, 0f, 0f)
+        // Act
+        val actual = fixture.handleTap(100f, 200f)
+        // Assert
+        assertThat(actual).isFalse
+        verify(seriesLabel).findDetailsAt(100f, 200f, 0f, 0f)
     }
 }

@@ -17,26 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.graphutils
 
-import android.graphics.Color
-import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarker
-import com.patrykandpatrick.vico.views.cartesian.marker.CartesianMarkerController
-import com.patrykandpatrick.vico.views.cartesian.marker.DefaultCartesianMarker
-import com.patrykandpatrick.vico.views.cartesian.marker.Interaction
-import com.patrykandpatrick.vico.views.cartesian.marker.LineCartesianLayerMarkerTarget
-import com.patrykandpatrick.vico.views.common.Fill
-import com.patrykandpatrick.vico.views.common.component.ShapeComponent
-import com.patrykandpatrick.vico.views.common.component.TextComponent
-import com.patrykandpatrick.vico.views.common.shape.CorneredShape
-
-internal val MARKER_INDICATOR: (Int) -> ShapeComponent = { color ->
-    ShapeComponent(fill = Fill(color), shape = CorneredShape.Pill)
-}
-
-internal fun createMarker(): DefaultCartesianMarker =
-    DefaultCartesianMarker(
-        label = TextComponent(color = Color.TRANSPARENT, textSizeSp = 0f),
-        indicator = MARKER_INDICATOR,
-    )
+import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.compose.cartesian.marker.CartesianMarkerController
+import com.patrykandpatrick.vico.compose.cartesian.marker.Interaction
+import com.patrykandpatrick.vico.compose.cartesian.marker.LineCartesianLayerMarkerTarget
 
 class MarkerControllerWrapper(
     private val thresholdPx: Float,
@@ -48,7 +32,9 @@ class MarkerControllerWrapper(
         interaction: Interaction,
         targets: List<CartesianMarker.Target>,
     ): Boolean {
-        if (interaction is Interaction.Release) return true
+        if (interaction is Interaction.Release || interaction is Interaction.Move) {
+            return true
+        }
         if (interaction !is Interaction.Press && interaction !is Interaction.Tap) return false
         val accepted =
             targets

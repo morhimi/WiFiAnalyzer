@@ -20,7 +20,6 @@ package com.vrem.wifianalyzer.wifi.channelgraph
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vrem.wifianalyzer.RobolectricUtil
-import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -33,19 +32,11 @@ class ChannelGraphFactoryTest {
     private val context = RobolectricUtil.INSTANCE.activity
 
     @Test
-    fun makeGraph() {
-        // Act
-        val actual = makeGraph(10, ThemeStyle.DARK, WiFiBand.GHZ2, false, context)
-        // Assert
-        assertThat(actual).isNotNull()
-    }
-
-    @Test
     fun makeGraphWrapper() {
         // Act
         val actual = makeGraphWrapper(WiFiBand.GHZ2, context)
         // Assert
-        assertThat(actual).isNotNull()
+        assertThat(actual).isNotNull
     }
 
     @Test
@@ -53,7 +44,6 @@ class ChannelGraphFactoryTest {
         // Act
         val actual = ChannelGraph(WiFiBand.GHZ2, context)
         // Assert
-        assertThat(actual).isNotNull()
-        assertThat(actual.graph()).isNotNull()
+        assertThat(actual).isNotNull
     }
 }

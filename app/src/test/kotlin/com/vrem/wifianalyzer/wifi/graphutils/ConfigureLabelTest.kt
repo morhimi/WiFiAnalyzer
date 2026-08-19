@@ -20,8 +20,9 @@ package com.vrem.wifianalyzer.wifi.graphutils
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.os.Build
+import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.patrykandpatrick.vico.views.cartesian.CartesianDrawingContext
+import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -49,12 +50,12 @@ class ConfigureLabelTest {
 
     @Before
     fun setUp() {
-        doReturn(20f).whenever(context).spToPx(13f)
+        doReturn(Density(2f, 1f)).whenever(context).density
     }
 
     @After
     fun tearDown() {
-        verify(context).spToPx(13f)
+        verify(context).density
         verifyNoMoreInteractions(context)
     }
 
@@ -79,7 +80,7 @@ class ConfigureLabelTest {
         // Act
         configureLabel(context, position, seriesData, paint)
         // Assert
-        assertThat(paint.textSize).isEqualTo(20f)
+        assertThat(paint.textSize).isEqualTo(26f)
     }
 
     @Test
