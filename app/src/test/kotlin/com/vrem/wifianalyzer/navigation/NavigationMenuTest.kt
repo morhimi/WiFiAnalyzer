@@ -74,6 +74,7 @@ class NavigationMenuTest {
         assertThat(NavigationMenu.CHANNEL_AVAILABLE.screen).isEqualTo(Screen.ChannelAvailable)
         assertThat(NavigationMenu.VENDORS.screen).isEqualTo(Screen.Vendors)
         assertThat(NavigationMenu.SETTINGS.screen).isEqualTo(Screen.Settings)
+        assertThat(NavigationMenu.PING.screen).isEqualTo(Screen.Ping)
         assertThat(NavigationMenu.ABOUT.screen).isEqualTo(Screen.About)
     }
 

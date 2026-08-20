@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ WiFiAnalyzer
+  ~ Copyright (C) 2015 - 2026 VREM Software Development <VREMSoftwareDevelopment@gmail.com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24.0"
+    android:viewportHeight="24.0">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M15.9,5c-0.17,0 -0.32,0.09 -0.4,0.23l-3.35,5.77c-0.08,0.14 -0.08,0.32 0,0.46l3.35,5.77c0.08,0.14 0.23,0.23 0.4,0.23h6.7c0.17,0 0.32,-0.09 0.4,-0.23l3.35,-5.77c0.08,-0.14 0.08,-0.32 0,-0.46l-3.35,-5.77C22.92,5.09 22.77,5 22.6,5h-6.7zM12,13.5c-0.83,0 -1.5,-0.67 -1.5,-1.5s0.67,-1.5 1.5,-1.5 1.5,0.67 1.5,1.5 -0.67,1.5 -1.5,1.5zM2,18l2.25,-2.25C6.18,17.68 8.94,18.5 12,18.5c0.52,0 1.04,-0.02 1.54,-0.07l-1.39,-2.4C12.05,16.01 12.02,16 12,16c-2.45,0 -4.68,-0.74 -6.56,-2.03L3.5,15.91C1.86,14.28 0.86,12.04 0.86,9.58c0,-0.81 0.11,-1.59 0.31,-2.33l2.23,2.23C3.15,10.23 3,11.09 3,12c0,2.15 0.76,4.12 2.03,5.66L2,18zM12,4c2.81,0 5.37,1 7.37,2.69l-1.63,2.81C16.34,8.57 14.28,8 12,8c-1.12,0 -2.18,0.14 -3.19,0.4L6.96,6.55C8.52,5.57 10.2,5 12,4z" />
+</vector>

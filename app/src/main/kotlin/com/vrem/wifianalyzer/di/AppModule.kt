@@ -142,4 +142,13 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFiltersAdapter(settings: Settings): FiltersAdapter = FiltersAdapter(settings)
+
+    @Provides
+    @Singleton
+    fun provideGatewayProvider(
+        connectivityManager: ConnectivityManager,
+        wifiManager: WifiManager,
+    ): com.vrem.wifianalyzer.wifi.gateway.GatewayProvider =
+        com.vrem.wifianalyzer.wifi.gateway
+            .GatewayProvider(connectivityManager, wifiManager)
 }

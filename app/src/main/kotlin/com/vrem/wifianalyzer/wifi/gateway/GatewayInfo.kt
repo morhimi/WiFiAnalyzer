@@ -15,35 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.vrem.wifianalyzer.navigation
+package com.vrem.wifianalyzer.wifi.gateway
 
-import kotlinx.serialization.Serializable
-
-sealed interface Screen {
-    @Serializable
-    data object AccessPoints : Screen
-
-    @Serializable
-    data object ChannelRating : Screen
-
-    @Serializable
-    data object ChannelGraph : Screen
-
-    @Serializable
-    data object TimeGraph : Screen
-
-    @Serializable
-    data object About : Screen
-
-    @Serializable
-    data object Vendors : Screen
-
-    @Serializable
-    data object ChannelAvailable : Screen
-
-    @Serializable
-    data object Settings : Screen
-
-    @Serializable
-    data object Ping : Screen
+data class GatewayInfo(
+    val gatewayIp: String = "",
+    val localIp: String = "",
+    val interfaceName: String = "",
+    val isConnected: Boolean = false,
+    val ssid: String = "",
+    val linkSpeedMbps: Int = 0,
+) {
+    companion object {
+        val EMPTY = GatewayInfo()
+    }
 }

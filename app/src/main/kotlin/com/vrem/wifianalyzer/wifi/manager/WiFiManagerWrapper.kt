@@ -79,7 +79,7 @@ class WiFiManagerWrapper(
     private fun WifiInfo.hasValidDetails(): Boolean {
         val s = ssid?.removeSurrounding("\"")
         val b = bssid
-        val hasSsid = !s.isNullOrEmpty() && s != "<unknown ssid>" && s != WifiManager.UNKNOWN_SSID
+        val hasSsid = !s.isNullOrEmpty() && s != "<unknown ssid>"
         val hasBssid = !b.isNullOrEmpty() && b != "02:00:00:00:00:00" && b != "00:00:00:00:00:00"
         return hasSsid || hasBssid
     }

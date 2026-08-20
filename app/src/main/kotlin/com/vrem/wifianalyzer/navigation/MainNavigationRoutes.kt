@@ -384,3 +384,17 @@ private fun onWriteReview(context: Context) {
         Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
     }
 }
+
+@Composable
+fun PingRoute(
+    modifier: Modifier = Modifier,
+    viewModel: com.vrem.wifianalyzer.wifi.gateway.PingViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    com.vrem.wifianalyzer.wifi.gateway.PingScreen(
+        uiState = uiState,
+        onToggle = viewModel::toggle,
+        onReset = viewModel::reset,
+        modifier = modifier,
+    )
+}

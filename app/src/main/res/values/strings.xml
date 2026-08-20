@@ -42,6 +42,7 @@
     <string name="action_channel_graph">"Channel Graph"</string>
     <string name="action_channel_rating">"Channel Rating"</string>
     <string name="action_export">"Export"</string>
+    <string name="action_ping">"Ping &amp; Jitter"</string>
     <string name="action_settings">"Settings"</string>
     <string name="action_time_graph">"Time Graph"</string>
     <string name="action_vendors">"Vendors"</string>
@@ -214,4 +215,28 @@
     <string name="wifi_width_80mhz" translatable="false">"80 MHz"</string>
     <string name="wifi_width_160mhz" translatable="false">"160 MHz"</string>
     <string name="wifi_width_320mhz" translatable="false">"320 MHz"</string>
+    <string name="ping_gateway_title">"Default Gateway"</string>
+    <string name="ping_latency">"Latency"</string>
+    <string name="ping_jitter">"Jitter"</string>
+    <string name="ping_packet_loss">"Loss"</string>
+    <string name="ping_packets">"Packets"</string>
+    <string name="ping_min">"Min"</string>
+    <string name="ping_avg">"Avg"</string>
+    <string name="ping_max">"Max"</string>
+    <string name="ping_status_idle">"Idle"</string>
+    <string name="ping_status_measuring">"Measuring"</string>
+    <string name="ping_status_paused">"Paused"</string>
+    <string name="ping_quality_excellent">"Excellent"</string>
+    <string name="ping_quality_good">"Good"</string>
+    <string name="ping_quality_fair">"Fair"</string>
+    <string name="ping_quality_poor">"Poor"</string>
+    <string name="ping_quality_unreachable">"Unreachable"</string>
+    <string name="ping_no_gateway">"No active Wi-Fi gateway detected"</string>
+    <string name="ping_start">"Start"</string>
+    <string name="ping_pause">"Pause"</string>
+    <string name="ping_reset">"Reset"</string>
+    <string name="ping_history_title">"Real-Time Latency History"</string>
+    <string name="ping_interface">"Interface"</string>
+    <string name="ping_local_ip">"Local IP"</string>
+    <string name="ping_link_speed">"Link Speed"</string>
 </resources>

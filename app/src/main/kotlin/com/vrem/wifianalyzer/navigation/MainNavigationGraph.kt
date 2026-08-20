@@ -77,5 +77,8 @@ fun MainNavigationGraph(
         composable<Screen.Settings> {
             SettingsRoute()
         }
+        composable<Screen.Ping> {
+            PingRoute()
+        }
     }
 }

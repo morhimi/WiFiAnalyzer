@@ -89,6 +89,11 @@ enum class NavigationMenu(
         icon = R.drawable.ic_settings,
         screen = Screen.Settings,
     ),
+    PING(
+        title = R.string.action_ping,
+        icon = R.drawable.ic_network_check,
+        screen = Screen.Ping,
+    ),
     ABOUT(
         title = R.string.action_about,
         icon = R.drawable.ic_info_outline,
