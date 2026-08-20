@@ -52,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -59,7 +60,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vrem.util.applyLocale
 import com.vrem.util.buildMinVersionQ
+import com.vrem.util.buildMinVersionS
+import com.vrem.util.findByLanguageTag
 import com.vrem.util.supportedLanguages
 import com.vrem.util.toCapitalize
 import com.vrem.util.toLanguageTag
@@ -76,6 +80,7 @@ fun SettingsScreen(
     settings: Settings,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val settingsData by settings.settingsData.collectAsStateWithLifecycle()
 
     var showScanSpeedDialog by remember { mutableStateOf(false) }
@@ -167,6 +172,16 @@ fun SettingsScreen(
                 summary = themeNames.getOrElse(settingsData.themeStyle.ordinal) { "" },
                 onClick = { showThemeDialog = true },
             )
+
+            if (buildMinVersionS()) {
+                SettingsSwitchItem(
+                    icon = painterResource(R.drawable.ic_color_lens),
+                    title = stringResource(R.string.dynamic_color_title),
+                    summary = stringResource(R.string.dynamic_color_summary),
+                    checked = settingsData.dynamicColor,
+                    onCheckedChange = { settings.updateDynamicColor(it) },
+                )
+            }
 
             if (!buildMinVersionQ()) {
                 SettingsSwitchItem(
@@ -368,6 +383,7 @@ fun SettingsScreen(
             selectedCode = toLanguageTag(settingsData.languageLocale),
             onItemSelected = { selected ->
                 settings.updateLanguage(selected.code)
+                applyLocale(context, findByLanguageTag(selected.code))
                 showLanguageDialog = false
             },
             onDismiss = { showLanguageDialog = false },
@@ -459,6 +475,7 @@ private fun SettingsSwitchItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    summary: String = "",
 ) {
     Row(
         modifier =
@@ -475,12 +492,20 @@ private fun SettingsSwitchItem(
             modifier = Modifier.size(24.dp),
         )
         Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f),
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            if (summary.isNotBlank()) {
+                Text(
+                    text = summary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,

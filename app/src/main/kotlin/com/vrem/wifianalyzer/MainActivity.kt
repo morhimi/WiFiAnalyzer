@@ -104,7 +104,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-            WiFiAnalyzerTheme(themeStyle = settingsData.themeStyle, darkTheme = isDark) {
+            WiFiAnalyzerTheme(
+                themeStyle = settingsData.themeStyle,
+                darkTheme = isDark,
+                dynamicColor = settingsData.dynamicColor,
+            ) {
                 val controller = rememberNavController()
                 WiFiAnalyzerApp(navController = controller)
             }

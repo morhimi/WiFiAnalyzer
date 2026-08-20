@@ -85,6 +85,7 @@ class SettingsRepositoryTest {
             assertThat(data.wiFiOffOnExit).isFalse()
             assertThat(data.keepScreenOn).isFalse()
             assertThat(data.themeStyle).isEqualTo(ThemeStyle.DARK)
+            assertThat(data.dynamicColor).isTrue()
             assertThat(data.selectedMenu).isEqualTo(NavigationMenu.ACCESS_POINTS)
             assertThat(data.filterSsids).isEmpty()
             assertThat(data.filterWiFiBands).containsExactlyInAnyOrder(WiFiBand.GHZ2, WiFiBand.GHZ5, WiFiBand.GHZ6)
@@ -194,6 +195,14 @@ class SettingsRepositoryTest {
             fixture.updateTheme(ThemeStyle.LIGHT.ordinal)
             val data = fixture.settingsData.first()
             assertThat(data.themeStyle).isEqualTo(ThemeStyle.LIGHT)
+        }
+
+    @Test
+    fun updateDynamicColorSavesValue() =
+        runTest {
+            fixture.updateDynamicColor(false)
+            val data = fixture.settingsData.first()
+            assertThat(data.dynamicColor).isFalse()
         }
 
     @Test

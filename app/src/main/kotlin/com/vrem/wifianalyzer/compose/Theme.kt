@@ -17,12 +17,16 @@
  */
 package com.vrem.wifianalyzer.compose
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import com.vrem.wifianalyzer.settings.ThemeStyle
 
 private val DarkColorScheme =
@@ -77,14 +81,36 @@ private val LightColorScheme =
 fun WiFiAnalyzerTheme(
     themeStyle: ThemeStyle = ThemeStyle.SYSTEM,
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    val context = LocalContext.current
     val colorScheme =
-        when (themeStyle) {
-            ThemeStyle.BLACK -> BlackColorScheme
-            ThemeStyle.DARK -> DarkColorScheme
-            ThemeStyle.LIGHT -> LightColorScheme
-            ThemeStyle.SYSTEM -> if (darkTheme) DarkColorScheme else LightColorScheme
+        when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                when (themeStyle) {
+                    ThemeStyle.BLACK ->
+                        dynamicDarkColorScheme(context).copy(
+                            background = Color.Black,
+                            surface = Color.Black,
+                        )
+                    ThemeStyle.DARK -> dynamicDarkColorScheme(context)
+                    ThemeStyle.LIGHT -> dynamicLightColorScheme(context)
+                    ThemeStyle.SYSTEM ->
+                        if (darkTheme) {
+                            dynamicDarkColorScheme(context)
+                        } else {
+                            dynamicLightColorScheme(context)
+                        }
+                }
+            }
+            else ->
+                when (themeStyle) {
+                    ThemeStyle.BLACK -> BlackColorScheme
+                    ThemeStyle.DARK -> DarkColorScheme
+                    ThemeStyle.LIGHT -> LightColorScheme
+                    ThemeStyle.SYSTEM -> if (darkTheme) DarkColorScheme else LightColorScheme
+                }
         }
 
     MaterialTheme(

@@ -68,6 +68,7 @@ class SettingsScreenTest {
         composeTestRule.onNode(hasText("Access Point Display") and hasClickAction()).assertExists()
         composeTestRule.onNode(hasText("Graph Maximum Signal Strength") and hasClickAction()).assertExists()
         composeTestRule.onNode(hasText("Theme") and hasClickAction()).assertExists()
+        composeTestRule.onNode(hasText("Dynamic color") and hasClickAction()).assertExists()
         composeTestRule.onNode(hasText("Keep screen on") and hasClickAction()).assertExists()
         composeTestRule.onNode(hasText("Country") and hasClickAction()).assertExists()
         composeTestRule.onNode(hasText("Language") and hasClickAction()).assertExists()
@@ -121,5 +122,23 @@ class SettingsScreenTest {
             composeTestRule.waitForIdle()
 
             verify(settingsRepository).resetToDefaults()
+        }
+
+    @Test
+    fun clickingDynamicColorTogglesSetting() =
+        runTest {
+            composeTestRule.setContent {
+                WiFiAnalyzerTheme {
+                    SettingsScreen(settings = settings)
+                }
+            }
+
+            composeTestRule
+                .onNode(hasText("Dynamic color") and hasClickAction())
+                .performScrollTo()
+                .performClick()
+            composeTestRule.waitForIdle()
+
+            verify(settingsRepository).updateDynamicColor(false)
         }
 }

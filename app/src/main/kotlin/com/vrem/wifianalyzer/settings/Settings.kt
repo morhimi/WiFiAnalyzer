@@ -82,6 +82,8 @@ class Settings(
 
     fun themeStyle(): ThemeStyle = settingsData.value.themeStyle
 
+    fun dynamicColor(): Boolean = settingsData.value.dynamicColor
+
     fun selectedMenu(): NavigationMenu = settingsData.value.selectedMenu
 
     fun findSSIDs(): Set<String> = settingsData.value.filterSsids
@@ -183,6 +185,11 @@ class Settings(
     fun updateTheme(themeStyle: ThemeStyle) {
         _settingsData.update { it.copy(themeStyle = themeStyle) }
         scope.launch { settingsRepository.updateTheme(themeStyle.ordinal) }
+    }
+
+    fun updateDynamicColor(dynamicColor: Boolean) {
+        _settingsData.update { it.copy(dynamicColor = dynamicColor) }
+        scope.launch { settingsRepository.updateDynamicColor(dynamicColor) }
     }
 
     fun reset() {

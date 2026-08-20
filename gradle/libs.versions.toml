@@ -18,6 +18,7 @@ androidx-navigation = "2.9.8"
 androidx-hilt-navigation-compose = "1.4.0"
 androidx-datastore = "1.2.1"
 androidx-activity = "1.13.0"
+androidx-profileinstaller = "1.4.1"
 vico = "3.2.3"
 kotlinx-serialization = "1.8.0"
 
@@ -44,6 +45,7 @@ androidx-annotation = { module = "androidx.annotation:annotation", version.ref =
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-core-splashscreen" }
+androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "androidx-profileinstaller" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
 vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }

@@ -44,6 +44,7 @@ data class SettingsData(
     val wiFiOffOnExit: Boolean = false,
     val keepScreenOn: Boolean = false,
     val themeStyle: ThemeStyle = ThemeStyle.DARK,
+    val dynamicColor: Boolean = true,
     val selectedMenu: NavigationMenu = NavigationMenu.ACCESS_POINTS,
     val filterSsids: Set<String> = emptySet(),
     val filterWiFiBands: Set<WiFiBand> = setOf(WiFiBand.GHZ2, WiFiBand.GHZ5, WiFiBand.GHZ6),

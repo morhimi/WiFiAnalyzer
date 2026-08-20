@@ -17,6 +17,13 @@
  */
 package com.vrem.util
 
+import android.app.LocaleManager
+import android.content.Context
+import android.os.Build
+import android.os.LocaleList
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import java.util.Locale
 import java.util.SortedMap
 
@@ -94,4 +101,25 @@ private fun fromLanguageTag(languageTag: String): Locale {
         2 -> Locale.forLanguageTag("${codes[0]}-${codes[1].toCapitalize(Locale.getDefault())}")
         else -> Locale.getDefault()
     }
+}
+
+fun applyLocale(
+    context: Context,
+    locale: Locale,
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        applyLocaleTiramisu(context, locale)
+    } else {
+        val appLocale = LocaleListCompat.forLanguageTags(locale.toLanguageTag())
+        AppCompatDelegate.setApplicationLocales(appLocale)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private fun applyLocaleTiramisu(
+    context: Context,
+    locale: Locale,
+) {
+    val localeManager = context.getSystemService(LocaleManager::class.java)
+    localeManager?.applicationLocales = LocaleList(locale)
 }

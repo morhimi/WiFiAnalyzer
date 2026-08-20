@@ -17,12 +17,19 @@
  */
 package com.vrem.wifianalyzer.navigation
 
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+
+private const val NAV_ANIMATION_DURATION = 220
 
 @Composable
 fun MainNavigationGraph(
@@ -35,6 +42,10 @@ fun MainNavigationGraph(
         navController = navController,
         startDestination = Screen.AccessPoints,
         modifier = modifier,
+        enterTransition = { fadeIn(animationSpec = tween(NAV_ANIMATION_DURATION, easing = LinearOutSlowInEasing)) },
+        exitTransition = { fadeOut(animationSpec = tween(NAV_ANIMATION_DURATION, easing = FastOutLinearInEasing)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(NAV_ANIMATION_DURATION, easing = LinearOutSlowInEasing)) },
+        popExitTransition = { fadeOut(animationSpec = tween(NAV_ANIMATION_DURATION, easing = FastOutLinearInEasing)) },
     ) {
         composable<Screen.AccessPoints> {
             AccessPointsRoute(onDetailClick = onDetailClick)

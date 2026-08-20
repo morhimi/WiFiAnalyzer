@@ -183,6 +183,9 @@
     <string name="theme_summary" translatable="false">"%s"</string>
     <string name="theme_system">"System"</string>
     <string name="theme_title">"Theme"</string>
+    <string name="dynamic_color_key" translatable="false">"dynamic_color"</string>
+    <string name="dynamic_color_summary">"Use colors from your wallpaper (Android 12+)"</string>
+    <string name="dynamic_color_title">"Dynamic color"</string>
     <string name="throttling_msg">"Android 9 introduced Wi-Fi scan throttling. Android 10 has a new developer option to toggle the throttling off under (Settings - Developer Options - Networking - Wi-Fi scan throttling)."</string>
     <string name="vendor_search_hint" translatable="false">"00:0C:41 CISCO"</string>
     <string name="wifi_band_2ghz" translatable="false">"2.4 GHz"</string>

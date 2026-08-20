@@ -17,13 +17,23 @@
  */
 package com.vrem.util
 
+import android.app.LocaleManager
+import android.content.Context
+import android.os.Build
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import java.util.Locale
 
+@RunWith(AndroidJUnit4::class)
+@Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class LocaleUtilsTest {
+    private val context: Context = ApplicationProvider.getApplicationContext()
     private val currentLocale: Locale = Locale.getDefault()
 
     @Before
@@ -130,5 +140,15 @@ class LocaleUtilsTest {
     @Test
     fun currentDefaultLanguageTag() {
         assertThat(defaultLanguageTag()).isEqualTo(toLanguageTag(Locale.getDefault()))
+    }
+
+    @Test
+    fun applyLocaleAppliesLocaleToManager() {
+        applyLocale(context, SPANISH)
+
+        val localeManager = context.getSystemService(LocaleManager::class.java)
+        val appLocales = localeManager?.applicationLocales
+        assertThat(appLocales).isNotNull
+        assertThat(appLocales?.toLanguageTags()).contains("es")
     }
 }

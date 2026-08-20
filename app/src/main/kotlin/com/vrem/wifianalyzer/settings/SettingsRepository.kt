@@ -68,6 +68,7 @@ class SettingsRepository
         private val wifiOffOnExitKey = booleanPreferencesKey(context.getString(R.string.wifi_off_on_exit_key))
         private val keepScreenOnKey = booleanPreferencesKey(context.getString(R.string.keep_screen_on_key))
         private val themeKey = stringPreferencesKey(context.getString(R.string.theme_key))
+        private val dynamicColorKey = booleanPreferencesKey(context.getString(R.string.dynamic_color_key))
         private val selectedMenuKey = stringPreferencesKey(context.getString(R.string.selected_menu_key))
         private val filterSsidKey = stringSetPreferencesKey(context.getString(R.string.filter_ssid_key))
         private val filterWifiBandKey = stringSetPreferencesKey(context.getString(R.string.filter_wifi_band_key))
@@ -126,6 +127,7 @@ class SettingsRepository
                     preferences[themeKey]?.toIntOrNull() ?: ThemeStyle.DARK.ordinal,
                     ThemeStyle.DARK,
                 )
+            val dynamicColor = preferences[dynamicColorKey] ?: true
             val selectedMenu =
                 findOne(
                     NavigationMenu.entries,
@@ -152,6 +154,7 @@ class SettingsRepository
                 wiFiOffOnExit = wiFiOffOnExit,
                 keepScreenOn = keepScreenOn,
                 themeStyle = themeStyle,
+                dynamicColor = dynamicColor,
                 selectedMenu = selectedMenu,
                 filterSsids = filterSsids,
                 filterWiFiBands = filterWiFiBands,
@@ -210,6 +213,10 @@ class SettingsRepository
 
         suspend fun updateTheme(value: Int) {
             dataStore.edit { preferences -> preferences[themeKey] = value.toString() }
+        }
+
+        suspend fun updateDynamicColor(value: Boolean) {
+            dataStore.edit { preferences -> preferences[dynamicColorKey] = value }
         }
 
         suspend fun updateSelectedMenu(value: Int) {
