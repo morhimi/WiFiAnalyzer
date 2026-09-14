@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -136,13 +137,13 @@ fun ChannelGraphRoute(
     onShowWiFiDetails: (List<WiFiDetail>) -> Unit = { details -> details.firstOrNull()?.let(onDetailClick) },
     wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
+    val currentOnShowWiFiDetails by rememberUpdatedState(onShowWiFiDetails)
 
     val graphAdapter =
         remember {
             val channelGraphs =
                 WiFiBand.entries.map {
-                    ChannelGraph(it, context = context, onShowWiFiDetails = onShowWiFiDetails)
+                    ChannelGraph(it, onShowWiFiDetails = { details -> currentOnShowWiFiDetails(details) })
                 }
             GraphAdapter(channelGraphs)
         }
@@ -189,13 +190,13 @@ fun TimeGraphRoute(
     onShowWiFiDetails: (List<WiFiDetail>) -> Unit = { details -> details.firstOrNull()?.let(onDetailClick) },
     wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
+    val currentOnShowWiFiDetails by rememberUpdatedState(onShowWiFiDetails)
 
     val graphAdapter =
         remember {
             val timeGraphs =
                 WiFiBand.entries.map {
-                    TimeGraph(it, context = context, onShowWiFiDetails = onShowWiFiDetails)
+                    TimeGraph(it, onShowWiFiDetails = { details -> currentOnShowWiFiDetails(details) })
                 }
             GraphAdapter(timeGraphs)
         }

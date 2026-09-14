@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.TextStyle
@@ -53,7 +52,7 @@ internal fun GraphWrapper.Render(
 ) {
     if (!isVisible) return
 
-    val textColor = MaterialTheme.colorScheme.onSurface
+    val textColor = MaterialTheme.colorScheme.onSurfaceVariant
     val labelComponent =
         rememberTextComponent(
             style = TextStyle(color = textColor, fontSize = (12 * TEXT_SIZE_ADJUSTMENT).sp),
@@ -62,8 +61,16 @@ internal fun GraphWrapper.Render(
         rememberTextComponent(
             style = TextStyle(color = textColor, fontSize = (12 * AXIS_TEXT_SIZE_ADJUSTMENT).sp),
         )
-    val guideline = rememberLineComponent(fill = Fill(Color.Gray.copy(alpha = 0.5f)), thickness = 0.5.dp)
-    val axisLine = rememberLineComponent(fill = Fill(Color.Gray), thickness = 1.dp)
+    val guideline =
+        rememberLineComponent(
+            fill = Fill(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+            thickness = 0.5.dp,
+        )
+    val axisLine =
+        rememberLineComponent(
+            fill = Fill(MaterialTheme.colorScheme.outline),
+            thickness = 1.dp,
+        )
 
     val startAxis =
         VerticalAxis.rememberStart(

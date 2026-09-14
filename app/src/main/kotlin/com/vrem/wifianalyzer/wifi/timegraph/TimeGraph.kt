@@ -27,7 +27,6 @@ import com.patrykandpatrick.vico.compose.cartesian.Zoom
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.compose.common.data.ExtraStore
 import com.vrem.wifianalyzer.settings.SettingsData
-import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.graphutils.DataPoint
 import com.vrem.wifianalyzer.wifi.graphutils.GraphColors
@@ -92,9 +91,8 @@ internal fun calculateLabelPosition(
 }
 
 internal fun makeGraphWrapper(
-    context: Context,
+    context: Context? = null,
     graphMaximumY: Int = -20,
-    themeStyle: ThemeStyle = ThemeStyle.DARK,
     onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
 ): GraphWrapper {
     val seriesLabel = SeriesLabel(::calculateLabelPosition)
@@ -122,7 +120,7 @@ internal class TimeGraph(
 ) : GraphNotifier {
     constructor(
         wiFiBand: WiFiBand,
-        context: Context,
+        context: Context? = null,
         onShowWiFiDetails: (List<WiFiDetail>) -> Unit = {},
     ) : this(
         wiFiBand = wiFiBand,

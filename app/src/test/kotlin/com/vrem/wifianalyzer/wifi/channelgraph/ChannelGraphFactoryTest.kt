@@ -40,9 +40,25 @@ class ChannelGraphFactoryTest {
     }
 
     @Test
+    fun makeGraphWrapperWithoutContext() {
+        // Act
+        val actual = makeGraphWrapper(WiFiBand.GHZ2)
+        // Assert
+        assertThat(actual).isNotNull
+    }
+
+    @Test
     fun makeChannelGraph() {
         // Act
         val actual = ChannelGraph(WiFiBand.GHZ2, context)
+        // Assert
+        assertThat(actual).isNotNull
+    }
+
+    @Test
+    fun makeChannelGraphWithoutContext() {
+        // Act
+        val actual = ChannelGraph(WiFiBand.GHZ2)
         // Assert
         assertThat(actual).isNotNull
     }

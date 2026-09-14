@@ -40,9 +40,25 @@ class TimeGraphFactoryTest {
     }
 
     @Test
+    fun makeGraphWrapperWithoutContextShouldNotBeNull() {
+        // Act
+        val actual = makeGraphWrapper()
+        // Assert
+        assertThat(actual).isNotNull
+    }
+
+    @Test
     fun makeTimeGraphShouldNotBeNull() {
         // Act
         val actual = TimeGraph(WiFiBand.GHZ2, context)
+        // Assert
+        assertThat(actual).isNotNull
+    }
+
+    @Test
+    fun makeTimeGraphWithoutContextShouldNotBeNull() {
+        // Act
+        val actual = TimeGraph(WiFiBand.GHZ2)
         // Assert
         assertThat(actual).isNotNull
     }

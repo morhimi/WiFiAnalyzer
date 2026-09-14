@@ -107,9 +107,13 @@ class GraphColorsTest {
     }
 
     @Test
-    fun nullContextReturnsEmptyAndZeroConnectedColor() {
+    fun nullContextUsesDefaultColorsAndConnectedColor() {
         val nullContextColors = GraphColors(null)
-        assertThat(nullContextColors.connectedColor).isEqualTo(GraphColor(0, 0))
+        val defaultColors = GraphColors()
+        assertThat(nullContextColors.connectedColor).isEqualTo(DEFAULT_CONNECTED_COLOR)
+        assertThat(nullContextColors.graphColor()).isEqualTo(DEFAULT_GRAPH_COLORS.first())
+        assertThat(defaultColors.connectedColor).isEqualTo(DEFAULT_CONNECTED_COLOR)
+        assertThat(defaultColors.graphColor()).isEqualTo(DEFAULT_GRAPH_COLORS.first())
         assertThat(fixture.graphColor()).isNotNull()
     }
 
