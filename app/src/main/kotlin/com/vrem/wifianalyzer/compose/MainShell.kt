@@ -17,6 +17,8 @@
  */
 package com.vrem.wifianalyzer.compose
 
+import android.content.ActivityNotFoundException
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -112,7 +114,12 @@ fun WiFiAnalyzerApp(
                 ),
         ) { uri ->
             uri?.let {
-                mainViewModel.saveExportToFile(context, it, pendingExportFormat)
+                val success = mainViewModel.saveExportToFile(context, it, pendingExportFormat)
+                if (success) {
+                    Toast.makeText(context, R.string.export_save_success, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, R.string.export_save_failed, Toast.LENGTH_LONG).show()
+                }
             }
         }
 
@@ -120,7 +127,18 @@ fun WiFiAnalyzerApp(
         com.vrem.wifianalyzer.export.ExportDialog(
             onDismiss = { showExportDialog = false },
             onShare = { format ->
-                mainViewModel.shareExport(context, format)
+                val intent = mainViewModel.exportIntent(context, format)
+                if (intent == null) {
+                    Toast.makeText(context, R.string.no_data, Toast.LENGTH_LONG).show()
+                } else {
+                    try {
+                        context.startActivity(intent)
+                    } catch (_: ActivityNotFoundException) {
+                        Toast.makeText(context, R.string.export_not_available, Toast.LENGTH_LONG).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, e.localizedMessage, Toast.LENGTH_LONG).show()
+                    }
+                }
             },
             onSaveToFile = { format ->
                 pendingExportFormat = format

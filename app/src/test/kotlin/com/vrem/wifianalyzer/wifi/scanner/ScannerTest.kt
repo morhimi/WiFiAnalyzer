@@ -23,7 +23,6 @@ import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -41,14 +40,16 @@ class ScannerTest {
     private val permissionService: PermissionService = mock()
     private val wiFiData: WiFiData = mock()
     private val periodicScan: PeriodicScan = mock()
-    private val fixture = Scanner(wiFiManagerWrapper, settings, permissionService, transformer)
-
-    @Before
-    fun setUp() {
-        fixture.periodicScan = periodicScan
-        fixture.scanResultsReceiver = scanResultsReceiver
-        fixture.scannerCallback = scannerCallback
-    }
+    private val fixture =
+        Scanner(
+            wiFiManagerWrapper = wiFiManagerWrapper,
+            settings = settings,
+            permissionService = permissionService,
+            transformer = transformer,
+            scanResultsReceiver = scanResultsReceiver,
+            scannerCallback = scannerCallback,
+            periodicScan = periodicScan,
+        )
 
     @After
     fun tearDown() {
@@ -172,10 +173,17 @@ class ScannerTest {
     fun updateRefreshesCacheWiFiInfoWhenCacheProvided() {
         val cache: Cache = mock()
         val wifiInfo: android.net.wifi.WifiInfo = mock()
-        val scanner = Scanner(wiFiManagerWrapper, settings, permissionService, transformer, cache)
-        scanner.periodicScan = periodicScan
-        scanner.scanResultsReceiver = scanResultsReceiver
-        scanner.scannerCallback = scannerCallback
+        val scanner =
+            Scanner(
+                wiFiManagerWrapper = wiFiManagerWrapper,
+                settings = settings,
+                permissionService = permissionService,
+                transformer = transformer,
+                cache = cache,
+                scanResultsReceiver = scanResultsReceiver,
+                scannerCallback = scannerCallback,
+                periodicScan = periodicScan,
+            )
         whenever(transformer.transformToWiFiData()).thenReturn(wiFiData)
         whenever(permissionService.enabled()).thenReturn(true)
         whenever(wiFiManagerWrapper.wiFiInfo()).thenReturn(wifiInfo)
@@ -196,7 +204,6 @@ class ScannerTest {
     @Test
     fun toggleWhenRunning() {
         // setup
-        fixture.periodicScan = periodicScan
         whenever(periodicScan.running).thenReturn(true)
         // execute
         fixture.toggle()
@@ -209,7 +216,6 @@ class ScannerTest {
     @Test
     fun toggleWhenNotRunning() {
         // setup
-        fixture.periodicScan = periodicScan
         whenever(periodicScan.running).thenReturn(false)
         // execute
         fixture.toggle()

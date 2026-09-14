@@ -17,11 +17,10 @@
  */
 package com.vrem.wifianalyzer.compose
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.widget.Toast
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.ViewModel
-import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.export.Export
 import com.vrem.wifianalyzer.export.ExportFormat
 import com.vrem.wifianalyzer.settings.Settings
@@ -67,51 +66,21 @@ class MainViewModel
             scannerService.update()
         }
 
-        fun export(
+        fun exportIntent(
             context: Context,
             format: ExportFormat = ExportFormat.CSV,
-        ) = shareExport(context, format)
-
-        fun shareExport(
-            context: Context,
-            format: ExportFormat,
-        ) {
+        ): Intent? {
             val wiFiDetails = scannerService.wiFiData().wiFiDetails
-            if (wiFiDetails.isEmpty()) {
-                Toast.makeText(context, R.string.no_data, Toast.LENGTH_LONG).show()
-                return
-            }
-            val intent = export.export(context, wiFiDetails, format)
-            try {
-                context.startActivity(intent)
-            } catch (_: ActivityNotFoundException) {
-                Toast.makeText(context, R.string.export_not_available, Toast.LENGTH_LONG).show()
-            } catch (e: Exception) {
-                Toast.makeText(context, e.localizedMessage, Toast.LENGTH_LONG).show()
-            }
+            if (wiFiDetails.isEmpty()) return null
+            return export.export(context, wiFiDetails, format)
         }
 
         fun saveExportToFile(
             context: Context,
-            uri: android.net.Uri,
+            uri: Uri,
             format: ExportFormat,
         ): Boolean {
             val wiFiDetails = scannerService.wiFiData().wiFiDetails
-            if (wiFiDetails.isEmpty()) {
-                Toast.makeText(context, R.string.no_data, Toast.LENGTH_LONG).show()
-                return false
-            }
-            return try {
-                val data = export.data(context, wiFiDetails, format)
-                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                    outputStream.write(data.toByteArray(Charsets.UTF_8))
-                }
-                Toast.makeText(context, R.string.export_save_success, Toast.LENGTH_SHORT).show()
-                true
-            } catch (e: Exception) {
-                val errorMsg = context.getString(R.string.export_save_failed) + ": " + (e.localizedMessage ?: "")
-                Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
-                false
-            }
+            return export.saveToUri(context, uri, wiFiDetails, format)
         }
     }

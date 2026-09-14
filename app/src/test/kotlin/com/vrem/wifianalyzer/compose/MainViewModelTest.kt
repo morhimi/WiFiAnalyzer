@@ -17,7 +17,6 @@
  */
 package com.vrem.wifianalyzer.compose
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -42,10 +41,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
-import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -150,15 +147,16 @@ class MainViewModelTest {
     }
 
     @Test
-    fun shouldExportWhenNoData() {
+    fun shouldExportIntentWhenNoData() {
         // arrange
         val context = ApplicationProvider.getApplicationContext<Context>()
         doReturn(WiFiData.EMPTY).whenever(scannerService).wiFiData()
 
         // execute
-        fixture.export(context)
+        val actual = fixture.exportIntent(context)
 
         // verify
+        assertThat(actual).isNull()
         verify(scannerService).wiFiData()
         verify(
             export,
@@ -172,10 +170,9 @@ class MainViewModelTest {
     }
 
     @Test
-    fun shouldShareExportWhenDataAvailable() {
+    fun shouldExportIntentWhenDataAvailable() {
         // arrange
-        val baseContext = ApplicationProvider.getApplicationContext<Context>()
-        val context = spy(baseContext)
+        val context = ApplicationProvider.getApplicationContext<Context>()
         val wiFiDetail =
             WiFiDetail(
                 wiFiIdentifier = WiFiIdentifier("SSID", "00:11:22:33:44:55"),
@@ -196,9 +193,10 @@ class MainViewModelTest {
         )
 
         // execute
-        fixture.export(context)
+        val actual = fixture.exportIntent(context)
 
         // verify
+        assertThat(actual).isEqualTo(intent)
         verify(scannerService).wiFiData()
         verify(
             export,
@@ -208,89 +206,6 @@ class MainViewModelTest {
             org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.CSV),
             any<java.util.Date>(),
         )
-        verify(context).startActivity(intent)
-    }
-
-    @Test
-    fun shouldHandleActivityNotFoundExceptionOnShareExport() {
-        // arrange
-        val baseContext = ApplicationProvider.getApplicationContext<Context>()
-        val context = spy(baseContext)
-        val wiFiDetail =
-            WiFiDetail(
-                wiFiIdentifier = WiFiIdentifier("SSID", "00:11:22:33:44:55"),
-                wiFiSignal = WiFiSignal(2412, 2412, WiFiWidth.MHZ_20, -50),
-            )
-        val wiFiData = WiFiData(listOf(wiFiDetail), com.vrem.wifianalyzer.wifi.model.WiFiConnection.EMPTY)
-        val intent: Intent = mock()
-        doReturn(wiFiData).whenever(scannerService).wiFiData()
-        doReturn(
-            intent,
-        ).whenever(
-            export,
-        ).export(
-            org.mockito.kotlin.eq(context),
-            org.mockito.kotlin.eq(wiFiData.wiFiDetails),
-            org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.JSON),
-            any<java.util.Date>(),
-        )
-        doThrow(ActivityNotFoundException()).whenever(context).startActivity(intent)
-
-        // execute
-        fixture.shareExport(context, com.vrem.wifianalyzer.export.ExportFormat.JSON)
-
-        // verify
-        verify(scannerService).wiFiData()
-        verify(
-            export,
-        ).export(
-            org.mockito.kotlin.eq(context),
-            org.mockito.kotlin.eq(wiFiData.wiFiDetails),
-            org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.JSON),
-            any<java.util.Date>(),
-        )
-        verify(context).startActivity(intent)
-    }
-
-    @Test
-    fun shouldHandleGenericExceptionOnShareExport() {
-        // arrange
-        val baseContext = ApplicationProvider.getApplicationContext<Context>()
-        val context = spy(baseContext)
-        val wiFiDetail =
-            WiFiDetail(
-                wiFiIdentifier = WiFiIdentifier("SSID", "00:11:22:33:44:55"),
-                wiFiSignal = WiFiSignal(2412, 2412, WiFiWidth.MHZ_20, -50),
-            )
-        val wiFiData = WiFiData(listOf(wiFiDetail), com.vrem.wifianalyzer.wifi.model.WiFiConnection.EMPTY)
-        val intent: Intent = mock()
-        doReturn(wiFiData).whenever(scannerService).wiFiData()
-        doReturn(
-            intent,
-        ).whenever(
-            export,
-        ).export(
-            org.mockito.kotlin.eq(context),
-            org.mockito.kotlin.eq(wiFiData.wiFiDetails),
-            org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.TEXT),
-            any<java.util.Date>(),
-        )
-        doThrow(RuntimeException("Export error")).whenever(context).startActivity(intent)
-
-        // execute
-        fixture.shareExport(context, com.vrem.wifianalyzer.export.ExportFormat.TEXT)
-
-        // verify
-        verify(scannerService).wiFiData()
-        verify(
-            export,
-        ).export(
-            org.mockito.kotlin.eq(context),
-            org.mockito.kotlin.eq(wiFiData.wiFiDetails),
-            org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.TEXT),
-            any<java.util.Date>(),
-        )
-        verify(context).startActivity(intent)
     }
 
     @Test
@@ -299,6 +214,12 @@ class MainViewModelTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val uri = android.net.Uri.parse("content://test/file.csv")
         doReturn(WiFiData.EMPTY).whenever(scannerService).wiFiData()
+        doReturn(false).whenever(export).saveToUri(
+            context,
+            uri,
+            emptyList(),
+            com.vrem.wifianalyzer.export.ExportFormat.CSV,
+        )
 
         // execute
         val actual = fixture.saveExportToFile(context, uri, com.vrem.wifianalyzer.export.ExportFormat.CSV)
@@ -306,24 +227,13 @@ class MainViewModelTest {
         // verify
         assertThat(actual).isFalse()
         verify(scannerService).wiFiData()
-        verify(
-            export,
-            never(),
-        ).data(
-            any<Context>(),
-            any<List<WiFiDetail>>(),
-            any<com.vrem.wifianalyzer.export.ExportFormat>(),
-            any<java.util.Date>(),
-        )
+        verify(export).saveToUri(context, uri, emptyList(), com.vrem.wifianalyzer.export.ExportFormat.CSV)
     }
 
     @Test
     fun shouldSaveExportToFileSuccessfully() {
         // arrange
-        val baseContext = ApplicationProvider.getApplicationContext<Context>()
-        val context = spy(baseContext)
-        val contentResolver: android.content.ContentResolver = mock()
-        val outputStream = java.io.ByteArrayOutputStream()
+        val context = ApplicationProvider.getApplicationContext<Context>()
         val uri = android.net.Uri.parse("content://test/file.csv")
         val wiFiDetail =
             WiFiDetail(
@@ -332,78 +242,19 @@ class MainViewModelTest {
             )
         val wiFiData = WiFiData(listOf(wiFiDetail), com.vrem.wifianalyzer.wifi.model.WiFiConnection.EMPTY)
         doReturn(wiFiData).whenever(scannerService).wiFiData()
-        doReturn(
-            "test csv data",
-        ).whenever(
-            export,
-        ).data(
-            org.mockito.kotlin.eq(context),
-            org.mockito.kotlin.eq(wiFiData.wiFiDetails),
-            org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.CSV),
-            any<java.util.Date>(),
+        doReturn(true).whenever(export).saveToUri(
+            context,
+            uri,
+            wiFiData.wiFiDetails,
+            com.vrem.wifianalyzer.export.ExportFormat.CSV,
         )
-        doReturn(contentResolver).whenever(context).contentResolver
-        whenever(contentResolver.openOutputStream(uri)).thenReturn(outputStream)
 
         // execute
         val actual = fixture.saveExportToFile(context, uri, com.vrem.wifianalyzer.export.ExportFormat.CSV)
 
         // verify
         assertThat(actual).isTrue()
-        assertThat(outputStream.toString(Charsets.UTF_8.name())).isEqualTo("test csv data")
         verify(scannerService).wiFiData()
-        verify(
-            export,
-        ).data(
-            org.mockito.kotlin.eq(context),
-            org.mockito.kotlin.eq(wiFiData.wiFiDetails),
-            org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.CSV),
-            any<java.util.Date>(),
-        )
-        verify(contentResolver).openOutputStream(uri)
-    }
-
-    @Test
-    fun shouldHandleSaveExportToFileExceptionReturnsFalse() {
-        // arrange
-        val baseContext = ApplicationProvider.getApplicationContext<Context>()
-        val context = spy(baseContext)
-        val contentResolver: android.content.ContentResolver = mock()
-        val uri = android.net.Uri.parse("content://test/file.csv")
-        val wiFiDetail =
-            WiFiDetail(
-                wiFiIdentifier = WiFiIdentifier("SSID", "00:11:22:33:44:55"),
-                wiFiSignal = WiFiSignal(2412, 2412, WiFiWidth.MHZ_20, -50),
-            )
-        val wiFiData = WiFiData(listOf(wiFiDetail), com.vrem.wifianalyzer.wifi.model.WiFiConnection.EMPTY)
-        doReturn(wiFiData).whenever(scannerService).wiFiData()
-        doReturn(
-            "test csv data",
-        ).whenever(
-            export,
-        ).data(
-            org.mockito.kotlin.eq(context),
-            org.mockito.kotlin.eq(wiFiData.wiFiDetails),
-            org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.CSV),
-            any<java.util.Date>(),
-        )
-        doReturn(contentResolver).whenever(context).contentResolver
-        whenever(contentResolver.openOutputStream(uri)).thenThrow(RuntimeException("IO error"))
-
-        // execute
-        val actual = fixture.saveExportToFile(context, uri, com.vrem.wifianalyzer.export.ExportFormat.CSV)
-
-        // verify
-        assertThat(actual).isFalse()
-        verify(scannerService).wiFiData()
-        verify(
-            export,
-        ).data(
-            org.mockito.kotlin.eq(context),
-            org.mockito.kotlin.eq(wiFiData.wiFiDetails),
-            org.mockito.kotlin.eq(com.vrem.wifianalyzer.export.ExportFormat.CSV),
-            any<java.util.Date>(),
-        )
-        verify(contentResolver).openOutputStream(uri)
+        verify(export).saveToUri(context, uri, wiFiData.wiFiDetails, com.vrem.wifianalyzer.export.ExportFormat.CSV)
     }
 }

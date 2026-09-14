@@ -370,4 +370,57 @@ class ExportTest {
         val wiFiAdditional = WiFiAdditional("Vendor$offset")
         return WiFiDetail(wiFiIdentifier, wiFiSecurity, wiFiSignal, wiFiAdditional)
     }
+
+    @Test
+    fun saveToUriWhenEmptyReturnsFalse() {
+        val uri = android.net.Uri.parse("content://test/export.csv")
+        val actual = fixture.saveToUri(context, uri, emptyList(), ExportFormat.CSV)
+        assertThat(actual).isFalse()
+    }
+
+    @Test
+    fun saveToUriWhenSuccessfulWritesData() {
+        val uri = android.net.Uri.parse("content://test/export.csv")
+        val wiFiDetails = withWiFiDetails()
+        val count = wiFiDetails.size
+        val contentResolver: android.content.ContentResolver = mock()
+        val outputStream = java.io.ByteArrayOutputStream()
+
+        doReturn("802.11AC").whenever(context).getString(WiFiStandard.AC.fullResource)
+        doReturn("802.11R").whenever(context).getString(FastRoaming.FR_802_11R.textResource)
+        doReturn(contentResolver).whenever(context).contentResolver
+        whenever(contentResolver.openOutputStream(uri)).thenReturn(outputStream)
+
+        val actual = fixture.saveToUri(context, uri, wiFiDetails, ExportFormat.CSV)
+
+        assertThat(actual).isTrue()
+        assertThat(outputStream.toString(Charsets.UTF_8.name())).isNotEmpty()
+        verify(context, times(count)).getString(WiFiStandard.AC.fullResource)
+        verify(context, times(count)).getString(FastRoaming.FR_802_11R.textResource)
+        verify(context).contentResolver
+        verify(contentResolver).openOutputStream(uri)
+        verifyNoMoreInteractions(contentResolver)
+    }
+
+    @Test
+    fun saveToUriWhenExceptionReturnsFalse() {
+        val uri = android.net.Uri.parse("content://test/export.csv")
+        val wiFiDetails = withWiFiDetails()
+        val count = wiFiDetails.size
+        val contentResolver: android.content.ContentResolver = mock()
+
+        doReturn("802.11AC").whenever(context).getString(WiFiStandard.AC.fullResource)
+        doReturn("802.11R").whenever(context).getString(FastRoaming.FR_802_11R.textResource)
+        doReturn(contentResolver).whenever(context).contentResolver
+        whenever(contentResolver.openOutputStream(uri)).thenThrow(RuntimeException("IO error"))
+
+        val actual = fixture.saveToUri(context, uri, wiFiDetails, ExportFormat.CSV)
+
+        assertThat(actual).isFalse()
+        verify(context, times(count)).getString(WiFiStandard.AC.fullResource)
+        verify(context, times(count)).getString(FastRoaming.FR_802_11R.textResource)
+        verify(context).contentResolver
+        verify(contentResolver).openOutputStream(uri)
+        verifyNoMoreInteractions(contentResolver)
+    }
 }

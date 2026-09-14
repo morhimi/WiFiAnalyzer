@@ -115,6 +115,22 @@ class Export
             return "$appName-$formattedDate.${format.extension}"
         }
 
+        fun saveToUri(
+            context: Context,
+            uri: android.net.Uri,
+            wiFiDetails: List<WiFiDetail>,
+            format: ExportFormat,
+        ): Boolean {
+            if (wiFiDetails.isEmpty()) return false
+            return runCatching {
+                val data = data(context, wiFiDetails, format)
+                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(data.toByteArray(Charsets.UTF_8))
+                }
+                true
+            }.getOrDefault(false)
+        }
+
         internal fun title(
             context: Context,
             timestamp: String,

@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 internal class PeriodicScan(
     private val scanner: ScannerService,
     private val settings: Settings,
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) {
     private var job: Job? = null

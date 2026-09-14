@@ -45,7 +45,11 @@ class ChannelRatingScreenTest {
         val channel1 = WiFiChannel(1, 2412)
         val channel6 = WiFiChannel(6, 2437)
         val wiFiChannels = listOf(channel1, channel6)
-        val bestChannels = listOf(ChannelAPCount(channel1, WiFiWidth.MHZ_20, 0), ChannelAPCount(channel6, WiFiWidth.MHZ_20, 1))
+        val bestChannels =
+            listOf(
+                ChannelAPCount(channel1, WiFiWidth.MHZ_20, 0),
+                ChannelAPCount(channel6, WiFiWidth.MHZ_20, 1),
+            )
         val channelRating = ChannelRating()
 
         composeTestRule.setContent {

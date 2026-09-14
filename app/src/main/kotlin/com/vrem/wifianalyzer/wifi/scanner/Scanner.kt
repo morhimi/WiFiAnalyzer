@@ -31,6 +31,9 @@ internal class Scanner(
     val permissionService: PermissionService,
     val transformer: Transformer,
     val cache: Cache? = null,
+    val scanResultsReceiver: ScanResultsReceiver,
+    val scannerCallback: Callback,
+    periodicScan: PeriodicScan? = null,
 ) : ScannerService {
     private val _runningFlow = MutableStateFlow(false)
     override val runningFlow: StateFlow<Boolean> = _runningFlow.asStateFlow()
@@ -41,9 +44,7 @@ internal class Scanner(
     private var wiFiData: WiFiData = WiFiData.EMPTY
     private var initialScan: Boolean = false
 
-    lateinit var periodicScan: PeriodicScan
-    lateinit var scannerCallback: ScannerCallback
-    lateinit var scanResultsReceiver: ScanResultsReceiver
+    val periodicScan: PeriodicScan = periodicScan ?: PeriodicScan(this, settings)
 
     override fun update() {
         wiFiManagerWrapper.enableWiFi()

@@ -57,11 +57,7 @@ import com.vrem.wifianalyzer.wifi.channelgraph.ChannelGraph
 import com.vrem.wifianalyzer.wifi.channelrating.ChannelRatingScreen
 import com.vrem.wifianalyzer.wifi.graphutils.GraphAdapter
 import com.vrem.wifianalyzer.wifi.graphutils.WiFiGraphScreen
-import com.vrem.wifianalyzer.wifi.model.ChannelRating
-import com.vrem.wifianalyzer.wifi.model.SortBy
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
-import com.vrem.wifianalyzer.wifi.predicate.makeAccessPointsPredicate
-import com.vrem.wifianalyzer.wifi.predicate.predicate
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import com.vrem.wifianalyzer.wifi.timegraph.TimeGraph
 import kotlinx.coroutines.delay
@@ -73,36 +69,21 @@ fun AccessPointsRoute(
     onDetailClick: (WiFiDetail) -> Unit,
     wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
-    val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
-    val isScanning by wiFiScanViewModel.isScanning.collectAsStateWithLifecycle()
-    val wiFiManagerWrapper = wiFiScanViewModel.wiFiManagerWrapper
-    val permissionService = wiFiScanViewModel.permissionService
-
-    val wiFiDetails =
-        remember(wiFiData, settingsData) {
-            wiFiData.wiFiDetails(
-                makeAccessPointsPredicate(settingsData),
-                settingsData.sortBy,
-                settingsData.groupBy,
-            )
-        }
-
-    val wiFiBand = settingsData.wiFiBand
+    val uiState by wiFiScanViewModel.accessPointsUiState.collectAsStateWithLifecycle()
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     AccessPointsScreen(
-        wiFiData = wiFiData,
-        wiFiDetails = wiFiDetails,
-        viewType = settingsData.accessPointView,
-        wiFiBandAvailable = wiFiBand.available(wiFiManagerWrapper),
-        wiFiBandName = stringResource(wiFiBand.textResource),
-        scanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
-        permissionEnabled = permissionService.enabled(),
-        isScanning = isScanning,
+        wiFiData = uiState.wiFiData,
+        wiFiDetails = uiState.wiFiDetails,
+        viewType = uiState.viewType,
+        wiFiBandAvailable = uiState.wiFiBandAvailable,
+        wiFiBandName = stringResource(uiState.wiFiBand.textResource),
+        scanThrottleEnabled = uiState.scanThrottleEnabled,
+        permissionEnabled = uiState.permissionEnabled,
+        isScanning = uiState.isScanning,
         isRefreshing = isRefreshing,
-        connectionViewType = settingsData.connectionViewType,
+        connectionViewType = uiState.connectionViewType,
         onRefresh = {
             scope.launch {
                 isRefreshing = true
@@ -120,51 +101,23 @@ fun ChannelRatingRoute(
     onDetailClick: (WiFiDetail) -> Unit,
     wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
-    val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
-    val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
-    val isScanning by wiFiScanViewModel.isScanning.collectAsStateWithLifecycle()
-    val wiFiManagerWrapper = wiFiScanViewModel.wiFiManagerWrapper
-    val permissionService = wiFiScanViewModel.permissionService
-
-    val wiFiBand = settingsData.wiFiBand
-    val countryCode = settingsData.countryCode
-    val channelRating = remember { ChannelRating() }
-
-    val wiFiChannels =
-        remember(wiFiBand, countryCode) {
-            wiFiBand.wiFiChannels.availableChannels(wiFiBand, countryCode)
-        }
-
-    val bestChannels =
-        remember(wiFiData, wiFiBand, wiFiChannels, channelRating) {
-            channelRating.wiFiDetails(
-                wiFiData.wiFiDetails(
-                    wiFiBand.predicate(),
-                    SortBy.STRENGTH,
-                ),
-            )
-            channelRating.bestChannels(
-                wiFiBand,
-                wiFiChannels,
-            )
-        }
-
+    val uiState by wiFiScanViewModel.channelRatingUiState.collectAsStateWithLifecycle()
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     ChannelRatingScreen(
-        wiFiData = wiFiData,
-        wiFiBand = wiFiBand,
-        wiFiChannels = wiFiChannels,
-        bestChannels = bestChannels,
-        channelRating = channelRating,
-        wiFiBandAvailable = wiFiBand.available(wiFiManagerWrapper),
-        wiFiBandName = stringResource(wiFiBand.textResource),
-        scanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
-        permissionEnabled = permissionService.enabled(),
-        isScanning = isScanning,
+        wiFiData = uiState.wiFiData,
+        wiFiBand = uiState.wiFiBand,
+        wiFiChannels = uiState.wiFiChannels,
+        bestChannels = uiState.bestChannels,
+        channelRating = uiState.channelRating,
+        wiFiBandAvailable = uiState.wiFiBandAvailable,
+        wiFiBandName = stringResource(uiState.wiFiBand.textResource),
+        scanThrottleEnabled = uiState.scanThrottleEnabled,
+        permissionEnabled = uiState.permissionEnabled,
+        isScanning = uiState.isScanning,
         isRefreshing = isRefreshing,
-        connectionViewType = settingsData.connectionViewType,
+        connectionViewType = uiState.connectionViewType,
         onRefresh = {
             scope.launch {
                 isRefreshing = true
@@ -204,8 +157,6 @@ fun ChannelGraphRoute(
     val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
     val isScanning by wiFiScanViewModel.isScanning.collectAsStateWithLifecycle()
     val wiFiBand = settingsData.wiFiBand
-    val wiFiManagerWrapper = wiFiScanViewModel.wiFiManagerWrapper
-    val permissionService = wiFiScanViewModel.permissionService
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -214,10 +165,10 @@ fun ChannelGraphRoute(
         settingsData = settingsData,
         graphAdapter = graphAdapter,
         displayedChild = wiFiBand.ordinal,
-        wiFiBandAvailable = wiFiBand.available(wiFiManagerWrapper),
+        wiFiBandAvailable = wiFiScanViewModel.isBandAvailable(wiFiBand),
         wiFiBandName = stringResource(wiFiBand.textResource),
-        scanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
-        permissionEnabled = permissionService.enabled(),
+        scanThrottleEnabled = wiFiScanViewModel.isScanThrottleEnabled,
+        permissionEnabled = wiFiScanViewModel.isPermissionEnabled,
         isScanning = isScanning,
         isRefreshing = isRefreshing,
         onRefresh = {
@@ -259,8 +210,6 @@ fun TimeGraphRoute(
     val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
     val isScanning by wiFiScanViewModel.isScanning.collectAsStateWithLifecycle()
     val wiFiBand = settingsData.wiFiBand
-    val wiFiManagerWrapper = wiFiScanViewModel.wiFiManagerWrapper
-    val permissionService = wiFiScanViewModel.permissionService
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -269,10 +218,10 @@ fun TimeGraphRoute(
         settingsData = settingsData,
         graphAdapter = graphAdapter,
         displayedChild = wiFiBand.ordinal,
-        wiFiBandAvailable = wiFiBand.available(wiFiManagerWrapper),
+        wiFiBandAvailable = wiFiScanViewModel.isBandAvailable(wiFiBand),
         wiFiBandName = stringResource(wiFiBand.textResource),
-        scanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
-        permissionEnabled = permissionService.enabled(),
+        scanThrottleEnabled = wiFiScanViewModel.isScanThrottleEnabled,
+        permissionEnabled = wiFiScanViewModel.isPermissionEnabled,
         isScanning = isScanning,
         isRefreshing = isRefreshing,
         onRefresh = {

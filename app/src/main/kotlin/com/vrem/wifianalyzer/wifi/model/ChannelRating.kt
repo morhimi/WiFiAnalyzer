@@ -57,4 +57,12 @@ class ChannelRating(
         val strength: Strength = strength(wiFiChannel)
         return Strength.ZERO == strength || Strength.ONE == strength
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ChannelRating) return false
+        return wiFiDetails == other.wiFiDetails
+    }
+
+    override fun hashCode(): Int = wiFiDetails.hashCode()
 }

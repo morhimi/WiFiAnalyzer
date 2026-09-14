@@ -182,4 +182,17 @@ class ChannelRatingTest {
         assertThat(channelAPCount.wiFiWidth).isEqualTo(wiFiWidth)
         assertThat(channelAPCount.count).isEqualTo(expectedCount)
     }
+
+    @Test
+    fun shouldSupportEqualsAndHashCode() {
+        val cr1 = ChannelRating(mutableListOf(wiFiDetail1))
+        val cr2 = ChannelRating(mutableListOf(wiFiDetail1))
+        val cr3 = ChannelRating(mutableListOf(wiFiDetail2))
+
+        assertThat(cr1).isEqualTo(cr2)
+        assertThat(cr1.hashCode()).isEqualTo(cr2.hashCode())
+        assertThat(cr1).isNotEqualTo(cr3)
+        assertThat(cr1).isNotEqualTo(null)
+        assertThat(cr1).isNotEqualTo("other")
+    }
 }

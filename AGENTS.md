@@ -16,22 +16,21 @@ WiFiAnalyzer is an Android application for analyzing WiFi networks. It helps use
 | Component | Technology |
 |-----------|------------|
 | Language | Kotlin |
-| Platform | Android |
+| Platform | Android (Jetpack Compose, Material 3) |
 | Build Tool | Gradle |
-| Testing | JUnit, Mockito, Robolectric, Espresso |
+| Dependency Injection | Hilt |
+| Testing | JUnit 4, Mockito, Robolectric, Espresso, Compose UI Test |
 | Code Style | ktlint |
 | License | GNU General Public License v3.0 (GPLv3) |
 
-clearAdditional repository-specific versions and toolchain (source-of-truth files shown):
+Additional repository-specific versions and toolchain (source-of-truth files shown):
 
-- Kotlin: 2.4.0 (top-level `build.gradle.kts` extra kotlinVersion)
-- Android Gradle Plugin (AGP): 9.3.1 (top-level `build.gradle.kts` classpath `com.android.tools.build:gradle:9.3.1`)
- - Note: the top-level `build.gradle.kts` also adds `gradlePluginPortal()` to repositories and includes additional classpath entries used by the build:
-   - `org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion`
-   - `org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion`
+- Kotlin: 2.3.20 (`gradle/libs.versions.toml` kotlin version)
+- Android Gradle Plugin (AGP): 9.4.0 (`gradle/libs.versions.toml` agp version)
 - Gradle wrapper: 9.7.0 (`gradle/wrapper/gradle-wrapper.properties` distributionUrl)
-- JDK: 21 is used in CI and repository setup (`.github/actions/common-setup/action.yml` and `.github/workflows/*` use setup-java with `java-version: 21`). Note: project `compileOptions` and `kotlinOptions.jvmTarget` are set to Java 17 in `app/build.gradle.kts`.
-- Android compile/target SDK: compileSdk = 37, minSdk = 24 (see `app/build.gradle.kts`).
+- JDK: Java 21 (`app/build.gradle.kts` uses `jvmToolchain(21)` and `JavaVersion.VERSION_21`; JDK 21 is used in CI workflows)
+- Android compile/target SDK: compileSdk = 37, minSdk = 24, targetSdk = 37 (see `app/build.gradle.kts`)
+- UI Framework: Pure Jetpack Compose with Material 3 and Navigation Compose (all legacy Fragments and XML layouts have been migrated)
 
 ## Project Structure
 
@@ -140,14 +139,24 @@ fun tearDown() {
 }
 ```
 
-**Robolectric for Android components (use RobolectricUtil helper):**
+**Robolectric and Compose UI testing:**
 ```kotlin
-import com.vrem.wifianalyzer.RobolectricUtil
+import androidx.compose.ui.test.junit4.createComposeRule
+import org.robolectric.RobolectricTestRunner
 
-private val mainActivity = RobolectricUtil.INSTANCE.activity
+@RunWith(AndroidJUnit4::class)
+class MyScreenTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
-// For fragments:
-RobolectricUtil.INSTANCE.startFragment(fragment)
+    @Test
+    fun shouldRenderScreen() {
+        composeTestRule.setContent {
+            MyScreen(...)
+        }
+        // Assertions using composeTestRule.onNodeWithText(...), etc.
+    }
+}
 ```
 
 ## Android Instrumentation Test Conventions
