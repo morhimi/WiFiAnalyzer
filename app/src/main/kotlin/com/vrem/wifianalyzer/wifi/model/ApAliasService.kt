@@ -27,24 +27,30 @@ import java.util.concurrent.ConcurrentHashMap
 
 class ApAliasService(
     private val settingsRepository: SettingsRepository,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob()),
 ) {
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val cache = ConcurrentHashMap<BSSID, String>()
+
+    init {
+        scope.launch {
+            settingsRepository.preferencesFlow.collect { preferences ->
+                val newCache = mutableMapOf<String, String>()
+                preferences.asMap().forEach { (key, value) ->
+                    if (key.name.startsWith(ALIAS_PREFIX) && value is String) {
+                        val bssid = key.name.removePrefix(ALIAS_PREFIX)
+                        newCache[bssid] = value
+                    }
+                }
+                cache.clear()
+                cache.putAll(newCache)
+            }
+        }
+    }
 
     fun getAlias(bssid: BSSID): String {
         if (bssid.isBlank()) return String.EMPTY
         val key = bssid.uppercase()
-        return cache[key] ?: fetchAndCache(key)
-    }
-
-    private fun fetchAndCache(key: String): String {
-        scope.launch(Dispatchers.IO) {
-            val alias = settingsRepository.getAliasSync(key)
-            if (alias.isNotBlank()) {
-                cache[key] = alias
-            }
-        }
-        return String.EMPTY
+        return cache[key].orEmpty()
     }
 
     fun saveAlias(
@@ -71,5 +77,9 @@ class ApAliasService(
         scope.launch {
             settingsRepository.saveAlias(key, "")
         }
+    }
+
+    companion object {
+        private const val ALIAS_PREFIX = "ap_alias_"
     }
 }

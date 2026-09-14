@@ -42,7 +42,6 @@ import com.vrem.wifianalyzer.wifi.model.Strength
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -256,11 +255,6 @@ class SettingsRepository
         fun getAlias(bssid: String): Flow<String> {
             val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
             return dataStore.data.map { it[key] ?: "" }
-        }
-
-        suspend fun getAliasSync(bssid: String): String {
-            val key = stringPreferencesKey("ap_alias_" + bssid.uppercase())
-            return dataStore.data.first()[key] ?: ""
         }
 
         suspend fun resetToDefaults() {

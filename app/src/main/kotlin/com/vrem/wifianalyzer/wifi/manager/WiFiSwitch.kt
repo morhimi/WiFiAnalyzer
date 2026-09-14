@@ -53,5 +53,6 @@ class WiFiSwitch(
         return true
     }
 
+    @Suppress("DEPRECATION")
     private fun enableWiFiLegacy(enabled: Boolean): Boolean = wifiManager.setWifiEnabled(enabled)
 }

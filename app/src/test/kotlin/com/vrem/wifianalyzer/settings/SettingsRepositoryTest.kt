@@ -241,11 +241,9 @@ class SettingsRepositoryTest {
 
             fixture.saveAlias(bssid, alias)
             assertThat(fixture.getAlias(bssid).first()).isEqualTo(alias)
-            assertThat(fixture.getAliasSync(bssid)).isEqualTo(alias)
 
             fixture.saveAlias(bssid, "")
             assertThat(fixture.getAlias(bssid).first()).isEmpty()
-            assertThat(fixture.getAliasSync(bssid)).isEmpty()
         }
 
     @Test
@@ -260,7 +258,7 @@ class SettingsRepositoryTest {
             val data = fixture.settingsData.first()
             assertThat(data.scanSpeed).isEqualTo(5)
             assertThat(data.cacheOff).isFalse()
-            assertThat(fixture.getAliasSync("AA:BB:CC:DD:EE:FF")).isEmpty()
+            assertThat(fixture.getAlias("AA:BB:CC:DD:EE:FF").first()).isEmpty()
         }
 
     @Test

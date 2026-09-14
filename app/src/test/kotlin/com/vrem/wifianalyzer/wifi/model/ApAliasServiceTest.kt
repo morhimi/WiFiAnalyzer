@@ -17,11 +17,15 @@
  */
 package com.vrem.wifianalyzer.wifi.model
 
+import androidx.datastore.preferences.core.emptyPreferences
 import com.vrem.util.EMPTY
 import com.vrem.wifianalyzer.settings.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -34,6 +38,7 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
@@ -42,6 +47,7 @@ class ApAliasServiceTest {
     private lateinit var settingsRepository: SettingsRepository
 
     private val testDispatcher = StandardTestDispatcher()
+    private val testScope = TestScope(testDispatcher)
     private lateinit var fixture: ApAliasService
 
     private val bssid = "00:11:22:33:44:55"
@@ -51,11 +57,14 @@ class ApAliasServiceTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        fixture = ApAliasService(settingsRepository)
+        whenever(settingsRepository.preferencesFlow).thenReturn(MutableStateFlow(emptyPreferences()))
+        fixture = ApAliasService(settingsRepository, testScope)
+        testScope.advanceUntilIdle()
     }
 
     @After
     fun tearDown() {
+        verify(settingsRepository).preferencesFlow
         verifyNoMoreInteractions(settingsRepository)
         Dispatchers.resetMain()
     }

@@ -38,6 +38,7 @@ class WiFiManagerWrapper(
 
     fun disableWiFi(): Boolean = runCatching { !wiFiEnabled() || wiFiSwitch.off() }.getOrDefault(false)
 
+    @Suppress("DEPRECATION")
     fun startScan(): Boolean = runCatching { wifiManager.startScan() }.getOrDefault(false)
 
     @SuppressLint("MissingPermission")
