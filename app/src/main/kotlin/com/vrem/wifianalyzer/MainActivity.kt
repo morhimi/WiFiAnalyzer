@@ -35,7 +35,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerApp
 import com.vrem.wifianalyzer.compose.WiFiAnalyzerTheme
-import com.vrem.wifianalyzer.permission.ApplicationPermission
 import com.vrem.wifianalyzer.permission.PermissionRationaleDialog
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
@@ -60,8 +59,9 @@ class MainActivity : ComponentActivity() {
     private var showPermissionRationale by mutableStateOf(false)
 
     internal val permissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val allGranted = permissions.values.all { it }
+            if (allGranted) {
                 if (!permissionService.locationEnabled()) {
                     startLocationSettings()
                 }
@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
                 PermissionRationaleDialog(
                     onConfirm = {
                         showPermissionRationale = false
-                        permissionLauncher.launch(ApplicationPermission.PERMISSION)
+                        permissionLauncher.launch(permissionService.permissions())
                     },
                     onDismiss = {
                         showPermissionRationale = false
@@ -134,10 +134,7 @@ class MainActivity : ComponentActivity() {
 
     public override fun onResume() {
         super.onResume()
-        if (permissionService.permissionGranted()) {
-            if (!permissionService.locationEnabled()) {
-                startLocationSettings()
-            }
+        if (permissionService.enabled()) {
             scannerService.resume()
         } else {
             scannerService.pause()
@@ -152,10 +149,11 @@ class MainActivity : ComponentActivity() {
     public override fun onStart() {
         super.onStart()
         if (permissionService.permissionGranted()) {
-            if (!permissionService.locationEnabled()) {
-                startLocationSettings()
+            if (permissionService.locationEnabled()) {
+                scannerService.resume()
+            } else {
+                scannerService.pause()
             }
-            scannerService.resume()
         } else {
             showPermissionRationale = true
         }

@@ -29,4 +29,6 @@ class PermissionService(
     fun locationEnabled(): Boolean = locationPermission.enabled()
 
     fun permissionGranted(): Boolean = applicationPermission.granted()
+
+    fun permissions(): Array<String> = applicationPermission.permissions()
 }

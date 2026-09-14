@@ -20,11 +20,24 @@ package com.vrem.wifianalyzer.permission
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import com.vrem.util.buildMinVersionT
 
 class ApplicationPermission(
     private val context: Context,
 ) {
-    fun granted(): Boolean = context.checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED
+    fun granted(): Boolean = permissions().all { context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
+
+    fun permissions(): Array<String> =
+        if (buildMinVersionT()) {
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.NEARBY_WIFI_DEVICES,
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            )
+        }
 
     companion object {
         internal const val PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION

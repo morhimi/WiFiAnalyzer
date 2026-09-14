@@ -41,18 +41,57 @@ class ApplicationPermissionTest {
     }
 
     @Test
-    fun grantedReturnsTrueWhenPermissionGranted() {
-        whenever(context.checkSelfPermission(ApplicationPermission.PERMISSION))
+    fun permissionsOnTiramisuIncludesNearbyWifiDevices() {
+        assertThat(fixture.permissions()).containsExactly(
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.NEARBY_WIFI_DEVICES,
+        )
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.S_V2])
+    fun permissionsBeforeTiramisuOnlyIncludesFineLocation() {
+        assertThat(fixture.permissions()).containsExactly(
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+        )
+    }
+
+    @Test
+    fun grantedReturnsTrueWhenAllPermissionsGranted() {
+        whenever(context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION))
+            .thenReturn(PackageManager.PERMISSION_GRANTED)
+        whenever(context.checkSelfPermission(android.Manifest.permission.NEARBY_WIFI_DEVICES))
             .thenReturn(PackageManager.PERMISSION_GRANTED)
 
         assertThat(fixture.granted()).isTrue()
     }
 
     @Test
-    fun grantedReturnsFalseWhenPermissionDenied() {
-        whenever(context.checkSelfPermission(ApplicationPermission.PERMISSION))
+    fun grantedReturnsFalseWhenFineLocationDenied() {
+        whenever(context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION))
+            .thenReturn(PackageManager.PERMISSION_DENIED)
+        whenever(context.checkSelfPermission(android.Manifest.permission.NEARBY_WIFI_DEVICES))
+            .thenReturn(PackageManager.PERMISSION_GRANTED)
+
+        assertThat(fixture.granted()).isFalse()
+    }
+
+    @Test
+    fun grantedReturnsFalseWhenNearbyDevicesDenied() {
+        whenever(context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION))
+            .thenReturn(PackageManager.PERMISSION_GRANTED)
+        whenever(context.checkSelfPermission(android.Manifest.permission.NEARBY_WIFI_DEVICES))
             .thenReturn(PackageManager.PERMISSION_DENIED)
 
         assertThat(fixture.granted()).isFalse()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.S_V2])
+    fun grantedReturnsTrueBeforeTiramisuWhenLocationGranted() {
+        whenever(context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION))
+            .thenReturn(PackageManager.PERMISSION_GRANTED)
+
+        assertThat(fixture.granted()).isTrue()
     }
 }

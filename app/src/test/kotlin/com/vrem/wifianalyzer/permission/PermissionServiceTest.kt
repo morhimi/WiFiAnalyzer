@@ -97,4 +97,16 @@ class PermissionServiceTest {
         assertThat(actual).isTrue
         verify(applicationPermission).granted()
     }
+
+    @Test
+    fun permissions() {
+        // setup
+        val expected = arrayOf("p1", "p2")
+        whenever(applicationPermission.permissions()).thenReturn(expected)
+        // execute
+        val actual = fixture.permissions()
+        // validate
+        assertThat(actual).isEqualTo(expected)
+        verify(applicationPermission).permissions()
+    }
 }
