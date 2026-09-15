@@ -29,6 +29,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -119,6 +120,24 @@ class WiFiThrottleManagerTest {
         verify(shizukuRunner).isAvailable()
         verify(shizukuRunner).hasPermission()
         verify(shizukuRunner).execute(CMD_DISABLE_THROTTLE)
+    }
+
+    @Test
+    fun onAppStartWhenAlreadyThrottledByAppDoesNothing() {
+        whenever(settings.shizukuThrottle()).thenReturn(true)
+        whenever(shizukuRunner.isAvailable()).thenReturn(true)
+        whenever(shizukuRunner.hasPermission()).thenReturn(true)
+        whenever(shizukuRunner.execute(CMD_DISABLE_THROTTLE)).thenReturn(true)
+        mockSystemThrottleEnabled = true
+
+        fixture.onAppStart()
+        fixture.onAppStart()
+
+        assertThat(fixture.throttledByApp).isTrue()
+        verify(settings, times(2)).shizukuThrottle()
+        verify(shizukuRunner, times(2)).isAvailable()
+        verify(shizukuRunner, times(2)).hasPermission()
+        verify(shizukuRunner, times(1)).execute(CMD_DISABLE_THROTTLE)
     }
 
     @Test

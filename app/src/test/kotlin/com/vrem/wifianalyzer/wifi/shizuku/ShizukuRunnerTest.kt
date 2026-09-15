@@ -33,6 +33,7 @@ class ShizukuRunnerTest {
     private var mockAvailable: Boolean = false
     private var mockPermission: Int = PackageManager.PERMISSION_DENIED
     private var requestedPermissionCode: Int? = null
+    private var capturedArgs: Array<String>? = null
     private var mockProcess: Process? = null
     private var mockProcessThrows: Boolean = false
     private lateinit var fixture: DefaultShizukuRunner
@@ -42,6 +43,7 @@ class ShizukuRunnerTest {
         mockAvailable = false
         mockPermission = PackageManager.PERMISSION_DENIED
         requestedPermissionCode = null
+        capturedArgs = null
         mockProcess = mock(Process::class.java)
         mockProcessThrows = false
         fixture =
@@ -49,7 +51,8 @@ class ShizukuRunnerTest {
                 binderPinger = { mockAvailable },
                 permissionChecker = { mockPermission },
                 permissionRequester = { code -> requestedPermissionCode = code },
-                processLauncher = {
+                processLauncher = { args ->
+                    capturedArgs = args
                     if (mockProcessThrows) throw RuntimeException("Process failed")
                     mockProcess
                 },
@@ -138,6 +141,7 @@ class ShizukuRunnerTest {
         whenever(mockProcess!!.waitFor()).thenReturn(0)
 
         assertThat(fixture.execute("settings put global test 0")).isTrue()
+        assertThat(capturedArgs).containsExactly("sh", "-c", "settings put global test 0")
     }
 
     @Test

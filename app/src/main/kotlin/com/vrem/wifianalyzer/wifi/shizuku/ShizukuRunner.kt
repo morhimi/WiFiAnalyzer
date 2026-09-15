@@ -92,7 +92,7 @@ class DefaultShizukuRunner
         override fun execute(command: String): Boolean =
             runCatching {
                 if (!hasPermission()) return false
-                val args = command.trim().split("\\s+".toRegex()).toTypedArray()
+                val args = arrayOf("sh", "-c", command)
                 val process = processLauncher(args)
                 process?.waitFor() == 0
             }.getOrDefault(false)

@@ -24,8 +24,10 @@ import javax.inject.Singleton
 import android.provider.Settings as AndroidSettings
 
 internal const val SETTING_WIFI_SCAN_THROTTLE_ENABLED = "wifi_scan_throttle_enabled"
-internal const val CMD_DISABLE_THROTTLE = "settings put global wifi_scan_throttle_enabled 0"
-internal const val CMD_ENABLE_THROTTLE = "settings put global wifi_scan_throttle_enabled 1"
+internal const val CMD_DISABLE_THROTTLE =
+    "cmd wifi set-scan-throttle-enabled disabled; settings put global wifi_scan_throttle_enabled 0"
+internal const val CMD_ENABLE_THROTTLE =
+    "cmd wifi set-scan-throttle-enabled enabled; settings put global wifi_scan_throttle_enabled 1"
 
 @Singleton
 class WiFiThrottleManager
@@ -49,6 +51,7 @@ class WiFiThrottleManager
         fun onAppStart() {
             if (!settings.shizukuThrottle()) return
             if (!shizukuRunner.isAvailable() || !shizukuRunner.hasPermission()) return
+            if (throttledByApp) return
 
             if (wasThrottlingOriginallyEnabled == null) {
                 wasThrottlingOriginallyEnabled = systemThrottleReader(contentResolver)

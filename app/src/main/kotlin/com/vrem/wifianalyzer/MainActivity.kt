@@ -68,6 +68,7 @@ class MainActivity : ComponentActivity() {
                 grantResult == PackageManager.PERMISSION_GRANTED
             ) {
                 wiFiThrottleManager.onAppStart()
+                update()
             }
         }
 
@@ -75,6 +76,7 @@ class MainActivity : ComponentActivity() {
         Shizuku.OnBinderReceivedListener {
             if (settings.shizukuThrottle()) {
                 wiFiThrottleManager.onAppStart()
+                update()
             }
         }
 
