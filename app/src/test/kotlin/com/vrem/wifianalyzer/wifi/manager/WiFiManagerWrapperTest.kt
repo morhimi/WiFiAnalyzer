@@ -18,6 +18,8 @@
 package com.vrem.wifianalyzer.wifi.manager
 
 import android.net.ConnectivityManager
+import android.net.LinkAddress
+import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.wifi.ScanResult
@@ -33,6 +35,8 @@ import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
+import java.net.Inet4Address
+import java.net.Inet6Address
 
 class WiFiManagerWrapperTest {
     private val wifiManager: WifiManager = mock()
@@ -464,5 +468,188 @@ class WiFiManagerWrapperTest {
     fun minVersionS() {
         val actual = WiFiManagerWrapper(wifiManager, wiFiSwitch, connectivityManager).minVersionS()
         assertThat(actual).isNotNull()
+    }
+
+    @Test
+    fun wiFiIpAddressWithActiveWiFiNetwork() {
+        // setup
+        val network: Network = mock()
+        val capabilities: NetworkCapabilities = mock()
+        val linkProperties: LinkProperties = mock()
+        val linkAddress: LinkAddress = mock()
+        val inet4Address: Inet4Address = mock()
+        whenever(inet4Address.isLoopbackAddress).thenReturn(false)
+        whenever(inet4Address.hostAddress).thenReturn("192.168.1.50")
+        whenever(linkAddress.address).thenReturn(inet4Address)
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(capabilities)
+        whenever(capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)).thenReturn(true)
+        whenever(connectivityManager.getLinkProperties(network)).thenReturn(linkProperties)
+        whenever(linkProperties.linkAddresses).thenReturn(listOf(linkAddress))
+
+        // execute
+        val actual = fixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEqualTo("192.168.1.50")
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(capabilities).hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        verify(connectivityManager).getLinkProperties(network)
+    }
+
+    @Test
+    fun wiFiIpAddressWhenNonWiFiTransportFallsBackToLegacy() {
+        // setup
+        val network: Network = mock()
+        val capabilities: NetworkCapabilities = mock()
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(capabilities)
+        whenever(capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)).thenReturn(false)
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+
+        // execute
+        val actual = fixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEmpty()
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(capabilities).hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        verify(wifiManager).connectionInfo
+    }
+
+    @Test
+    fun wiFiIpAddressWhenActiveNetworkIsNullFallsBackToLegacy() {
+        // setup
+        whenever(connectivityManager.activeNetwork).thenReturn(null)
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+
+        // execute
+        val actual = fixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEmpty()
+        verify(connectivityManager).activeNetwork
+        verify(wifiManager).connectionInfo
+    }
+
+    @Test
+    fun wiFiIpAddressWhenConnectivityManagerIsNull() {
+        // setup
+        val nullFixture = WiFiManagerWrapper(wifiManager, wiFiSwitch, null)
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+
+        // execute
+        val actual = nullFixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEmpty()
+        verify(wifiManager).connectionInfo
+    }
+
+    @Test
+    fun wiFiIpAddressWhenExceptionThrownReturnsEmpty() {
+        // setup
+        whenever(connectivityManager.activeNetwork).thenThrow(RuntimeException())
+
+        // execute
+        val actual = fixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEmpty()
+        verify(connectivityManager).activeNetwork
+    }
+
+    @Test
+    fun wiFiIpAddressWhenCapabilitiesIsNullFallsBackToLegacy() {
+        // setup
+        val network: Network = mock()
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(null)
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+
+        // execute
+        val actual = fixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEmpty()
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(wifiManager).connectionInfo
+    }
+
+    @Test
+    fun wiFiIpAddressWhenLinkPropertiesIsNullFallsBackToLegacy() {
+        // setup
+        val network: Network = mock()
+        val capabilities: NetworkCapabilities = mock()
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(capabilities)
+        whenever(capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)).thenReturn(true)
+        whenever(connectivityManager.getLinkProperties(network)).thenReturn(null)
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+
+        // execute
+        val actual = fixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEmpty()
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(capabilities).hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        verify(connectivityManager).getLinkProperties(network)
+        verify(wifiManager).connectionInfo
+    }
+
+    @Test
+    fun wiFiIpAddressWithIpv6AndLoopbackIgnoresThemAndFallsBackToLegacy() {
+        // setup
+        val network: Network = mock()
+        val capabilities: NetworkCapabilities = mock()
+        val linkProperties: LinkProperties = mock()
+        val linkAddressIpv6: LinkAddress = mock()
+        val linkAddressLoopback: LinkAddress = mock()
+        val inet6Address: Inet6Address = mock()
+        val loopbackAddress: Inet4Address = mock()
+        whenever(loopbackAddress.isLoopbackAddress).thenReturn(true)
+        whenever(linkAddressIpv6.address).thenReturn(inet6Address)
+        whenever(linkAddressLoopback.address).thenReturn(loopbackAddress)
+        whenever(connectivityManager.activeNetwork).thenReturn(network)
+        whenever(connectivityManager.getNetworkCapabilities(network)).thenReturn(capabilities)
+        whenever(capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)).thenReturn(true)
+        whenever(connectivityManager.getLinkProperties(network)).thenReturn(linkProperties)
+        whenever(linkProperties.linkAddresses).thenReturn(listOf(linkAddressIpv6, linkAddressLoopback))
+        whenever(wifiManager.connectionInfo).thenReturn(null)
+
+        // execute
+        val actual = fixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEmpty()
+        verify(connectivityManager).activeNetwork
+        verify(connectivityManager).getNetworkCapabilities(network)
+        verify(capabilities).hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        verify(connectivityManager).getLinkProperties(network)
+        verify(wifiManager).connectionInfo
+    }
+
+    @Test
+    fun wiFiIpAddressWhenLegacyProvidesValidIp() {
+        // setup
+        whenever(connectivityManager.activeNetwork).thenReturn(null)
+        @Suppress("DEPRECATION")
+        whenever(wifiInfo.ipAddress).thenReturn(0x0101a8c0)
+        whenever(wifiManager.connectionInfo).thenReturn(wifiInfo)
+
+        // execute
+        val actual = fixture.wiFiIpAddress()
+
+        // validate
+        assertThat(actual).isEqualTo("192.168.1.1")
+        verify(connectivityManager).activeNetwork
+        verify(wifiManager).connectionInfo
+        @Suppress("DEPRECATION")
+        verify(wifiInfo).ipAddress
     }
 }

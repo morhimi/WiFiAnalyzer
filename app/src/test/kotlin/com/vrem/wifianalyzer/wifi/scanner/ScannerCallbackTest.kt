@@ -45,14 +45,18 @@ class ScannerCallbackTest {
     @Test
     fun onSuccess() {
         // setup
+        val ipAddress = "192.168.1.100"
         whenever(wiFiManagerWrapper.scanResults()).thenReturn(scanResults)
         whenever(wiFiManagerWrapper.wiFiInfo()).thenReturn(wifiInfo)
+        whenever(wiFiManagerWrapper.wiFiIpAddress()).thenReturn(ipAddress)
         // execute
         fixture.onSuccess()
         // validate
         verify(wiFiManagerWrapper).scanResults()
         verify(wiFiManagerWrapper).wiFiInfo()
+        verify(wiFiManagerWrapper).wiFiIpAddress()
         verify(cache).add(scanResults)
         verify(cache).wifiInfo = wifiInfo
+        verify(cache).wiFiIpAddress = ipAddress
     }
 }

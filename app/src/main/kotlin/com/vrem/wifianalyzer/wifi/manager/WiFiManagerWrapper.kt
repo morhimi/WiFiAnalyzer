@@ -19,13 +19,18 @@ package com.vrem.wifianalyzer.wifi.manager
 
 import android.annotation.SuppressLint
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.vrem.util.EMPTY
 import com.vrem.util.buildMinVersionR
 import com.vrem.util.buildMinVersionS
+import com.vrem.wifianalyzer.wifi.model.convertIpV4Address
+import com.vrem.wifianalyzer.wifi.scanner.ipV4Address
+import java.net.Inet4Address
 
 class WiFiManagerWrapper(
     private val wifiManager: WifiManager,
@@ -63,6 +68,36 @@ class WiFiManagerWrapper(
                 legacyWiFiInfo()
             }
         }.getOrNull()
+
+    fun wiFiIpAddress(): String =
+        runCatching {
+            wiFiIpAddressFromConnectivityManager().ifEmpty {
+                legacyWiFiIpAddress()
+            }
+        }.getOrDefault(String.EMPTY)
+
+    private fun wiFiIpAddressFromConnectivityManager(): String {
+        val cm = connectivityManager ?: return String.EMPTY
+        val activeNetwork = cm.activeNetwork ?: return String.EMPTY
+        val capabilities = cm.getNetworkCapabilities(activeNetwork) ?: return String.EMPTY
+        if (!capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+            return String.EMPTY
+        }
+        val linkProperties = cm.getLinkProperties(activeNetwork) ?: return String.EMPTY
+        for (linkAddress in linkProperties.linkAddresses) {
+            val address = linkAddress.address
+            if (address is Inet4Address && !address.isLoopbackAddress) {
+                return address.hostAddress.orEmpty()
+            }
+        }
+        return String.EMPTY
+    }
+
+    @Suppress("DEPRECATION")
+    private fun legacyWiFiIpAddress(): String {
+        val info = legacyWiFiInfo() ?: return String.EMPTY
+        return convertIpV4Address(info.ipV4Address())
+    }
 
     @Suppress("DEPRECATION")
     private fun legacyWiFiInfo(): WifiInfo? =

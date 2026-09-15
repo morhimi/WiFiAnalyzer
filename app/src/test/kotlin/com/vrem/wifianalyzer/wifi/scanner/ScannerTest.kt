@@ -187,18 +187,100 @@ class ScannerTest {
         whenever(transformer.transformToWiFiData()).thenReturn(wiFiData)
         whenever(permissionService.enabled()).thenReturn(true)
         whenever(wiFiManagerWrapper.wiFiInfo()).thenReturn(wifiInfo)
+        whenever(wiFiManagerWrapper.wiFiIpAddress()).thenReturn("192.168.1.1")
 
         scanner.update()
 
         verify(cache).wifiInfo = wifiInfo
+        verify(cache).wiFiIpAddress = "192.168.1.1"
         verify(wiFiManagerWrapper).enableWiFi()
         verify(permissionService).enabled()
         verify(scanResultsReceiver).register()
         verify(wiFiManagerWrapper).startScan()
         verify(scannerCallback).onSuccess()
         verify(wiFiManagerWrapper).wiFiInfo()
+        verify(wiFiManagerWrapper).wiFiIpAddress()
         verify(transformer).transformToWiFiData()
         verifyNoMoreInteractions(cache)
+    }
+
+    @Test
+    fun onConnectionChangedRefreshesCacheAndEmitsWiFiData() {
+        val cache: Cache = mock()
+        val wifiInfo: android.net.wifi.WifiInfo = mock()
+        val wiFiConnectionCallback: WiFiConnectionCallback = mock()
+        val scanner =
+            Scanner(
+                wiFiManagerWrapper = wiFiManagerWrapper,
+                settings = settings,
+                permissionService = permissionService,
+                transformer = transformer,
+                cache = cache,
+                scanResultsReceiver = scanResultsReceiver,
+                scannerCallback = scannerCallback,
+                periodicScan = periodicScan,
+                wiFiConnectionCallback = wiFiConnectionCallback,
+            )
+        whenever(transformer.transformToWiFiData()).thenReturn(wiFiData)
+        whenever(wiFiManagerWrapper.wiFiInfo()).thenReturn(wifiInfo)
+        whenever(wiFiManagerWrapper.wiFiIpAddress()).thenReturn("192.168.1.20")
+
+        scanner.onConnectionChanged()
+
+        assertThat(scanner.wiFiDataFlow.value).isEqualTo(wiFiData)
+        verify(cache).wifiInfo = wifiInfo
+        verify(cache).wiFiIpAddress = "192.168.1.20"
+        verify(wiFiManagerWrapper).wiFiInfo()
+        verify(wiFiManagerWrapper).wiFiIpAddress()
+        verify(transformer).transformToWiFiData()
+        verifyNoMoreInteractions(cache)
+    }
+
+    @Test
+    fun wiFiConnectionCallbackRegisteredOnResumeAndUnregisteredOnPauseAndStop() {
+        val wiFiConnectionCallback: WiFiConnectionCallback = mock()
+        val scanner =
+            Scanner(
+                wiFiManagerWrapper = wiFiManagerWrapper,
+                settings = settings,
+                permissionService = permissionService,
+                transformer = transformer,
+                scanResultsReceiver = scanResultsReceiver,
+                scannerCallback = scannerCallback,
+                periodicScan = periodicScan,
+                wiFiConnectionCallback = wiFiConnectionCallback,
+            )
+        whenever(settings.wiFiOffOnExit()).thenReturn(false)
+        whenever(permissionService.enabled()).thenReturn(true)
+        whenever(transformer.transformToWiFiData()).thenReturn(wiFiData)
+
+        scanner.resume()
+        verify(wiFiConnectionCallback).register()
+        verify(periodicScan).start()
+
+        scanner.resumeWithDelay()
+        verify(wiFiConnectionCallback, times(2)).register()
+        verify(periodicScan).startWithDelay()
+
+        scanner.update()
+        verify(wiFiConnectionCallback, times(3)).register()
+        verify(permissionService).enabled()
+        verify(wiFiManagerWrapper).enableWiFi()
+        verify(scanResultsReceiver).register()
+        verify(wiFiManagerWrapper).startScan()
+        verify(scannerCallback).onSuccess()
+        verify(transformer).transformToWiFiData()
+
+        scanner.pause()
+        verify(wiFiConnectionCallback).unregister()
+        verify(periodicScan).stop()
+        verify(scanResultsReceiver).unregister()
+
+        scanner.stop()
+        verify(wiFiConnectionCallback, times(2)).unregister()
+        verify(periodicScan, times(2)).stop()
+        verify(scanResultsReceiver, times(2)).unregister()
+        verify(settings).wiFiOffOnExit()
     }
 
     @Test

@@ -69,4 +69,24 @@ class ScannerServiceTest {
         assertThat(actual.scanResultsReceiver).isNotNull()
         assertThat(actual.running()).isFalse
     }
+
+    @Test
+    fun makeScannerServiceWithConnectivityManager() {
+        val connectivityManager: android.net.ConnectivityManager = mock()
+        // execute
+        val actual =
+            makeScannerService(
+                context,
+                wiFiManagerWrapper,
+                permissionService,
+                settings,
+                apAliasService,
+                vendorService,
+                connectivityManager,
+            ) as Scanner
+
+        // validate
+        assertThat(actual.wiFiConnectionCallback).isNotNull()
+        verifyNoMoreInteractions(connectivityManager)
+    }
 }

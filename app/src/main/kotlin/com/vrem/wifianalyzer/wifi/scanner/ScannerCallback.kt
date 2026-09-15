@@ -26,5 +26,6 @@ internal class ScannerCallback(
     override fun onSuccess() {
         cache.add(wiFiManagerWrapper.scanResults())
         cache.wifiInfo = wiFiManagerWrapper.wiFiInfo()
+        cache.wiFiIpAddress = wiFiManagerWrapper.wiFiIpAddress()
     }
 }

@@ -92,6 +92,7 @@ class TransformerTest {
     fun setUp() {
         whenever(apAliasService.getAlias(org.mockito.kotlin.any())).thenReturn("")
         whenever(vendorService.findVendorName(org.mockito.kotlin.any())).thenReturn("")
+        whenever(cache.wiFiIpAddress).thenReturn("")
     }
 
     @After
@@ -110,6 +111,7 @@ class TransformerTest {
         // validate
         assertThat(actual).isEqualTo(expected)
         verify(cache).wifiInfo
+        verify(cache).wiFiIpAddress
         verifyWiFiInfo()
     }
 
@@ -163,6 +165,25 @@ class TransformerTest {
         verify(android12WifiInfo).ipV4Address()
         verify(android12WifiInfo).linkSpeed
         verify(cache).wifiInfo
+        verify(cache).wiFiIpAddress
+    }
+
+    @Test
+    fun transformWifiInfoUsesCacheIpAddress() {
+        // setup
+        val expected = WiFiConnection(WiFiIdentifier(SSID_1, BSSID_1), "192.168.1.99", LINK_SPEED)
+        doReturn(wifiInfo).whenever(cache).wifiInfo
+        doReturn("192.168.1.99").whenever(cache).wiFiIpAddress
+        // execute
+        val actual = fixture.transformWifiInfo()
+        // validate
+        assertThat(actual).isEqualTo(expected)
+        verify(cache).wifiInfo
+        verify(cache).wiFiIpAddress
+        verify(wifiInfo).networkId
+        verify(wifiInfo).ssid
+        verify(wifiInfo).bssid
+        verify(wifiInfo).linkSpeed
     }
 
     @Test
@@ -202,6 +223,7 @@ class TransformerTest {
         assertThat(actual.wiFiDetails).hasSize(cacheResults.size)
         verifyWiFiInfo()
         verify(cache).wifiInfo
+        verify(cache).wiFiIpAddress
         verify(cache).scanResults()
     }
 

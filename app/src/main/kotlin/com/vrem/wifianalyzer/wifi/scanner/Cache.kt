@@ -19,6 +19,7 @@ package com.vrem.wifianalyzer.wifi.scanner
 
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
+import com.vrem.util.EMPTY
 import com.vrem.util.ssid
 import com.vrem.wifianalyzer.settings.Settings
 
@@ -37,6 +38,7 @@ internal class Cache(
 ) {
     private val scanResults: ArrayDeque<List<ScanResult>> = ArrayDeque(MAXIMUM)
     var wifiInfo: WifiInfo? = null
+    var wiFiIpAddress: String = String.EMPTY
 
     fun scanResults(): List<CacheResult> =
         combineCache()

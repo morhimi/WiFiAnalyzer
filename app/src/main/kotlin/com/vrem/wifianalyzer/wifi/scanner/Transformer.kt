@@ -60,7 +60,8 @@ internal class Transformer(
         }
         val alias = apAliasService.getAlias(bssid)
         val wiFiIdentifier = WiFiIdentifier(ssid, bssid, alias)
-        return WiFiConnection(wiFiIdentifier, convertIpV4Address(wifiInfo.ipV4Address()), wifiInfo.linkSpeed)
+        val ipAddress = cache.wiFiIpAddress.orEmpty().ifEmpty { convertIpV4Address(wifiInfo.ipV4Address()) }
+        return WiFiConnection(wiFiIdentifier, ipAddress, wifiInfo.linkSpeed)
     }
 
     internal fun transformCacheResults(): List<WiFiDetail> = cache.scanResults().map { transform(it) }

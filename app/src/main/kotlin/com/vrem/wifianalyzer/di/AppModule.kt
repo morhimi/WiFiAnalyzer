@@ -129,6 +129,7 @@ object AppModule {
         settings: Settings,
         apAliasService: ApAliasService,
         vendorService: VendorService,
+        connectivityManager: ConnectivityManager,
     ): ScannerService =
         makeScannerService(
             context,
@@ -137,6 +138,7 @@ object AppModule {
             settings,
             apAliasService,
             vendorService,
+            connectivityManager,
         )
 
     @Provides

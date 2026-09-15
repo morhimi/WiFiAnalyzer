@@ -188,6 +188,16 @@ class CacheTest {
         assertThat(fixture.ssid).isEqualTo(ssid)
     }
 
+    @Test
+    fun wiFiIpAddress() {
+        // validate default
+        assertThat(fixture.wiFiIpAddress).isEmpty()
+        // execute
+        fixture.wiFiIpAddress = "192.168.1.10"
+        // validate updated
+        assertThat(fixture.wiFiIpAddress).isEqualTo("192.168.1.10")
+    }
+
     private fun validate(
         expectedScanResult: ScanResult,
         expectedLevel: Int,

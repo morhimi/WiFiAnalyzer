@@ -18,6 +18,7 @@
 package com.vrem.wifianalyzer.wifi.scanner
 
 import android.content.Context
+import android.net.ConnectivityManager
 import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.vendor.model.VendorService
@@ -54,18 +55,25 @@ fun makeScannerService(
     settings: Settings,
     apAliasService: ApAliasService,
     vendorService: VendorService,
+    connectivityManager: ConnectivityManager? = null,
 ): ScannerService {
     val cache = Cache(settings)
     val transformer = Transformer(cache, apAliasService, vendorService)
     val scannerCallback = ScannerCallback(wiFiManagerWrapper, cache)
     val scanResultsReceiver = ScanResultsReceiver(context, scannerCallback)
-    return Scanner(
-        wiFiManagerWrapper = wiFiManagerWrapper,
-        settings = settings,
-        permissionService = permissionService,
-        transformer = transformer,
-        cache = cache,
-        scanResultsReceiver = scanResultsReceiver,
-        scannerCallback = scannerCallback,
-    )
+    val scanner =
+        Scanner(
+            wiFiManagerWrapper = wiFiManagerWrapper,
+            settings = settings,
+            permissionService = permissionService,
+            transformer = transformer,
+            cache = cache,
+            scanResultsReceiver = scanResultsReceiver,
+            scannerCallback = scannerCallback,
+        )
+    scanner.wiFiConnectionCallback =
+        connectivityManager?.let { cm ->
+            WiFiConnectionCallback(cm, scanner::onConnectionChanged)
+        }
+    return scanner
 }

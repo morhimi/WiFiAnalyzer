@@ -34,6 +34,7 @@ internal class Scanner(
     val scanResultsReceiver: ScanResultsReceiver,
     val scannerCallback: Callback,
     periodicScan: PeriodicScan? = null,
+    var wiFiConnectionCallback: WiFiConnectionCallback? = null,
 ) : ScannerService {
     private val _runningFlow = MutableStateFlow(false)
     override val runningFlow: StateFlow<Boolean> = _runningFlow.asStateFlow()
@@ -50,15 +51,26 @@ internal class Scanner(
         wiFiManagerWrapper.enableWiFi()
         if (permissionService.enabled()) {
             scanResultsReceiver.register()
+            wiFiConnectionCallback?.register()
             wiFiManagerWrapper.startScan()
             if (!initialScan) {
                 scannerCallback.onSuccess()
                 initialScan = true
             }
             cache?.wifiInfo = wiFiManagerWrapper.wiFiInfo()
+            cache?.wiFiIpAddress = wiFiManagerWrapper.wiFiIpAddress()
         }
         wiFiData = transformer.transformToWiFiData()
         _wiFiDataFlow.value = wiFiData
+    }
+
+    internal fun onConnectionChanged() {
+        if (cache != null) {
+            cache.wifiInfo = wiFiManagerWrapper.wiFiInfo()
+            cache.wiFiIpAddress = wiFiManagerWrapper.wiFiIpAddress()
+            wiFiData = transformer.transformToWiFiData()
+            _wiFiDataFlow.value = wiFiData
+        }
     }
 
     override fun wiFiData(): WiFiData = wiFiData
@@ -67,6 +79,7 @@ internal class Scanner(
         periodicScan.stop()
         _runningFlow.value = false
         scanResultsReceiver.unregister()
+        wiFiConnectionCallback?.unregister()
     }
 
     override fun running(): Boolean = periodicScan.running
@@ -74,11 +87,13 @@ internal class Scanner(
     override fun resume() {
         periodicScan.start()
         _runningFlow.value = true
+        wiFiConnectionCallback?.register()
     }
 
     override fun resumeWithDelay() {
         periodicScan.startWithDelay()
         _runningFlow.value = true
+        wiFiConnectionCallback?.register()
     }
 
     override fun stop() {
@@ -88,6 +103,7 @@ internal class Scanner(
             wiFiManagerWrapper.disableWiFi()
         }
         scanResultsReceiver.unregister()
+        wiFiConnectionCallback?.unregister()
     }
 
     override fun toggle() {
