@@ -91,6 +91,7 @@ class SettingsRepositoryTest {
             assertThat(data.filterWiFiBands).containsExactlyInAnyOrder(WiFiBand.GHZ2, WiFiBand.GHZ5, WiFiBand.GHZ6)
             assertThat(data.filterStrengths).containsExactlyInAnyOrder(*Strength.entries.toTypedArray())
             assertThat(data.filterSecurities).containsExactlyInAnyOrder(*Security.entries.toTypedArray())
+            assertThat(data.shizukuThrottle).isFalse()
         }
 
     @Test
@@ -296,5 +297,13 @@ class SettingsRepositoryTest {
             }
 
             assertThat(thrown).isInstanceOf(IllegalStateException::class.java)
+        }
+
+    @Test
+    fun updateShizukuThrottleSavesValue() =
+        runTest {
+            fixture.updateShizukuThrottle(true)
+            val data = fixture.settingsData.first()
+            assertThat(data.shizukuThrottle).isTrue()
         }
 }

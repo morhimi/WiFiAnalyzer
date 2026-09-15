@@ -73,6 +73,7 @@ class SettingsRepository
         private val filterWifiBandKey = stringSetPreferencesKey(context.getString(R.string.filter_wifi_band_key))
         private val filterStrengthKey = stringSetPreferencesKey(context.getString(R.string.filter_strength_key))
         private val filterSecurityKey = stringSetPreferencesKey(context.getString(R.string.filter_security_key))
+        private val shizukuThrottleKey = booleanPreferencesKey(context.getString(R.string.shizuku_throttle_key))
 
         val preferencesFlow: Flow<Preferences> =
             dataStore.data
@@ -138,6 +139,7 @@ class SettingsRepository
             val filterStrengths = findSet(Strength.entries, preferences[filterStrengthKey] ?: emptySet(), Strength.FOUR)
             val filterSecurities =
                 findSet(Security.entries, preferences[filterSecurityKey] ?: emptySet(), Security.NONE)
+            val shizukuThrottle = preferences[shizukuThrottleKey] ?: false
 
             return SettingsData(
                 scanSpeed = scanSpeed,
@@ -159,6 +161,7 @@ class SettingsRepository
                 filterWiFiBands = filterWiFiBands,
                 filterStrengths = filterStrengths,
                 filterSecurities = filterSecurities,
+                shizukuThrottle = shizukuThrottle,
             )
         }
 
@@ -236,6 +239,10 @@ class SettingsRepository
 
         suspend fun updateFilterSecurities(values: Set<String>) {
             dataStore.edit { preferences -> preferences[filterSecurityKey] = values }
+        }
+
+        suspend fun updateShizukuThrottle(value: Boolean) {
+            dataStore.edit { preferences -> preferences[shizukuThrottleKey] = value }
         }
 
         suspend fun saveAlias(

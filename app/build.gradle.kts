@@ -48,6 +48,8 @@ dependencies {
     implementation(libs.vico.compose.m3)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
     // Hilt Dependencies
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

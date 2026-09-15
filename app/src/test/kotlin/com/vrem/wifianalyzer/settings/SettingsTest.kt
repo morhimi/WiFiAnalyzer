@@ -86,6 +86,7 @@ class SettingsTest {
         assertThat(fixture.findWiFiBands()).containsExactlyInAnyOrder(WiFiBand.GHZ2, WiFiBand.GHZ5, WiFiBand.GHZ6)
         assertThat(fixture.findStrengths()).containsExactlyInAnyOrder(*Strength.entries.toTypedArray())
         assertThat(fixture.findSecurities()).containsExactlyInAnyOrder(*Security.entries.toTypedArray())
+        assertThat(fixture.shizukuThrottle()).isFalse()
     }
 
     @Test
@@ -292,6 +293,16 @@ class SettingsTest {
 
             assertThat(fixture.dynamicColor()).isFalse()
             verify(settingsRepository).updateDynamicColor(false)
+        }
+
+    @Test
+    fun updateShizukuThrottleUpdatesStateAndRepository() =
+        runTest(testDispatcher) {
+            fixture.updateShizukuThrottle(true)
+            advanceUntilIdle()
+
+            assertThat(fixture.shizukuThrottle()).isTrue()
+            verify(settingsRepository).updateShizukuThrottle(true)
         }
 
     @Test

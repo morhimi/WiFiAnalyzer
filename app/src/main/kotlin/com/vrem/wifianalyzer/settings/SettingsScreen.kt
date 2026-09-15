@@ -17,6 +17,8 @@
  */
 package com.vrem.wifianalyzer.settings
 
+import android.content.pm.PackageManager
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -73,6 +75,8 @@ import com.vrem.wifianalyzer.wifi.accesspoint.ConnectionViewType
 import com.vrem.wifianalyzer.wifi.band.WiFiChannelCountry
 import com.vrem.wifianalyzer.wifi.model.GroupBy
 import com.vrem.wifianalyzer.wifi.model.SortBy
+import com.vrem.wifianalyzer.wifi.shizuku.WiFiThrottleManager
+import rikka.shizuku.Shizuku
 import java.util.Locale
 
 @Composable
@@ -112,6 +116,26 @@ fun SettingsScreen(
                 title = stringResource(R.string.scan_speed_title),
                 summary = stringResource(R.string.scan_speed_summary, settingsData.scanSpeed),
                 onClick = { showScanSpeedDialog = true },
+            )
+            SettingsSwitchItem(
+                icon = painterResource(R.drawable.ic_settings),
+                title = stringResource(R.string.shizuku_throttle_title),
+                summary = stringResource(R.string.shizuku_throttle_summary),
+                checked = settingsData.shizukuThrottle,
+                onCheckedChange = { enabled ->
+                    if (enabled) {
+                        val isRunning = runCatching { Shizuku.pingBinder() }.getOrDefault(false)
+                        if (!isRunning) {
+                            Toast.makeText(context, R.string.shizuku_not_running, Toast.LENGTH_LONG).show()
+                        } else if (runCatching {
+                                Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+                            }.getOrDefault(false).not()
+                        ) {
+                            runCatching { Shizuku.requestPermission(WiFiThrottleManager.SHIZUKU_REQUEST_CODE) }
+                        }
+                    }
+                    settings.updateShizukuThrottle(enabled)
+                },
             )
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))

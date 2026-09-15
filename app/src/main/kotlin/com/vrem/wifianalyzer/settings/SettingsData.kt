@@ -50,4 +50,5 @@ data class SettingsData(
     val filterWiFiBands: Set<WiFiBand> = setOf(WiFiBand.GHZ2, WiFiBand.GHZ5, WiFiBand.GHZ6),
     val filterStrengths: Set<Strength> = Strength.entries.toSet(),
     val filterSecurities: Set<Security> = Security.entries.toSet(),
+    val shizukuThrottle: Boolean = false,
 )

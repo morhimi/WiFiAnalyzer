@@ -239,4 +239,9 @@
     <string name="ping_interface">"Interface"</string>
     <string name="ping_local_ip">"Local IP"</string>
     <string name="ping_link_speed">"Link Speed"</string>
+    <string name="shizuku_throttle_key" translatable="false">"shizuku_throttle"</string>
+    <string name="shizuku_throttle_title">"Bypass Wi-Fi scan throttling (Shizuku)"</string>
+    <string name="shizuku_throttle_summary">"Temporarily lift system scan rate limits using Shizuku while in foreground"</string>
+    <string name="shizuku_not_running">"Shizuku service is not running. Please start Shizuku."</string>
+    <string name="shizuku_permission_denied">"Shizuku permission was not granted."</string>
 </resources>

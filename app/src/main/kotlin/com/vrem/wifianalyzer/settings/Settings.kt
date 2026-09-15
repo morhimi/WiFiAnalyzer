@@ -84,6 +84,8 @@ class Settings(
 
     fun dynamicColor(): Boolean = settingsData.value.dynamicColor
 
+    fun shizukuThrottle(): Boolean = settingsData.value.shizukuThrottle
+
     fun selectedMenu(): NavigationMenu = settingsData.value.selectedMenu
 
     fun findSSIDs(): Set<String> = settingsData.value.filterSsids
@@ -190,6 +192,11 @@ class Settings(
     fun updateDynamicColor(dynamicColor: Boolean) {
         _settingsData.update { it.copy(dynamicColor = dynamicColor) }
         scope.launch { settingsRepository.updateDynamicColor(dynamicColor) }
+    }
+
+    fun updateShizukuThrottle(shizukuThrottle: Boolean) {
+        _settingsData.update { it.copy(shizukuThrottle = shizukuThrottle) }
+        scope.launch { settingsRepository.updateShizukuThrottle(shizukuThrottle) }
     }
 
     fun reset() {

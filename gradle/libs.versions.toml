@@ -21,6 +21,7 @@ androidx-activity = "1.13.0"
 androidx-profileinstaller = "1.4.1"
 vico = "3.2.3"
 kotlinx-serialization = "1.8.0"
+shizuku = "13.1.5"
 
 # Compose
 compose-bom = "2026.08.00"
@@ -52,6 +53,8 @@ vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vi
 vico-compose-m3 = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "vico" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
+shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
 
 # Hilt
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }

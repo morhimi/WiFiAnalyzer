@@ -17,6 +17,7 @@
  */
 package com.vrem.wifianalyzer
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,9 +41,11 @@ import com.vrem.wifianalyzer.permission.PermissionService
 import com.vrem.wifianalyzer.settings.Settings
 import com.vrem.wifianalyzer.settings.ThemeStyle
 import com.vrem.wifianalyzer.wifi.scanner.ScannerService
+import com.vrem.wifianalyzer.wifi.shizuku.WiFiThrottleManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import rikka.shizuku.Shizuku
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -55,6 +58,18 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var scannerService: ScannerService
+
+    @Inject
+    lateinit var wiFiThrottleManager: WiFiThrottleManager
+
+    private val shizukuPermissionListener =
+        Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
+            if (requestCode == WiFiThrottleManager.SHIZUKU_REQUEST_CODE &&
+                grantResult == PackageManager.PERMISSION_GRANTED
+            ) {
+                wiFiThrottleManager.onAppStart()
+            }
+        }
 
     private var showPermissionRationale by mutableStateOf(false)
 
@@ -114,9 +129,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        runCatching { Shizuku.addRequestPermissionResultListener(shizukuPermissionListener) }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                settings.settingsData.collectLatest { _ ->
+                settings.settingsData.collectLatest { settingsData ->
+                    wiFiThrottleManager.onSettingChanged(settingsData.shizukuThrottle)
                     update()
                 }
             }
@@ -142,12 +160,14 @@ class MainActivity : ComponentActivity() {
     }
 
     public override fun onStop() {
+        wiFiThrottleManager.onAppStop()
         scannerService.stop()
         super.onStop()
     }
 
     public override fun onStart() {
         super.onStart()
+        wiFiThrottleManager.onAppStart()
         if (permissionService.permissionGranted()) {
             if (permissionService.locationEnabled()) {
                 scannerService.resume()
@@ -157,5 +177,11 @@ class MainActivity : ComponentActivity() {
         } else {
             showPermissionRationale = true
         }
+    }
+
+    override fun onDestroy() {
+        runCatching { Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener) }
+        wiFiThrottleManager.onAppExit()
+        super.onDestroy()
     }
 }

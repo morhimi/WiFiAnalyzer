@@ -17,6 +17,7 @@
  */
 package com.vrem.wifianalyzer.di
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Configuration
 import android.net.ConnectivityManager
@@ -153,4 +154,26 @@ object AppModule {
     ): com.vrem.wifianalyzer.wifi.gateway.GatewayProvider =
         com.vrem.wifianalyzer.wifi.gateway
             .GatewayProvider(connectivityManager, wifiManager)
+
+    @Provides
+    @Singleton
+    fun provideContentResolver(
+        @ApplicationContext context: Context,
+    ): ContentResolver = context.contentResolver
+
+    @Provides
+    @Singleton
+    fun provideShizukuRunner(
+        runner: com.vrem.wifianalyzer.wifi.shizuku.DefaultShizukuRunner,
+    ): com.vrem.wifianalyzer.wifi.shizuku.ShizukuRunner = runner
+
+    @Provides
+    @Singleton
+    fun provideWiFiThrottleManager(
+        settings: Settings,
+        shizukuRunner: com.vrem.wifianalyzer.wifi.shizuku.ShizukuRunner,
+        contentResolver: ContentResolver,
+    ): com.vrem.wifianalyzer.wifi.shizuku.WiFiThrottleManager =
+        com.vrem.wifianalyzer.wifi.shizuku
+            .WiFiThrottleManager(settings, shizukuRunner, contentResolver)
 }
