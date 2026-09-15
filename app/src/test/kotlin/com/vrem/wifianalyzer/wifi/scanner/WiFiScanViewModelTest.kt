@@ -121,6 +121,11 @@ class WiFiScanViewModelTest {
     }
 
     @Test
+    fun isRefreshingHasInitialValueFalse() {
+        assertThat(fixture.isRefreshing.value).isFalse()
+    }
+
+    @Test
     fun accessPointsUiStateHasInitialValue() {
         assertThat(fixture.accessPointsUiState.value).isEqualTo(AccessPointsUiState())
     }
@@ -142,6 +147,7 @@ class WiFiScanViewModelTest {
             assertThat(state.permissionEnabled).isTrue()
             assertThat(state.wiFiBandAvailable).isTrue()
             assertThat(state.isScanning).isFalse()
+            assertThat(state.isRefreshing).isFalse()
             assertThat(state.wiFiData).isEqualTo(WiFiData.EMPTY)
             job.cancel()
 
@@ -190,6 +196,7 @@ class WiFiScanViewModelTest {
         assertThat(base).isNotEqualTo(AccessPointsUiState(scanThrottleEnabled = true))
         assertThat(base).isNotEqualTo(AccessPointsUiState(permissionEnabled = true))
         assertThat(base).isNotEqualTo(AccessPointsUiState(isScanning = true))
+        assertThat(base).isNotEqualTo(AccessPointsUiState(isRefreshing = true))
         assertThat(base).isNotEqualTo(
             AccessPointsUiState(
                 connectionViewType = com.vrem.wifianalyzer.wifi.accesspoint.ConnectionViewType.COMPLETE,
@@ -219,6 +226,7 @@ class WiFiScanViewModelTest {
             assertThat(state.permissionEnabled).isTrue()
             assertThat(state.wiFiBandAvailable).isTrue()
             assertThat(state.isScanning).isFalse()
+            assertThat(state.isRefreshing).isFalse()
             assertThat(state.wiFiData).isEqualTo(WiFiData.EMPTY)
             job.cancel()
 
@@ -278,6 +286,7 @@ class WiFiScanViewModelTest {
         assertThat(base).isNotEqualTo(ChannelRatingUiState(scanThrottleEnabled = true))
         assertThat(base).isNotEqualTo(ChannelRatingUiState(permissionEnabled = true))
         assertThat(base).isNotEqualTo(ChannelRatingUiState(isScanning = true))
+        assertThat(base).isNotEqualTo(ChannelRatingUiState(isRefreshing = true))
         assertThat(base).isNotEqualTo(
             ChannelRatingUiState(
                 connectionViewType = com.vrem.wifianalyzer.wifi.accesspoint.ConnectionViewType.COMPLETE,
@@ -290,6 +299,22 @@ class WiFiScanViewModelTest {
         // execute
         fixture.update()
         // validate
+        verify(scannerService).update()
+    }
+
+    @Test
+    fun refreshCallsUpdateWhenNotRefreshing() {
+        var isRefreshingDuringUpdate = false
+        whenever(scannerService.update()).thenAnswer {
+            isRefreshingDuringUpdate = fixture.isRefreshing.value
+            fixture.refresh()
+            null
+        }
+
+        fixture.refresh()
+
+        assertThat(isRefreshingDuringUpdate).isTrue()
+        assertThat(fixture.isRefreshing.value).isFalse()
         verify(scannerService).update()
     }
 }

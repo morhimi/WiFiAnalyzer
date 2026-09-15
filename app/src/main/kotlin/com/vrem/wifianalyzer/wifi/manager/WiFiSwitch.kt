@@ -44,14 +44,7 @@ class WiFiSwitch(
 
     fun minVersionQ(): Boolean = buildMinVersionQ()
 
-    private fun enable(enabled: Boolean): Boolean =
-        if (minVersionQ()) enableWiFiAndroidQ() else enableWiFiLegacy(enabled)
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun enableWiFiAndroidQ(): Boolean {
-        startWiFiSettings()
-        return true
-    }
+    private fun enable(enabled: Boolean): Boolean = if (minVersionQ()) false else enableWiFiLegacy(enabled)
 
     @Suppress("DEPRECATION")
     private fun enableWiFiLegacy(enabled: Boolean): Boolean = wifiManager.setWifiEnabled(enabled)

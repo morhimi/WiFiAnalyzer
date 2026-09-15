@@ -35,10 +35,13 @@ import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.predicate.makeAccessPointsPredicate
 import com.vrem.wifianalyzer.wifi.predicate.predicate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AccessPointsUiState(
@@ -50,6 +53,7 @@ class AccessPointsUiState(
     val scanThrottleEnabled: Boolean = false,
     val permissionEnabled: Boolean = false,
     val isScanning: Boolean = false,
+    val isRefreshing: Boolean = false,
     val connectionViewType: ConnectionViewType = ConnectionViewType.COMPACT,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -63,6 +67,7 @@ class AccessPointsUiState(
             scanThrottleEnabled == other.scanThrottleEnabled &&
             permissionEnabled == other.permissionEnabled &&
             isScanning == other.isScanning &&
+            isRefreshing == other.isRefreshing &&
             connectionViewType == other.connectionViewType
     }
 
@@ -75,6 +80,7 @@ class AccessPointsUiState(
         result = 31 * result + scanThrottleEnabled.hashCode()
         result = 31 * result + permissionEnabled.hashCode()
         result = 31 * result + isScanning.hashCode()
+        result = 31 * result + isRefreshing.hashCode()
         result = 31 * result + connectionViewType.hashCode()
         return result
     }
@@ -90,6 +96,7 @@ class ChannelRatingUiState(
     val scanThrottleEnabled: Boolean = false,
     val permissionEnabled: Boolean = false,
     val isScanning: Boolean = false,
+    val isRefreshing: Boolean = false,
     val connectionViewType: ConnectionViewType = ConnectionViewType.COMPACT,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -104,6 +111,7 @@ class ChannelRatingUiState(
             scanThrottleEnabled == other.scanThrottleEnabled &&
             permissionEnabled == other.permissionEnabled &&
             isScanning == other.isScanning &&
+            isRefreshing == other.isRefreshing &&
             connectionViewType == other.connectionViewType
     }
 
@@ -117,6 +125,7 @@ class ChannelRatingUiState(
         result = 31 * result + scanThrottleEnabled.hashCode()
         result = 31 * result + permissionEnabled.hashCode()
         result = 31 * result + isScanning.hashCode()
+        result = 31 * result + isRefreshing.hashCode()
         result = 31 * result + connectionViewType.hashCode()
         return result
     }
@@ -135,6 +144,9 @@ class WiFiScanViewModel
         val isScanning: StateFlow<Boolean> = scannerService.runningFlow
         val settingsData: StateFlow<SettingsData> = settings.settingsData
 
+        private val _isRefreshing = MutableStateFlow(false)
+        val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
         val isScanThrottleEnabled: Boolean
             get() = wiFiManagerWrapper.isScanThrottleEnabled()
 
@@ -148,7 +160,8 @@ class WiFiScanViewModel
                 wiFiData,
                 settingsData,
                 isScanning,
-            ) { wiFiData, settingsData, isScanning ->
+                isRefreshing,
+            ) { wiFiData, settingsData, isScanning, isRefreshing ->
                 val wiFiDetails =
                     wiFiData.wiFiDetails(
                         makeAccessPointsPredicate(settingsData),
@@ -165,6 +178,7 @@ class WiFiScanViewModel
                     scanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
                     permissionEnabled = permissionService.enabled(),
                     isScanning = isScanning,
+                    isRefreshing = isRefreshing,
                     connectionViewType = settingsData.connectionViewType,
                 )
             }.stateIn(
@@ -178,7 +192,8 @@ class WiFiScanViewModel
                 wiFiData,
                 settingsData,
                 isScanning,
-            ) { wiFiData, settingsData, isScanning ->
+                isRefreshing,
+            ) { wiFiData, settingsData, isScanning, isRefreshing ->
                 val wiFiBand = settingsData.wiFiBand
                 val countryCode = settingsData.countryCode
                 val channelRating = ChannelRating()
@@ -201,6 +216,7 @@ class WiFiScanViewModel
                     scanThrottleEnabled = wiFiManagerWrapper.isScanThrottleEnabled(),
                     permissionEnabled = permissionService.enabled(),
                     isScanning = isScanning,
+                    isRefreshing = isRefreshing,
                     connectionViewType = settingsData.connectionViewType,
                 )
             }.stateIn(
@@ -211,5 +227,17 @@ class WiFiScanViewModel
 
         fun update() {
             scannerService.update()
+        }
+
+        fun refresh() {
+            if (_isRefreshing.value) return
+            viewModelScope.launch {
+                _isRefreshing.value = true
+                try {
+                    update()
+                } finally {
+                    _isRefreshing.value = false
+                }
+            }
         }
     }

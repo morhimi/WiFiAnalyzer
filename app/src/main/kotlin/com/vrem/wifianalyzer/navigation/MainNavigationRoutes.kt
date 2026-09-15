@@ -33,7 +33,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -61,9 +60,6 @@ import com.vrem.wifianalyzer.wifi.graphutils.WiFiGraphScreen
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.scanner.WiFiScanViewModel
 import com.vrem.wifianalyzer.wifi.timegraph.TimeGraph
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun AccessPointsRoute(
@@ -71,8 +67,6 @@ fun AccessPointsRoute(
     wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
     val uiState by wiFiScanViewModel.accessPointsUiState.collectAsStateWithLifecycle()
-    var isRefreshing by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     AccessPointsScreen(
         wiFiData = uiState.wiFiData,
@@ -83,16 +77,9 @@ fun AccessPointsRoute(
         scanThrottleEnabled = uiState.scanThrottleEnabled,
         permissionEnabled = uiState.permissionEnabled,
         isScanning = uiState.isScanning,
-        isRefreshing = isRefreshing,
+        isRefreshing = uiState.isRefreshing,
         connectionViewType = uiState.connectionViewType,
-        onRefresh = {
-            scope.launch {
-                isRefreshing = true
-                wiFiScanViewModel.update()
-                delay(1.seconds)
-                isRefreshing = false
-            }
-        },
+        onRefresh = wiFiScanViewModel::refresh,
         onDetailClick = onDetailClick,
     )
 }
@@ -103,8 +90,6 @@ fun ChannelRatingRoute(
     wiFiScanViewModel: WiFiScanViewModel = hiltViewModel(),
 ) {
     val uiState by wiFiScanViewModel.channelRatingUiState.collectAsStateWithLifecycle()
-    var isRefreshing by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     ChannelRatingScreen(
         wiFiData = uiState.wiFiData,
@@ -117,16 +102,9 @@ fun ChannelRatingRoute(
         scanThrottleEnabled = uiState.scanThrottleEnabled,
         permissionEnabled = uiState.permissionEnabled,
         isScanning = uiState.isScanning,
-        isRefreshing = isRefreshing,
+        isRefreshing = uiState.isRefreshing,
         connectionViewType = uiState.connectionViewType,
-        onRefresh = {
-            scope.launch {
-                isRefreshing = true
-                wiFiScanViewModel.update()
-                delay(1.seconds)
-                isRefreshing = false
-            }
-        },
+        onRefresh = wiFiScanViewModel::refresh,
         onDetailClick = onDetailClick,
     )
 }
@@ -157,9 +135,8 @@ fun ChannelGraphRoute(
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
     val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
     val isScanning by wiFiScanViewModel.isScanning.collectAsStateWithLifecycle()
+    val isRefreshing by wiFiScanViewModel.isRefreshing.collectAsStateWithLifecycle()
     val wiFiBand = settingsData.wiFiBand
-    var isRefreshing by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     WiFiGraphScreen(
         wiFiData = wiFiData,
@@ -172,14 +149,7 @@ fun ChannelGraphRoute(
         permissionEnabled = wiFiScanViewModel.isPermissionEnabled,
         isScanning = isScanning,
         isRefreshing = isRefreshing,
-        onRefresh = {
-            scope.launch {
-                isRefreshing = true
-                wiFiScanViewModel.update()
-                delay(1.seconds)
-                isRefreshing = false
-            }
-        },
+        onRefresh = wiFiScanViewModel::refresh,
         onDetailClick = onDetailClick,
     )
 }
@@ -210,9 +180,8 @@ fun TimeGraphRoute(
     val wiFiData by wiFiScanViewModel.wiFiData.collectAsStateWithLifecycle()
     val settingsData by wiFiScanViewModel.settingsData.collectAsStateWithLifecycle()
     val isScanning by wiFiScanViewModel.isScanning.collectAsStateWithLifecycle()
+    val isRefreshing by wiFiScanViewModel.isRefreshing.collectAsStateWithLifecycle()
     val wiFiBand = settingsData.wiFiBand
-    var isRefreshing by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
 
     WiFiGraphScreen(
         wiFiData = wiFiData,
@@ -225,14 +194,7 @@ fun TimeGraphRoute(
         permissionEnabled = wiFiScanViewModel.isPermissionEnabled,
         isScanning = isScanning,
         isRefreshing = isRefreshing,
-        onRefresh = {
-            scope.launch {
-                isRefreshing = true
-                wiFiScanViewModel.update()
-                delay(1.seconds)
-                isRefreshing = false
-            }
-        },
+        onRefresh = wiFiScanViewModel::refresh,
         onDetailClick = onDetailClick,
     )
 }

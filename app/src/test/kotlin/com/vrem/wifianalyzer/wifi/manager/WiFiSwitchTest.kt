@@ -26,9 +26,9 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
-import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
@@ -78,12 +78,23 @@ class WiFiSwitchTest {
     fun onWithAndroidQ() {
         // setup
         doReturn(true).whenever(fixture).minVersionQ()
-        doNothing().whenever(fixture).startWiFiSettings()
         // execute
         val actual = fixture.on()
         // validate
-        assertThat(actual).isTrue
-        verify(fixture).startWiFiSettings()
+        assertThat(actual).isFalse
+        verify(fixture, never()).startWiFiSettings()
+        verify(fixture).minVersionQ()
+    }
+
+    @Test
+    fun offWithAndroidQ() {
+        // setup
+        doReturn(true).whenever(fixture).minVersionQ()
+        // execute
+        val actual = fixture.off()
+        // validate
+        assertThat(actual).isFalse
+        verify(fixture, never()).startWiFiSettings()
         verify(fixture).minVersionQ()
     }
 
