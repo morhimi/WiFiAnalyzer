@@ -71,6 +71,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    private val shizukuBinderReceivedListener =
+        Shizuku.OnBinderReceivedListener {
+            if (settings.shizukuThrottle()) {
+                wiFiThrottleManager.onAppStart()
+            }
+        }
+
     private var showPermissionRationale by mutableStateOf(false)
 
     internal val permissionLauncher =
@@ -129,7 +136,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        runCatching { Shizuku.addRequestPermissionResultListener(shizukuPermissionListener) }
+        runCatching {
+            Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
+            Shizuku.addBinderReceivedListenerSticky(shizukuBinderReceivedListener)
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -180,7 +190,10 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        runCatching { Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener) }
+        runCatching {
+            Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener)
+            Shizuku.removeBinderReceivedListener(shizukuBinderReceivedListener)
+        }
         wiFiThrottleManager.onAppExit()
         super.onDestroy()
     }
