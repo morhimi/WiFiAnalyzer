@@ -17,9 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.model
 
+import android.content.Context
 import android.os.Build
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.RobolectricUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +29,7 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class WiFiSignalExtraTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
+    private val context: Context = ApplicationProvider.getApplicationContext()
     private val fixture: WiFiSignalExtra = WiFiSignalExtra(true, WiFiStandard.AC, FastRoaming.entries.toList())
 
     @Test
@@ -44,7 +45,7 @@ class WiFiSignalExtraTest {
         // setup
         val expected = "802.11ac"
         // execute
-        val actual = fixture.wiFiStandardDisplay(mainActivity.applicationContext)
+        val actual = fixture.wiFiStandardDisplay(context)
         // validate
         assertThat(actual).isEqualTo(expected)
     }
@@ -54,7 +55,7 @@ class WiFiSignalExtraTest {
         // setup
         val expected = "802.11k 802.11r 802.11v OKC"
         // execute
-        val actual = fixture.fastRoamingDisplay(mainActivity.applicationContext)
+        val actual = fixture.fastRoamingDisplay(context)
         // validate
         assertThat(actual).isEqualTo(expected)
     }
@@ -65,7 +66,7 @@ class WiFiSignalExtraTest {
         val fixture = WiFiSignalExtra(fastRoaming = listOf(FastRoaming.FR_802_11R))
         val expected = "802.11r"
         // execute
-        val actual = fixture.fastRoamingDisplay(mainActivity.applicationContext)
+        val actual = fixture.fastRoamingDisplay(context)
         // validate
         assertThat(actual).isEqualTo(expected)
     }
@@ -76,7 +77,7 @@ class WiFiSignalExtraTest {
         val fixture = WiFiSignalExtra(fastRoaming = emptyList())
         val expected = ""
         // execute
-        val actual = fixture.fastRoamingDisplay(mainActivity.applicationContext)
+        val actual = fixture.fastRoamingDisplay(context)
         // validate
         assertThat(actual).isEqualTo(expected)
     }
@@ -87,7 +88,7 @@ class WiFiSignalExtraTest {
         val fixture = WiFiSignalExtra(fastRoaming = listOf(FastRoaming.FR_802_11R, FastRoaming.FR_802_11R))
         val expected = "802.11r 802.11r"
         // execute
-        val actual = fixture.fastRoamingDisplay(mainActivity.applicationContext)
+        val actual = fixture.fastRoamingDisplay(context)
         // validate
         assertThat(actual).isEqualTo(expected)
     }

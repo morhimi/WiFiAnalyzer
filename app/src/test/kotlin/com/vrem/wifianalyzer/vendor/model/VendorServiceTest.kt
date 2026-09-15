@@ -17,9 +17,10 @@
  */
 package com.vrem.wifianalyzer.vendor.model
 
+import android.content.Context
 import android.os.Build
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.RobolectricUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,8 +45,8 @@ class VendorServiceTest {
     private val expectedMac2 = "FC:FB:FB"
     private val expectedMac3 = "2C:86:D2"
 
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
-    private val fixture = VendorService(mainActivity.resources)
+    private val context: Context = ApplicationProvider.getApplicationContext()
+    private val fixture = VendorService(context.resources)
 
     @Test
     fun findVendorNameUsingLowerCase() {

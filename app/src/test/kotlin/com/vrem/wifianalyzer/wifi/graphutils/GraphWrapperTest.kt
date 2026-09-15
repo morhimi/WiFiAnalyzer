@@ -21,7 +21,6 @@ import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
-import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.wifi.model.WiFiAdditional
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
@@ -47,11 +46,10 @@ import java.util.AbstractMap.SimpleEntry
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class GraphWrapperTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
     private val seriesCache: SeriesCache = mock()
     private val seriesLabel: SeriesLabel = mock()
     private val chartUpdater: ChartUpdater = mock()
-    private val graphColors: GraphColors = GraphColors(mainActivity)
+    private val graphColors: GraphColors = GraphColors()
     private val seriesData: SeriesData = SeriesData()
     private val dataPoint: DataPoint = DataPoint(1, 2)
     private val wiFiDetail = WiFiDetail.EMPTY

@@ -17,9 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
+import android.content.Context
 import android.os.Build
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -29,7 +30,7 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class ChannelGraphFactoryTest {
-    private val context = RobolectricUtil.INSTANCE.activity
+    private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
     fun makeGraphWrapper() {

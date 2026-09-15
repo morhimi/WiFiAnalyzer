@@ -17,6 +17,7 @@
  */
 package com.vrem.wifianalyzer.wifi.channelgraph
 
+import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
@@ -25,8 +26,8 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.RobolectricUtil
 import com.vrem.wifianalyzer.settings.SettingsData
 import com.vrem.wifianalyzer.wifi.band.WiFiBand
 import com.vrem.wifianalyzer.wifi.model.WiFiData
@@ -47,7 +48,7 @@ class ChannelGraphComposableTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val activity = RobolectricUtil.INSTANCE.activity
+    private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
     fun tappingOnChannelGraphInvokesOnShowWiFiDetails() {
@@ -55,7 +56,7 @@ class ChannelGraphComposableTest {
         val channelGraph =
             ChannelGraph(
                 wiFiBand = WiFiBand.GHZ2,
-                context = activity,
+                context = context,
                 onShowWiFiDetails = { capturedDetails = it },
             )
         val wiFiDetail =

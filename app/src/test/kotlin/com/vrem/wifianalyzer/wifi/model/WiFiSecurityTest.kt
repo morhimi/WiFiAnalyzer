@@ -17,9 +17,10 @@
  */
 package com.vrem.wifianalyzer.wifi.model
 
+import android.content.Context
 import android.os.Build
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.vrem.wifianalyzer.RobolectricUtil
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +29,7 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.BAKLAVA])
 class WiFiSecurityTest {
-    private val mainActivity = RobolectricUtil.INSTANCE.activity
+    private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
     fun wiFiSecurityTypes() {
@@ -48,7 +49,7 @@ class WiFiSecurityTest {
         val expected =
             "[DPP EAP OPEN OSEN PASSPOINT_R1_R2 PASSPOINT_R3 PSK WAPI_CERT WAPI_PSK WEP EAP_WPA3_ENTERPRISE EAP_WPA3_ENTERPRISE_192_BIT OWE SAE]"
         // execute
-        val actual = fixture.wiFiSecurityTypesDisplay(mainActivity.applicationContext)
+        val actual = fixture.wiFiSecurityTypesDisplay(context)
         // validate
         assertThat(actual).isEqualTo(expected)
     }
